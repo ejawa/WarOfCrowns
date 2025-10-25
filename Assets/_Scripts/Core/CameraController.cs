@@ -1,24 +1,24 @@
 using UnityEngine;
+using UnityEngine.InputSystem; // <-- ВАЖНО: Мы подключаем новую систему ввода
 
 namespace WarOfCrowns.Core
 {
     /// <summary>
-    /// Manages camera movement and zoom in an RTS style.
+    /// Manages camera movement and zoom using the new Input System.
     /// </summary>
     public class CameraController : MonoBehaviour
     {
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 50f;
-        [SerializeField] private float edgePanThreshold = 20f; // Screen edge thickness for panning
+        [SerializeField] private float edgePanThreshold = 20f;
 
         [Header("Zoom Settings")]
-        [SerializeField] private float zoomSpeed = 20f;
         [SerializeField] private float minZoomSize = 5f;
         [SerializeField] private float maxZoomSize = 50f;
+        [SerializeField] private float zoomStep = 2f; // How much each scroll tick zooms
 
         private Camera _mainCamera;
 
-        // Caching for performance to avoid calling GetComponent every frame
         private void Awake()
         {
             _mainCamera = GetComponent<Camera>();
@@ -30,59 +30,73 @@ namespace WarOfCrowns.Core
             HandleZoom();
         }
 
-        /// <summary>
-        /// Handles camera panning via keyboard input (WASD/Arrows) and screen edge.
-        /// </summary>
         private void HandleMovement()
         {
-            // Vector3 is used because transform.position is a Vector3
-            Vector3 inputDirection = Vector3.zero;
+            Vector2 inputDirection = Vector2.zero;
 
-            // Keyboard input uses the legacy Input Manager axes by default
-            inputDirection.x = Input.GetAxis("Horizontal"); // A/D or Left/Right arrows
-            inputDirection.y = Input.GetAxis("Vertical");   // W/S or Up/Down arrows
+            // Keyboard input using the new Input System
+            var keyboard = Keyboard.current;
+            if (keyboard == null) return; // Guard clause in case there's no keyboard
 
-            // Mouse edge panning
-            if (Input.mousePosition.x < edgePanThreshold)
+            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
+            {
+                inputDirection.y += 1;
+            }
+            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
+            {
+                inputDirection.y -= 1;
+            }
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
             {
                 inputDirection.x -= 1;
             }
-            else if (Input.mousePosition.x > Screen.width - edgePanThreshold)
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
             {
                 inputDirection.x += 1;
             }
 
-            if (Input.mousePosition.y < edgePanThreshold)
+            // Mouse edge panning using the new Input System
+            var mouse = Mouse.current;
+            if (mouse != null)
             {
-                inputDirection.y -= 1;
-            }
-            else if (Input.mousePosition.y > Screen.height - edgePanThreshold)
-            {
-                inputDirection.y += 1;
+                Vector2 mousePosition = mouse.position.ReadValue();
+                if (mousePosition.x < edgePanThreshold)
+                {
+                    inputDirection.x -= 1;
+                }
+                else if (mousePosition.x > Screen.width - edgePanThreshold)
+                {
+                    inputDirection.x += 1;
+                }
+
+                if (mousePosition.y < edgePanThreshold)
+                {
+                    inputDirection.y -= 1;
+                }
+                else if (mousePosition.y > Screen.height - edgePanThreshold)
+                {
+                    inputDirection.y += 1;
+                }
             }
 
             // Apply movement
-            // We use transform.up and transform.right to ensure movement is relative to the camera's orientation (though it's fixed in 2D)
-            // Time.deltaTime makes the movement frame-rate independent
             Vector3 moveDirection = transform.up * inputDirection.y + transform.right * inputDirection.x;
             transform.position += moveDirection.normalized * (moveSpeed * Time.deltaTime);
         }
 
-        /// <summary>
-        /// Handles camera zooming via mouse scroll wheel.
-        /// </summary>
         private void HandleZoom()
         {
-            // Input.mouseScrollDelta.y gives a positive value for scrolling up/forward and negative for down/backward
-            float scrollInput = Input.mouseScrollDelta.y;
+            var mouse = Mouse.current;
+            if (mouse == null) return;
 
-            // We check for a small value to avoid floating point inaccuracies
-            if (Mathf.Abs(scrollInput) > 0.01f)
+            float scrollValue = mouse.scroll.ReadValue().y;
+
+            if (Mathf.Abs(scrollValue) > 0.1f)
             {
-                // For an orthographic camera, zooming is changing the 'orthographicSize'
-                float newSize = _mainCamera.orthographicSize - scrollInput * zoomSpeed;
+                // Normalize scroll value to be either +1 or -1
+                float direction = Mathf.Sign(scrollValue);
 
-                // Mathf.Clamp prevents the zoom from going beyond our defined min/max values
+                float newSize = _mainCamera.orthographicSize - direction * zoomStep;
                 _mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoomSize, maxZoomSize);
             }
         }
