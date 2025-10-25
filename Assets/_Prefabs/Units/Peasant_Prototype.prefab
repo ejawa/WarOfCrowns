@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3579037899330058002}
   - component: {fileID: 7491681904076585567}
+  - component: {fileID: -2588988888445198412}
   - component: {fileID: 4986214059639831926}
   - component: {fileID: 1526726366717327214}
   - component: {fileID: 1566063169048990585}
@@ -137,6 +138,18 @@ MonoBehaviour:
   gatherDistance: 2
   gatherRate: 1
   gatherAmount: 10
+--- !u!114 &-2588988888445198412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276777165091647620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3465992dfb5aa24797202fd2f528978, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &4986214059639831926
 SpriteRenderer:
   m_ObjectHideFlags: 0

@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using WarOfCrowns.Units;
-using WarOfCrowns.World; // <-- Added this
+using WarOfCrowns.World;
+using WarOfCrowns.Buildings; // <-- Äîáàâèëè using äëÿ çäàíèé
 
 namespace WarOfCrowns.Core
 {
@@ -9,7 +10,8 @@ namespace WarOfCrowns.Core
     {
         [SerializeField] private LayerMask unitLayerMask;
         [SerializeField] private LayerMask groundLayerMask;
-        [SerializeField] private LayerMask resourceLayerMask; // <-- Added this
+        [SerializeField] private LayerMask resourceLayerMask;
+        [SerializeField] private LayerMask constructionLayerMask; // <-- Äîáàâèëè LayerMask äëÿ ñòğîéêè
 
         private Camera _mainCamera;
         private Unit _selectedUnit;
@@ -38,34 +40,37 @@ namespace WarOfCrowns.Core
 
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-            // Check if we clicked on a resource
+            // --- ÂÎÒ ÒÀ ÑÀÌÀß ËÎÃÈÊÀ ---
+
+            // 1. ÏĞÎÂÅĞßÅÌ, ÍÅ ÊËÈÊÍÓËÈ ËÈ ÌÛ ÍÀ ÑÒĞÎÉÊÓ
+            RaycastHit2D constructionHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
+            if (constructionHit.collider != null && constructionHit.collider.TryGetComponent<ConstructionSite>(out var site))
+            {
+                if (_selectedUnit.TryGetComponent<UnitBuilder>(out var builder))
+                {
+                    builder.SetTarget(site);
+                    return; // Íàøëè çàäà÷ó, âûõîäèì
+                }
+            }
+
+            // 2. ÅÑËÈ ÍÅÒ, ÏĞÎÂÅĞßÅÌ, ÍÅ ÊËÈÊÍÓËÈ ËÈ ÌÛ ÍÀ ĞÅÑÓĞÑ
             RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
             if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out var resourceNode))
             {
-                // If we did, command the unit to gather
                 if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer))
                 {
                     gatherer.SetTarget(resourceNode);
+                    return; // Íàøëè çàäà÷ó, âûõîäèì
                 }
             }
-            else
+
+            // 3. ÅÑËÈ È İÒÎ ÍÅÒ, ÇÍÀ×ÈÒ, İÒÎ ÊÎÌÀÍÄÀ ÄÂÈÆÅÍÈß
+            RaycastHit2D groundHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, groundLayerMask);
+            if (groundHit.collider != null)
             {
-                // If not, it's a simple move command
                 if (_selectedUnit.TryGetComponent<UnitMotor>(out var unitMotor))
                 {
-                    // We stop the gatherer if we give a move command
-                    if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer))
-                    {
-                        // This is not implemented yet, but good to have in mind for later
-                        // gatherer.StopGathering(); 
-                    }
-
-                    // Here we need to make sure we hit the ground, otherwise the unit will move to a random Z
-                    RaycastHit2D groundHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, groundLayerMask);
-                    if (groundHit.collider != null)
-                    {
-                        unitMotor.MoveTo(groundHit.point);
-                    }
+                    unitMotor.MoveTo(groundHit.point);
                 }
             }
         }
