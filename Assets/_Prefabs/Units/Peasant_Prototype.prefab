@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4321365577066962244}
   - component: {fileID: 4070013817666897839}
-  m_Layer: 8
+  m_Layer: 9
   m_Name: SelectionIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,11 +93,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3579037899330058002}
+  - component: {fileID: 7491681904076585567}
   - component: {fileID: 4986214059639831926}
   - component: {fileID: 1526726366717327214}
   - component: {fileID: 1566063169048990585}
   - component: {fileID: 6716821110792711960}
-  m_Layer: 8
+  - component: {fileID: -6850484479557729173}
+  m_Layer: 9
   m_Name: Peasant_Prototype
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -120,6 +122,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7491681904076585567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276777165091647620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f282bf377b143b4789e6f0dc97d7d50, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gatherDistance: 2
+  gatherRate: 1
+  gatherAmount: 10
 --- !u!212 &4986214059639831926
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -158,8 +175,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1529874477
+  m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -209,6 +226,19 @@ SortingGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7276777165091647620}
   m_Enabled: 1
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1529874477
+  m_SortingLayer: 4
   m_SortingOrder: 0
+--- !u!114 &-6850484479557729173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276777165091647620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 230d1ad8c3b2f894589a42900594aac8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectionIndicator: {fileID: 2547856546734986452}

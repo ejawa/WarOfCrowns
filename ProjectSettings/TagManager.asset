@@ -16,7 +16,7 @@ TagManager:
   - Ground
   - Units
   - Resources
-  - 
+  - Buildings
   - 
   - 
   - 
@@ -46,6 +46,9 @@ TagManager:
     locked: 0
   - name: Resources
     uniqueID: 931547131
+    locked: 0
+  - name: Buildings
+    uniqueID: 448897709
     locked: 0
   - name: Units
     uniqueID: 1529874477
