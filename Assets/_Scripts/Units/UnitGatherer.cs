@@ -12,9 +12,9 @@ namespace WarOfCrowns.Units
         private ResourceNode _currentTarget;
         private Coroutine _gatherCoroutine;
 
-        [SerializeField] private float gatherDistance = 2f;  // How close the unit needs to be to gather
-        [SerializeField] private float gatherRate = 1f;      // Seconds per gather tick
-        [SerializeField] private int gatherAmount = 10;      // Amount gathered per tick
+        [SerializeField] private float gatherDistance = 2f;
+        [SerializeField] private float gatherRate = 1f;
+        [SerializeField] private int gatherAmountPerTick = 10;
 
         private void Awake()
         {
@@ -23,43 +23,45 @@ namespace WarOfCrowns.Units
 
         public void SetTarget(ResourceNode resourceNode)
         {
+            StopGathering(); // Всегда останавливаем предыдущую задачу
             _currentTarget = resourceNode;
+            _gatherCoroutine = StartCoroutine(GatherRoutine());
+        }
 
-            // Stop any previous gathering
+        public void StopGathering()
+        {
             if (_gatherCoroutine != null)
             {
                 StopCoroutine(_gatherCoroutine);
+                _gatherCoroutine = null;
             }
-
-            _gatherCoroutine = StartCoroutine(GatherRoutine());
         }
 
         private IEnumerator GatherRoutine()
         {
-            // Step 1: Move to the target
+            if (_currentTarget == null) yield break;
+
             _motor.MoveTo(_currentTarget.transform.position);
 
-            // Step 2: Wait until we are close enough
             while (Vector3.Distance(transform.position, _currentTarget.transform.position) > gatherDistance)
             {
-                yield return null; // Wait for the next frame
+                if (_currentTarget == null) yield break;
+                yield return null;
             }
 
-            // We have arrived, stop moving
-            _motor.MoveTo(transform.position); // Command to stop
+            _motor.MoveTo(transform.position); // Stop moving
 
-            // Step 3: Start gathering in a loop until the resource is depleted or we get a new order
-            while (_currentTarget != null && _currentTarget.amount > 0)
+            while (_currentTarget != null && _currentTarget.currentAmount > 0)
             {
-                yield return new WaitForSeconds(gatherRate); // Wait for gather time
-
-                ResourceManager.Instance.AddResource(_currentTarget.resourceType, gatherAmount);
-                _currentTarget.amount -= gatherAmount;
-
-                // Optional: Destroy the node when it's empty
-                if (_currentTarget.amount <= 0)
+                yield return new WaitForSeconds(gatherRate);
+                int gatheredAmount = _currentTarget.Gather(gatherAmountPerTick);
+                if (gatheredAmount > 0)
                 {
-                    Destroy(_currentTarget.gameObject);
+                    ResourceManager.Instance.AddResource(_currentTarget.resourceType, gatheredAmount);
+                }
+                else
+                {
+                    yield break;
                 }
             }
         }

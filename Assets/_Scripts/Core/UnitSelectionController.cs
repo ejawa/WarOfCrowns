@@ -40,31 +40,23 @@ namespace WarOfCrowns.Core
 
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-            // --- ВОТ ТА САМАЯ ЛОГИКА ---
+            var gatherer = _selectedUnit.GetComponent<UnitGatherer>();
 
-            // 1. ПРОВЕРЯЕМ, НЕ КЛИКНУЛИ ЛИ МЫ НА СТРОЙКУ
-            RaycastHit2D constructionHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
-            if (constructionHit.collider != null && constructionHit.collider.TryGetComponent<ConstructionSite>(out var site))
-            {
-                if (_selectedUnit.TryGetComponent<UnitBuilder>(out var builder))
-                {
-                    builder.SetTarget(site);
-                    return; // Нашли задачу, выходим
-                }
-            }
+            // Priority 1: Construction (мы пока это не трогаем)
+            // ...
 
-            // 2. ЕСЛИ НЕТ, ПРОВЕРЯЕМ, НЕ КЛИКНУЛИ ЛИ МЫ НА РЕСУРС
+            // Priority 2: Resources
             RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
             if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out var resourceNode))
             {
-                if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer))
-                {
-                    gatherer.SetTarget(resourceNode);
-                    return; // Нашли задачу, выходим
-                }
+                gatherer?.SetTarget(resourceNode);
+                return;
             }
 
-            // 3. ЕСЛИ И ЭТО НЕТ, ЗНАЧИТ, ЭТО КОМАНДА ДВИЖЕНИЯ
+            // --- ПРИОРИТЕТ 3: Движение (отменяет все) ---
+            // Если мы дошли до сюда, значит, это приказ на движение
+            gatherer?.StopGathering(); // <-- ГЛАВНАЯ КОМАНДА ОСТАНОВКИ
+
             RaycastHit2D groundHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, groundLayerMask);
             if (groundHit.collider != null)
             {
