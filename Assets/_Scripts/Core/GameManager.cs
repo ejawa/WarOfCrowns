@@ -1,6 +1,7 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // <-- ÏÎÄÊËÞ×ÀÅÌ ÍÎÂÓÞ ÑÈÑÒÅÌÓ
+using UnityEngine.InputSystem;
 using WarOfCrowns.Buildings;
+using WarOfCrowns.Core;
 
 namespace WarOfCrowns.Core
 {
@@ -21,21 +22,19 @@ namespace WarOfCrowns.Core
         [SerializeField] private float setupTime = 60f;
         [SerializeField] private int startingPeasants = 10;
 
+        [Header("UI References")]
+        [SerializeField] private GameObject townHallUIPanel;
+
         private GameObject _currentGhost;
         private float _timer;
-        private Camera _mainCamera; // <-- Êýøèðóåì êàìåðó
+        private Camera _mainCamera;
 
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-            }
-            else
-            {
-                Instance = this;
-                _mainCamera = Camera.main; // <-- Íàõîäèì êàìåðó îäèí ðàç
-            }
+            if (Instance != null && Instance != this) Destroy(gameObject);
+            else Instance = this;
+
+            _mainCamera = Camera.main;
         }
 
         private void Start()
@@ -56,29 +55,18 @@ namespace WarOfCrowns.Core
             CurrentState = GameState.Setup;
             _timer = setupTime;
             _currentGhost = Instantiate(townHallGhostPrefab, Vector3.zero, Quaternion.identity);
-            Debug.Log("Setup phase started. Choose a location for your Town Hall.");
         }
 
         private void UpdateSetupPhase()
         {
-            // ÏÐÀÂÈËÜÍÛÉ ÑÏÎÑÎÁ ÏÎËÓ×ÅÍÈß ÏÎÇÈÖÈÈ ÌÛØÈ
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
             Vector3 mouseWorldPos = _mainCamera.ScreenToWorldPoint(mouseScreenPos);
             mouseWorldPos.z = 0;
             _currentGhost.transform.position = mouseWorldPos;
 
-            // Countdown timer
             _timer -= Time.deltaTime;
-            if (_timer <= 0)
-            {
-                PlaceTownHall();
-            }
-
-            // ÏÐÀÂÈËÜÍÛÉ ÑÏÎÑÎÁ ÏÐÎÂÅÐÊÈ ÊËÈÊÀ
-            if (Mouse.current.leftButton.wasPressedThisFrame)
-            {
-                PlaceTownHall();
-            }
+            if (_timer <= 0) PlaceTownHall();
+            if (Mouse.current.leftButton.wasPressedThisFrame) PlaceTownHall();
         }
 
         private void PlaceTownHall()
@@ -86,10 +74,21 @@ namespace WarOfCrowns.Core
             if (CurrentState != GameState.Setup) return;
 
             Vector3 placementPosition = _currentGhost.transform.position;
-            Instantiate(townHallPrefab, placementPosition, Quaternion.identity);
+            GameObject townHallInstance = Instantiate(townHallPrefab, placementPosition, Quaternion.identity);
+
+            if (townHallInstance.TryGetComponent<SelectableBuilding>(out var selectable))
+            {
+                if (townHallUIPanel != null)
+                {
+                    selectable.SetSelectionUI(townHallUIPanel);
+                }
+                else
+                {
+                    Debug.LogError("CRITICAL: Town Hall UI Panel is NOT ASSIGNED in GameManager's inspector!");
+                }
+            }
 
             Destroy(_currentGhost);
-
             StartGamePhase(placementPosition);
         }
 
@@ -97,6 +96,11 @@ namespace WarOfCrowns.Core
         {
             CurrentState = GameState.Playing;
             Debug.Log("Game has started!");
+
+            if (PopulationManager.Instance != null)
+            {
+                PopulationManager.Instance.SetInitialPopulation(0, 10);
+            }
 
             for (int i = 0; i < startingPeasants; i++)
             {

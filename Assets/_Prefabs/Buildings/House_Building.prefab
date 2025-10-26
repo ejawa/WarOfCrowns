@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6002385215944607171}
   - component: {fileID: 3016066723199030018}
+  - component: {fileID: 667018997232406205}
   - component: {fileID: 4779010533063942166}
   m_Layer: 12
   m_Name: House_Building
@@ -85,6 +86,19 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &667018997232406205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886570710630532225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f338d24219ddf47bd74a509dad2eb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  populationBonus: 5
 --- !u!61 &4779010533063942166
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -99,7 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _buildTime: 10
-  _finishedBuildingPrefab: {fileID: 7547368926998280475, guid: a722a6bad797a6d43a54597927955a11, type: 3}
+  _finishedBuildingPrefab: {fileID: 8886570710630532225, guid: cd94dc914e9537d46847b2ef5a0ed2d8, type: 3}
 --- !u!61 &29831252570784574
 BoxCollider2D:
   m_ObjectHideFlags: 0
