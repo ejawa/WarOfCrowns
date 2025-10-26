@@ -159,8 +159,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -175.8, y: 348.91}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: -583.1, y: 303.2}
+  m_SizeDelta: {x: 108.8, y: 30.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &37350370
 MonoBehaviour:
@@ -206,7 +206,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1582822087}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: WarOfCrowns.Core.BuildManager, Assembly-CSharp
         m_MethodName: EnterBuildMode
         m_Mode: 1
@@ -265,7 +265,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -592,8 +592,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 889, y: -163.26}
-  m_SizeDelta: {x: 571.04, y: 87.08}
+  m_AnchoredPosition: {x: 323.6, y: -192.2}
+  m_SizeDelta: {x: 160, y: 90}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &679222188
 MonoBehaviour:
@@ -655,8 +655,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 61.23
-  m_fontSizeBase: 61.23
+  m_fontSize: 27
+  m_fontSizeBase: 27
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -714,7 +714,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -771,7 +771,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -828,7 +828,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -963,7 +963,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 1936210736019650098, guid: bd8efc90883d52c488b5a3e0d2515466, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1069,7 +1069,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: Built
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1155,7 +1155,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1344,7 +1344,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 323.6, y: -163.26}
-  m_SizeDelta: {x: 571.04, y: 87.08}
+  m_SizeDelta: {x: 160, y: 90}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1326642159
 MonoBehaviour:
@@ -1406,8 +1406,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 61.23
-  m_fontSizeBase: 61.23
+  m_fontSize: 27
+  m_fontSizeBase: 27
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1524,7 +1524,6 @@ GameObject:
   - component: {fileID: 1582822085}
   - component: {fileID: 1582822084}
   - component: {fileID: 1582822086}
-  - component: {fileID: 1582822087}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1576,19 +1575,6 @@ MonoBehaviour:
   peasantPrefab: {fileID: 7276777165091647620, guid: a1629b68f6b3f8a4d9929774e6af6936, type: 3}
   setupTime: 60
   startingPeasants: 10
---- !u!114 &1582822087
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1582822083}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09e4769a8dfc7484d912dfd03b26a431, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  houseFoundationPrefab: {fileID: 5761551773704150935, guid: 06b43b4377d876b49ab8c642c8113c98, type: 3}
 --- !u!1 &1670151060
 GameObject:
   m_ObjectHideFlags: 0
@@ -1709,7 +1695,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1766,7 +1752,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 609023863836816756, guid: 029b16b8a8f17ba4db635d345d576f52, type: 3}
       propertyPath: m_LocalPosition.x

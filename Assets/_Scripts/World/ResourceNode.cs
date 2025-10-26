@@ -50,12 +50,16 @@ namespace WarOfCrowns.World
         {
             switch (depletionBehaviour)
             {
-                // ... (Destroy case is the same)
+                // --- ÂÎÒ ÈÑÏĞÀÂËÅÍÈÅ ---
+                case DepletionBehaviour.Destroy:
+                    Destroy(gameObject); // Ïğîñòî óíè÷òîæàåì îáúåêò
+                    break;
+                // --- ÊÎÍÅÖ ÈÑÏĞÀÂËÅÍÈß ---
+
                 case DepletionBehaviour.Respawn:
                     if (depletedPrefab != null && !string.IsNullOrEmpty(prefabNameInResources))
                     {
                         GameObject depletedObject = Instantiate(depletedPrefab, transform.position, transform.rotation);
-                        // --- ÈÇÌÅÍÅÍÈÅ ÇÄÅÑÜ ---
                         depletedObject.AddComponent<RespawnController>().StartRespawning(prefabNameInResources, respawnTime);
                     }
                     Destroy(gameObject);
