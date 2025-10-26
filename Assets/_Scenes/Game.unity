@@ -135,7 +135,7 @@ GameObject:
   - component: {fileID: 37350371}
   - component: {fileID: 37350370}
   m_Layer: 5
-  m_Name: Build
+  m_Name: BuildHouseButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -157,10 +157,10 @@ RectTransform:
   m_Father: {fileID: 1026666422}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -583.1, y: 303.2}
-  m_SizeDelta: {x: 108.8, y: 30.6}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 73, y: -258}
+  m_SizeDelta: {x: 144.4, y: 51.6}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &37350370
 MonoBehaviour:
@@ -206,8 +206,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: WarOfCrowns.Core.BuildManager, Assembly-CSharp
+      - m_Target: {fileID: 1582822087}
+        m_TargetAssemblyTypeName: BuildManager, Assembly-CSharp
         m_MethodName: EnterBuildMode
         m_Mode: 1
         m_Arguments:
@@ -592,7 +592,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 323.6, y: -192.2}
+  m_AnchoredPosition: {x: 0, y: -131}
   m_SizeDelta: {x: 160, y: 90}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &679222188
@@ -655,8 +655,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27
-  m_fontSizeBase: 27
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1281,7 +1281,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 0
+  m_SortingLayerID: 1791207277
   m_SortingOrder: 0
   m_TargetDisplay: 0
 --- !u!224 &1026666422
@@ -1343,7 +1343,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 323.6, y: -163.26}
+  m_AnchoredPosition: {x: 0, y: -27.289917}
   m_SizeDelta: {x: 160, y: 90}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1326642159
@@ -1406,8 +1406,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27
-  m_fontSizeBase: 27
+  m_fontSize: 50
+  m_fontSizeBase: 50
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1524,6 +1524,7 @@ GameObject:
   - component: {fileID: 1582822085}
   - component: {fileID: 1582822084}
   - component: {fileID: 1582822086}
+  - component: {fileID: 1582822087}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1575,6 +1576,19 @@ MonoBehaviour:
   peasantPrefab: {fileID: 7276777165091647620, guid: a1629b68f6b3f8a4d9929774e6af6936, type: 3}
   setupTime: 60
   startingPeasants: 10
+--- !u!114 &1582822087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582822083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 431e3e93da56e0946977e294749e7c80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  houseFoundationPrefab: {fileID: 6577582433726066853, guid: 06b43b4377d876b49ab8c642c8113c98, type: 3}
 --- !u!1 &1670151060
 GameObject:
   m_ObjectHideFlags: 0

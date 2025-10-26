@@ -4,6 +4,7 @@ using WarOfCrowns.Units;
 using WarOfCrowns.World;
 using WarOfCrowns.Buildings; // <-- Добавили using для зданий
 
+
 namespace WarOfCrowns.Core
 {
     public class UnitSelectionController : MonoBehaviour
@@ -37,31 +38,49 @@ namespace WarOfCrowns.Core
         private void HandleRightClick()
         {
             if (!Mouse.current.rightButton.wasPressedThisFrame || _selectedUnit == null) return;
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
 
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-            var gatherer = _selectedUnit.GetComponent<UnitGatherer>();
+            // --- НАЧИНАЕМ ПРОВЕРКУ ---
+            Debug.Log("Right Click Detected. Checking for targets...");
 
-            // Priority 1: Construction (мы пока это не трогаем)
-            // ...
-
-            // Priority 2: Resources
-            RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
-            if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out var resourceNode))
+            RaycastHit2D constructionHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
+            if (constructionHit.collider != null)
             {
-                gatherer?.SetTarget(resourceNode);
-                return;
+                Debug.Log($"Hit '{constructionHit.collider.name}' on Construction layer!");
+                if (constructionHit.collider.TryGetComponent<ConstructionSite>(out var site))
+                {
+                    if (_selectedUnit.TryGetComponent<UnitBuilder>(out var builder))
+                    {
+                        builder.SetTarget(site);
+                        return;
+                    }
+                }
             }
 
-            // --- ПРИОРИТЕТ 3: Движение (отменяет все) ---
-            // Если мы дошли до сюда, значит, это приказ на движение
-            gatherer?.StopGathering(); // <-- ГЛАВНАЯ КОМАНДА ОСТАНОВКИ
+            RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
+            if (resourceHit.collider != null)
+            {
+                Debug.Log($"Hit '{resourceHit.collider.name}' on Resource layer!");
+                if (resourceHit.collider.TryGetComponent<ResourceNode>(out var resourceNode))
+                {
+                    if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer))
+                    {
+                        gatherer.SetTarget(resourceNode);
+                        return;
+                    }
+                }
+            }
 
             RaycastHit2D groundHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, groundLayerMask);
             if (groundHit.collider != null)
             {
+                Debug.Log("Hit Ground. Issuing MOVE command.");
                 if (_selectedUnit.TryGetComponent<UnitMotor>(out var unitMotor))
                 {
+                    if (_selectedUnit.TryGetComponent<UnitBuilder>(out var builder)) builder.Cancel();
+                    if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer)) gatherer.StopGathering();
                     unitMotor.MoveTo(groundHit.point);
                 }
             }
