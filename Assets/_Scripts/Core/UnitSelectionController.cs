@@ -13,6 +13,7 @@ namespace WarOfCrowns.Core
         [SerializeField] private LayerMask groundLayerMask;
         [SerializeField] private LayerMask resourceLayerMask;
         [SerializeField] private LayerMask constructionLayerMask;
+        [SerializeField] private LayerMask enemiesLayerMask;
 
         private Camera _mainCamera;
         private Unit _selectedUnit;
@@ -73,11 +74,23 @@ namespace WarOfCrowns.Core
 
         private void HandleRightClick()
         {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
             if (!Mouse.current.rightButton.wasPressedThisFrame || _selectedUnit == null) return;
+            if (EventSystem.current.IsPointerOverGameObject()) return;
 
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
+            // œ–»Œ–»“≈“ 1: ¿“¿ ¿
+            RaycastHit2D enemyHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, enemiesLayerMask);
+            if (enemyHit.collider != null && enemyHit.collider.TryGetComponent<Health>(out var enemyHealth))
+            {
+                if (_selectedUnit.TryGetComponent<Fighter>(out var fighter))
+                {
+                    fighter.Attack(enemyHealth);
+                    return;
+                }
+            }
+
+            // œ–»Œ–»“≈“ 2: —“–Œ»“≈À‹—“¬Œ
             RaycastHit2D constructionHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
             if (constructionHit.collider != null && constructionHit.collider.TryGetComponent<ConstructionSite>(out var site))
             {
@@ -88,6 +101,7 @@ namespace WarOfCrowns.Core
                 }
             }
 
+            // œ–»Œ–»“≈“ 3: —¡Œ– –≈—”–—Œ¬
             RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
             if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out var resourceNode))
             {
@@ -98,13 +112,17 @@ namespace WarOfCrowns.Core
                 }
             }
 
+            // œ–»Œ–»“≈“ 4: ƒ¬»∆≈Õ»≈
             RaycastHit2D groundHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, groundLayerMask);
             if (groundHit.collider != null)
             {
                 if (_selectedUnit.TryGetComponent<UnitMotor>(out var unitMotor))
                 {
-                    if (_selectedUnit.TryGetComponent<UnitBuilder>(out var builder)) builder.Cancel();
-                    if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer)) gatherer.StopGathering();
+                    // ŒÚÏÂÌˇÂÏ ‚ÒÂ ‰Û„ËÂ Á‡‰‡˜Ë
+                    _selectedUnit.GetComponent<UnitBuilder>()?.Cancel();
+                    _selectedUnit.GetComponent<UnitGatherer>()?.StopGathering();
+                    _selectedUnit.GetComponent<Fighter>()?.Cancel();
+
                     unitMotor.MoveTo(groundHit.point);
                 }
             }

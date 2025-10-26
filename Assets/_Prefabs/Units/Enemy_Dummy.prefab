@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4321365577066962244}
   - component: {fileID: 4070013817666897839}
-  m_Layer: 9
+  m_Layer: 13
   m_Name: SelectionIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,17 +93,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3579037899330058002}
-  - component: {fileID: 7491681904076585567}
-  - component: {fileID: -538273275170642266}
+  - component: {fileID: 5445885521361066034}
   - component: {fileID: 4986214059639831926}
-  - component: {fileID: 5478042941171634129}
-  - component: {fileID: 6169843283457921549}
   - component: {fileID: 1526726366717327214}
-  - component: {fileID: 1566063169048990585}
   - component: {fileID: 6716821110792711960}
   - component: {fileID: -6850484479557729173}
-  m_Layer: 9
-  m_Name: Peasant_Prototype
+  m_Layer: 13
+  m_Name: Enemy_Dummy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -125,7 +121,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7491681904076585567
+--- !u!114 &5445885521361066034
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -134,24 +130,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 7276777165091647620}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f282bf377b143b4789e6f0dc97d7d50, type: 3}
+  m_Script: {fileID: 11500000, guid: 021ebe6fa198cdb4b8f73f4464c2404a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gatherDistance: 2
-  gatherRate: 1
-  gatherAmountPerTick: 10
---- !u!114 &-538273275170642266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7276777165091647620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 133ea916dc22dc643b62783851923c94, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  maxHealth: 100
 --- !u!212 &4986214059639831926
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -194,7 +176,7 @@ SpriteRenderer:
   m_SortingLayer: 4
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -204,34 +186,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &5478042941171634129
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7276777165091647620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 021ebe6fa198cdb4b8f73f4464c2404a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxHealth: 100
---- !u!114 &6169843283457921549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7276777165091647620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 049b265a967449040a23208bec28832e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 10
-  attackSpeed: 1
-  attackRange: 1.5
 --- !u!58 &1526726366717327214
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -248,19 +202,6 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
---- !u!114 &1566063169048990585
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7276777165091647620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47712b3fce4cfe343bb72707c02e29d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
 --- !u!210 &6716821110792711960
 SortingGroup:
   m_ObjectHideFlags: 0
