@@ -1,55 +1,50 @@
 using UnityEngine;
 using UnityEngine.UI;
 using WarOfCrowns.Buildings;
+using WarOfCrowns.UI; // <-- Важно
 
 namespace WarOfCrowns.Buildings
 {
     public class SelectableBuilding : MonoBehaviour
     {
-        private GameObject _selectionUI;
+        [Header("UI Settings")]
+        [Tooltip("The PREFAB of the UI Panel to show on selection.")]
+        [SerializeField] private GameObject selectionUIPrefab;
 
-        public void SetSelectionUI(GameObject uiPanel)
-        {
-            _selectionUI = uiPanel;
-            if (_selectionUI == null)
-            {
-                Debug.LogError($"CRITICAL: Building '{gameObject.name}' could not find the UI Panel named 'TownHall_UIPanel' on the scene!");
-                return;
-            }
-            Debug.Log($"SUCCESS: UI Panel was assigned to building '{gameObject.name}'.");
-
-            Button createPeasantBtn = _selectionUI.GetComponentInChildren<Button>();
-            if (createPeasantBtn != null)
-            {
-                TownHall townHall = GetComponent<TownHall>();
-                if (townHall != null)
-                {
-                    createPeasantBtn.onClick.RemoveAllListeners();
-                    createPeasantBtn.onClick.AddListener(townHall.TryProducePeasant);
-                    Debug.Log("Button 'CreatePeasant' has been successfully linked to TownHall production.");
-                }
-            }
-        }
+        private GameObject _uiInstance;
 
         public void Select()
         {
-            Debug.Log($"Select() method called on '{gameObject.name}'!");
-            if (_selectionUI != null)
+            if (_uiInstance == null && selectionUIPrefab != null)
             {
-                Debug.Log("UI Panel is assigned. Activating it now.");
-                _selectionUI.SetActive(true);
+                // Создаем UI из префаба и делаем его дочерним к главному Canvas
+                _uiInstance = Instantiate(selectionUIPrefab, FindObjectOfType<Canvas>().transform);
+
+                // --- АВТОМАТИЧЕСКАЯ НАСТРОЙКА ---
+                // Настраиваем кнопку производства, если это Мэрия
+                if (_uiInstance.GetComponentInChildren<Button>() != null && TryGetComponent<TownHall>(out var townHall))
+                {
+                    _uiInstance.GetComponentInChildren<Button>().onClick.AddListener(townHall.TryProducePeasant);
+                }
+
+                // Настраиваем отображение инвентаря, если это Склад
+                if (_uiInstance.TryGetComponent<WarehouseUI>(out var warehouseUI) && TryGetComponent<Warehouse>(out var warehouse))
+                {
+                    warehouseUI.Show(warehouse);
+                }
             }
-            else
+
+            if (_uiInstance != null)
             {
-                Debug.LogError($"Trying to Select '{gameObject.name}', but its _selectionUI is NULL!");
+                _uiInstance.SetActive(true);
             }
         }
 
         public void Deselect()
         {
-            if (_selectionUI != null)
+            if (_uiInstance != null)
             {
-                _selectionUI.SetActive(false);
+                _uiInstance.SetActive(false);
             }
         }
     }

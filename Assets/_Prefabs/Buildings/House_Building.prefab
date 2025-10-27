@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6002385215944607171}
   - component: {fileID: 3016066723199030018}
-  - component: {fileID: 667018997232406205}
+  - component: {fileID: 968629045025978310}
   - component: {fileID: 4779010533063942166}
+  - component: {fileID: -7404826278332414069}
   m_Layer: 12
   m_Name: House_Building
   m_TagString: Untagged
@@ -86,7 +87,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &667018997232406205
+--- !u!114 &968629045025978310
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -95,7 +96,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8886570710630532225}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3f338d24219ddf47bd74a509dad2eb5, type: 3}
+  m_Script: {fileID: 11500000, guid: 8fb8097da5f6d354487ed7b81a4594a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   populationBonus: 5
@@ -125,3 +126,16 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-7404826278332414069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886570710630532225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bc19e5936f64d74bbe06b60f491a9d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  selectionUIPrefab: {fileID: 0}

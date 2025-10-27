@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4381741773095253305}
   - component: {fileID: 4874839284256090633}
   - component: {fileID: 551692021453525449}
+  - component: {fileID: -9120891256860145847}
   - component: {fileID: 29831252570784574}
   m_Layer: 12
   m_Name: House_Foundation
@@ -100,6 +101,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _buildTime: 10
   _finishedBuildingPrefab: {fileID: 8886570710630532225, guid: cd94dc914e9537d46847b2ef5a0ed2d8, type: 3}
+--- !u!114 &-9120891256860145847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6577582433726066853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fb8097da5f6d354487ed7b81a4594a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  populationBonus: 0
 --- !u!61 &29831252570784574
 BoxCollider2D:
   m_ObjectHideFlags: 0

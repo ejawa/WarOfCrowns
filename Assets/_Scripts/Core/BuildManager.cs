@@ -1,28 +1,31 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using WarOfCrowns.Buildings; // <-- ВОТ ОНО
+using WarOfCrowns.Buildings; // Убедись, что этот using есть
 
 namespace WarOfCrowns.Core
 {
     public class BuildManager : MonoBehaviour
     {
-        [SerializeField] private GameObject houseFoundationPrefab;
         private GameObject _ghostInstance;
+        private GameObject _foundationToBuild;
         private bool _isBuildingMode;
 
         private void Update()
         {
             if (_isBuildingMode)
             {
+                // Двигаем призрака за мышкой
                 Vector3 mousePos = Camera.main.ScreenToWorldPoint(Mouse.current.position.ReadValue());
                 mousePos.z = 0;
                 _ghostInstance.transform.position = mousePos;
 
-                if (Mouse.current.leftButton.wasPressedThisFrame)
+                // Размещаем по левому клику
+                if (Mouse.current.leftButton.wasPressedThisFrame && !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
                 {
-                    Instantiate(houseFoundationPrefab, _ghostInstance.transform.position, Quaternion.identity);
-                    ExitBuildMode();
+                    PlaceFoundation();
                 }
+
+                // Отменяем по правому клику
                 if (Mouse.current.rightButton.wasPressedThisFrame)
                 {
                     ExitBuildMode();
@@ -30,23 +33,46 @@ namespace WarOfCrowns.Core
             }
         }
 
-        public void EnterBuildMode()
+        // Эта публичная функция вызывается кнопками UI
+        public void EnterBuildMode(GameObject foundationPrefab)
         {
-            if (_isBuildingMode) return;
-            _isBuildingMode = true;
-            _ghostInstance = Instantiate(houseFoundationPrefab);
-            _ghostInstance.GetComponent<SpriteRenderer>().color = new Color(0, 1, 0, 0.5f);
-            Destroy(_ghostInstance.GetComponent<BoxCollider2D>());
+            if (_isBuildingMode)
+            {
+                ExitBuildMode(); // Если уже строим, отменяем старое
+            }
 
-            // Теперь компилятор знает, что такое ConstructionSite
-            if (_ghostInstance.GetComponent<ConstructionSite>() != null)
-                Destroy(_ghostInstance.GetComponent<ConstructionSite>());
+            _foundationToBuild = foundationPrefab;
+            _isBuildingMode = true;
+
+            // Создаем призрака из префаба фундамента
+            _ghostInstance = Instantiate(_foundationToBuild);
+            _ghostInstance.GetComponent<SpriteRenderer>().color = new Color(0, 1, 0, 0.5f); // Делаем зеленым и прозрачным
+
+            // Отключаем на призраке все, что может помешать (коллайдер, скрипты)
+            if (_ghostInstance.GetComponent<Collider2D>() != null) Destroy(_ghostInstance.GetComponent<Collider2D>());
+            if (_ghostInstance.GetComponent<ConstructionSite>() != null) Destroy(_ghostInstance.GetComponent<ConstructionSite>());
         }
 
+        // --- ВОТ НЕДОСТАЮЩИЕ ФУНКЦИИ ---
+
+        // Эта функция размещает настоящий фундамент
+        private void PlaceFoundation()
+        {
+            if (_foundationToBuild != null)
+            {
+                Instantiate(_foundationToBuild, _ghostInstance.transform.position, Quaternion.identity);
+            }
+            ExitBuildMode();
+        }
+
+        // Эта функция выходит из режима строительства
         private void ExitBuildMode()
         {
             _isBuildingMode = false;
-            Destroy(_ghostInstance);
+            if (_ghostInstance != null)
+            {
+                Destroy(_ghostInstance);
+            }
         }
     }
 }

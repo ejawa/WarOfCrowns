@@ -124,8 +124,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nodeType: 0
   resourceType: 0
-  maxAmount: 500
+  itemType: 0
+  maxAmount: 250
   currentAmount: 0
   depletionBehaviour: 0
   prefabNameInResources: Tree_Resource

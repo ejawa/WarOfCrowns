@@ -39,6 +39,7 @@ namespace WarOfCrowns.Units
 
         private IEnumerator GatherRoutine()
         {
+
             if (_currentTarget == null) yield break;
 
             _motor.MoveTo(_currentTarget.transform.position);
@@ -57,7 +58,14 @@ namespace WarOfCrowns.Units
                 int gatheredAmount = _currentTarget.Gather(gatherAmountPerTick);
                 if (gatheredAmount > 0)
                 {
-                    ResourceManager.Instance.AddResource(_currentTarget.resourceType, gatheredAmount);
+                    if (_currentTarget.nodeType == ResourceNode.NodeType.Resource)
+                    {
+                        ResourceManager.Instance.AddResource(_currentTarget.resourceType, gatheredAmount);
+                    }
+                    else if (_currentTarget.nodeType == ResourceNode.NodeType.Item)
+                    {
+                        ResourceManager.Instance.AddItem(_currentTarget.itemType, gatheredAmount);
+                    }
                 }
                 else
                 {

@@ -1,22 +1,28 @@
 using UnityEngine;
 using WarOfCrowns.Core;
+using WarOfCrowns.Core.Items;
 
 namespace WarOfCrowns.World
 {
     public class ResourceNode : MonoBehaviour
     {
+        public enum NodeType { Resource, Item }
         public enum DepletionBehaviour { Destroy, Respawn }
 
-        [Header("Resource Settings")]
-        public ResourceType resourceType;
-        [Tooltip("The maximum amount this node can hold.")]
-        public int maxAmount = 500;
+        [Header("Node Type")]
+        public NodeType nodeType;
 
-        [HideInInspector]
-        public int currentAmount;
+        [Header("Resource Settings (if NodeType is Resource)")]
+        public ResourceType resourceType;
+
+        [Header("Item Settings (if NodeType is Item)")]
+        public ItemType itemType;
+
+        [Header("General Settings")]
+        public int maxAmount = 250;
+        [HideInInspector] public int currentAmount;
 
         [Header("Depletion Settings")]
-        [Tooltip("What happens when the resource runs out?")]
         public DepletionBehaviour depletionBehaviour;
 
         [Tooltip("The name of this prefab AS IT IS IN THE RESOURCES FOLDER.")]

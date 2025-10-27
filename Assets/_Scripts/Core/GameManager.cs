@@ -23,7 +23,7 @@ namespace WarOfCrowns.Core
         [SerializeField] private int startingPeasants = 10;
 
         [Header("UI References")]
-        [SerializeField] private GameObject townHallUIPanel;
+     
 
         private GameObject _currentGhost;
         private float _timer;
@@ -74,19 +74,9 @@ namespace WarOfCrowns.Core
             if (CurrentState != GameState.Setup) return;
 
             Vector3 placementPosition = _currentGhost.transform.position;
-            GameObject townHallInstance = Instantiate(townHallPrefab, placementPosition, Quaternion.identity);
 
-            if (townHallInstance.TryGetComponent<SelectableBuilding>(out var selectable))
-            {
-                if (townHallUIPanel != null)
-                {
-                    selectable.SetSelectionUI(townHallUIPanel);
-                }
-                else
-                {
-                    Debug.LogError("CRITICAL: Town Hall UI Panel is NOT ASSIGNED in GameManager's inspector!");
-                }
-            }
+            // Просто создаем Мэрию. И всё.
+            GameObject townHallInstance = Instantiate(townHallPrefab, placementPosition, Quaternion.identity);
 
             Destroy(_currentGhost);
             StartGamePhase(placementPosition);

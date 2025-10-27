@@ -114,7 +114,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  nodeType: 1
   resourceType: 3
+  itemType: 4
   maxAmount: 250
   currentAmount: 0
   depletionBehaviour: 1
