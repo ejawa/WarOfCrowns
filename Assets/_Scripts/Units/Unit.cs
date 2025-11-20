@@ -1,6 +1,6 @@
 using UnityEngine;
 using WarOfCrowns.Core;
-using WarOfCrowns.Units;
+using WarOfCrowns.Data; // Для UnitSaveData
 
 namespace WarOfCrowns.Units
 {
@@ -14,18 +14,23 @@ namespace WarOfCrowns.Units
         public float hunger = 0f;
         private const float HUNGER_RATE = 0.5f;
 
+        // Для сохранения здоровья нам нужна ссылка на компонент Health
+        private Health _health;
+
         public Kingdom OwningKingdom { get; set; }
         private UnitAI _ai;
-
-        // Таймер, чтобы юнит не бежал есть сразу после приказа игрока
         private float _manualOverrideTimer = 0f;
 
-        private void Awake() { _ai = GetComponent<UnitAI>(); }
+        private void Awake()
+        {
+            _ai = GetComponent<UnitAI>();
+            _health = GetComponent<Health>(); // Убедись, что компонент Health есть!
+        }
 
         private void Start()
         {
             if (PopulationManager.Instance != null && !gameObject.CompareTag("Enemy"))
-                PopulationManager.Instance.AddUnit();
+                PopulationManager.Instance.AddUnit(this); // Передаем себя (this)
         }
 
         private void Update()
@@ -33,30 +38,22 @@ namespace WarOfCrowns.Units
             hunger += HUNGER_RATE * Time.deltaTime;
             if (_manualOverrideTimer > 0) _manualOverrideTimer -= Time.deltaTime;
 
-            // Ищем еду, ТОЛЬКО если:
-            // 1. Голод сильный (>70)
-            // 2. Мы уже не ищем еду
-            // 3. Игрок не приказал нам работать (таймер override истек)
             if (hunger > 70f && _ai.CurrentState != UnitState.SeekingFood && _manualOverrideTimer <= 0)
             {
                 _ai.SeekFood();
             }
-
             if (hunger >= 100f)
             {
                 Debug.Log($"{gameObject.name} died of starvation!");
-                Destroy(gameObject);
+                if (_health != null) _health.TakeDamage(9999); // Убиваем через Health
+                else Destroy(gameObject);
             }
         }
 
-        // Этот метод мы вызовем из контроллера при любом клике ПКМ
         public void SetManualCommandOverride()
         {
-            _manualOverrideTimer = 20f; // Юнит будет терпеть голод 20 секунд ради работы
-            if (_ai.CurrentState == UnitState.SeekingFood)
-            {
-                _ai.CancelAction(); // Прерываем текущий поиск еды
-            }
+            _manualOverrideTimer = 20f;
+            if (_ai.CurrentState == UnitState.SeekingFood) _ai.CancelAction();
         }
 
         public void Eat(int satiety)
@@ -65,9 +62,46 @@ namespace WarOfCrowns.Units
             if (hunger < 0) hunger = 0;
         }
 
-        // ... OnDestroy, Select, Deselect
-        private void OnDestroy() { if (PopulationManager.Instance != null && !gameObject.CompareTag("Enemy")) PopulationManager.Instance.RemoveUnit(); }
+        private void OnDestroy()
+        {
+            if (PopulationManager.Instance != null && !gameObject.CompareTag("Enemy"))
+                PopulationManager.Instance.RemoveUnit(this); // Передаем себя
+        }
+
         public void Select() { selectionIndicator.SetActive(true); }
         public void Deselect() { selectionIndicator.SetActive(false); }
+
+        // --- СИСТЕМА СОХРАНЕНИЯ ---
+
+        // 1. Упаковать себя в данные
+        public UnitSaveData GetSaveData()
+        {
+            UnitSaveData data = new UnitSaveData();
+            data.unitName = gameObject.name; // Пока просто имя объекта
+            data.prefabName = "Peasant_Prototype"; // Имя префаба в Resources (важно!)
+
+            data.posX = transform.position.x;
+            data.posY = transform.position.y;
+            data.posZ = transform.position.z;
+
+            data.currentHunger = this.hunger;
+
+            if (_health != null) data.currentHealth = _health.CurrentHealth; // Нужно добавить свойство в Health
+
+            return data;
+        }
+
+        // 2. Распаковать данные в себя
+        public void LoadFromData(UnitSaveData data)
+        {
+            transform.position = new Vector3(data.posX, data.posY, data.posZ);
+            this.hunger = data.currentHunger;
+            gameObject.name = data.unitName;
+
+            // Навигация может сбить позицию, поэтому телепортируем агента, если он есть
+            // (В нашей текущей версии без NavMeshAgent это не критично, но на будущее)
+
+            if (_health != null) _health.SetHealth(data.currentHealth); // Нужно добавить метод в Health
+        }
     }
 }

@@ -1593,6 +1593,7 @@ GameObject:
   - component: {fileID: 1582822087}
   - component: {fileID: 1582822090}
   - component: {fileID: 1582822088}
+  - component: {fileID: 1582822091}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1693,6 +1694,31 @@ MonoBehaviour:
     satietyValue: 50
   - foodType: 5
     satietyValue: 1
+--- !u!114 &1582822091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582822083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea55406bee6a9fc4dbc4ecd7edd7f4cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  peasantPrefab: {fileID: 7276777165091647620, guid: a1629b68f6b3f8a4d9929774e6af6936, type: 3}
+  allBuildingPrefabs:
+  - {fileID: 3497954585348080676, guid: 15f05bdcdce0d8c409694626afaabec1, type: 3}
+  - {fileID: 4463861467124317788, guid: cb4dddfa13c1b4b47bf014f49f2b4f6d, type: 3}
+  - {fileID: 5059360998193426403, guid: 3fcb06fe633828f488b0fa2650e79254, type: 3}
+  - {fileID: 9180180695958035045, guid: 19f1af43b295901468d42c8fece77a63, type: 3}
+  - {fileID: 8886570710630532225, guid: cd94dc914e9537d46847b2ef5a0ed2d8, type: 3}
+  - {fileID: 6577582433726066853, guid: 06b43b4377d876b49ab8c642c8113c98, type: 3}
+  - {fileID: 5612152511871660002, guid: d41b86ae98aa5554396b26900ba5dbcd, type: 3}
+  - {fileID: 5612152511871660002, guid: 3167b0a1da62f7a448626ba1cc14a0ac, type: 3}
+  - {fileID: 7547368926998280475, guid: a722a6bad797a6d43a54597927955a11, type: 3}
+  - {fileID: 8903364822000936487, guid: 962883cf9b11e0840becec03733792e6, type: 3}
+  - {fileID: 8500621534846853309, guid: 9f79627f3ccbb4b4e9a77e62f2a68b74, type: 3}
 --- !u!1 &1635563541
 GameObject:
   m_ObjectHideFlags: 0

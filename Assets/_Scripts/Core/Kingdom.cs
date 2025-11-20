@@ -1,23 +1,25 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using WarOfCrowns.Buildings;
+using WarOfCrowns.Buildings; // Для BuildingCost
+using WarOfCrowns.Data;      // Для ResourceSaveEntry (система сохранений)
 
 namespace WarOfCrowns.Core
 {
-    // Классы для чтения JSON
+    // --- Вспомогательные классы для чтения InitialResources.json ---
     [Serializable]
-    public class ResourceEntry
+    public class InitialResourceEntry
     {
         public string type;
         public int amount;
     }
 
     [Serializable]
-    public class ResourceDatabase
+    public class InitialResourceDatabase
     {
-        public List<ResourceEntry> resources;
+        public List<InitialResourceEntry> resources;
     }
+    // ---------------------------------------------------------------
 
     public class Kingdom : MonoBehaviour
     {
@@ -26,47 +28,46 @@ namespace WarOfCrowns.Core
 
         public event Action<ResourceType, int> OnResourceChanged;
 
-        // Наш инвентарь
         private Dictionary<ResourceType, int> _inventory = new Dictionary<ResourceType, int>();
 
         private void Awake()
         {
-            // 1. Регистрация
+            // 1. Регистрация синглтона (только для игрока)
             if (kingdomID == 0)
             {
                 if (PlayerKingdom == null) PlayerKingdom = this;
                 else { Destroy(gameObject); return; }
             }
 
-            // 2. Инициализация пустыми значениями (чтобы не было ошибок KeyNotFound)
+            // 2. Инициализация пустыми значениями
             foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
             {
                 _inventory[type] = 0;
             }
 
-            // 3. Загрузка из JSON
-            LoadResourcesFromJSON();
+            // 3. Загрузка "Заводских настроек" (Шаблон новой игры)
+            LoadFromTemplate();
         }
 
-        private void LoadResourcesFromJSON()
+        // Загрузка из InitialResources.json (вызывается при старте)
+        private void LoadFromTemplate()
         {
             TextAsset jsonFile = Resources.Load<TextAsset>("InitialResources");
 
             if (jsonFile != null)
             {
-                // Читаем файл
-                ResourceDatabase db = JsonUtility.FromJson<ResourceDatabase>(jsonFile.text);
+                InitialResourceDatabase db = JsonUtility.FromJson<InitialResourceDatabase>(jsonFile.text);
 
-                // Записываем значения
                 foreach (var entry in db.resources)
                 {
-                    // Конвертируем строку "Wood" в enum ResourceType.Wood
                     if (Enum.TryParse(entry.type, out ResourceType parsedType))
                     {
+                        // Используем AddResource, чтобы не дублировать код установки
+                        // Но здесь мы просто устанавливаем значение, событие пока некому слушать
                         _inventory[parsedType] = entry.amount;
                     }
                 }
-                Debug.Log("Kingdom: Resources loaded from JSON successfully.");
+                Debug.Log("Kingdom: Initial resources loaded from template.");
             }
             else
             {
@@ -74,9 +75,32 @@ namespace WarOfCrowns.Core
             }
         }
 
+        // --- НОВЫЙ МЕТОД ДЛЯ ЗАГРУЗКИ СОХРАНЕНИЯ (Вызывается из SaveManager) ---
+        public void LoadInventoryFromSave(List<ResourceSaveEntry> savedInventory)
+        {
+            // 1. Обнуляем текущий инвентарь
+            foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+            {
+                _inventory[type] = 0;
+            }
+
+            // 2. Применяем сохраненные значения
+            foreach (var entry in savedInventory)
+            {
+                _inventory[entry.type] = entry.amount;
+
+                // ВАЖНО: Принудительно вызываем событие, чтобы UI (Топ-Бар, Склад) обновился!
+                OnResourceChanged?.Invoke(entry.type, entry.amount);
+            }
+
+            Debug.Log("Kingdom: Inventory overwritten from Save File.");
+        }
+        // ------------------------------------------------------------------------
+
         public void AddResource(ResourceType type, int amount)
         {
             if (!_inventory.ContainsKey(type)) _inventory[type] = 0;
+
             _inventory[type] += amount;
             OnResourceChanged?.Invoke(type, _inventory[type]);
         }
