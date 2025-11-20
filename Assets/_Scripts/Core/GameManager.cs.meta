@@ -3,8 +3,12 @@ guid: c24d6dfe83f2c744d95fbe00aa0d529a
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
-  executionOrder: 0
+  defaultReferences:
+  - townHallGhostPrefab: {fileID: 7547368926998280475, guid: be6b4f031478e8448bf97f4b55e64487, type: 3}
+  - townHallPrefab: {fileID: 7547368926998280475, guid: a722a6bad797a6d43a54597927955a11, type: 3}
+  - peasantPrefab: {fileID: 7276777165091647620, guid: a1629b68f6b3f8a4d9929774e6af6936, type: 3}
+  - selectionController: {instanceID: 0}
+  executionOrder: -75
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 

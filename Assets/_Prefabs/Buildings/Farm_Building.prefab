@@ -10,11 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6655508071176404144}
   - component: {fileID: 5424491881363861999}
-  - component: {fileID: 5867441608490857812}
   - component: {fileID: 8918575514757261889}
-  - component: {fileID: 6492141016517335958}
   - component: {fileID: -6154207107012753115}
   - component: {fileID: -1730480123280415304}
+  - component: {fileID: 5750724852858085403}
+  - component: {fileID: 1738046353094372678}
   m_Layer: 12
   m_Name: Farm_Building
   m_TagString: Untagged
@@ -50,21 +50,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   populationBonus: 0
---- !u!114 &5867441608490857812
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5059360998193426403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bbf2192e4e51be5448a1c99d3f1e8796, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _producedItem: 0
-  _producedAmount: 1
-  _productionTime: 3
 --- !u!212 &8918575514757261889
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -117,19 +102,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6492141016517335958
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5059360998193426403}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb8097da5f6d354487ed7b81a4594a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  populationBonus: 0
 --- !u!61 &-6154207107012753115
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -169,3 +141,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionUIPrefab: {fileID: 0}
+--- !u!114 &5750724852858085403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5059360998193426403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 327615bb67d482548a794b629338ac93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  producedResource: 3
+  producedAmount: 1
+  productionTime: 10
+  requiredResource: 0
+  requiredAmount: 0
+--- !u!114 &1738046353094372678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5059360998193426403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34152cb605c285b43a73301ec6fe9659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: 
+  buildingIcon: {fileID: 0}
+  costs: []
+  populationBonus: 0
+  OwningKingdom: {fileID: 0}

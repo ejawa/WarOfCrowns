@@ -2,16 +2,11 @@ namespace WarOfCrowns.Core
 {
     public enum ResourceType
     {
-        // Базовые ресурсы
-        Wood,
-        Stone,
-        Gold,
-        Food, // Это наша "Сытость"
+        Wood, Stone, Gold,
+        Wheat, Flour,
+        Berries, Bread,
 
-        // Руды
-        IronOre,
-        Coal,
-        MithrilOre, 
-        Obsidian
+        Food 
+
     }
 }

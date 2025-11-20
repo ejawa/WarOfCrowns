@@ -9,12 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7002116418926275174}
-  - component: {fileID: -7196524248915247002}
   - component: {fileID: 4743045840448822028}
-  - component: {fileID: 7813594909671613469}
-  - component: {fileID: 5870227366426131046}
   - component: {fileID: 467488863882295640}
   - component: {fileID: -5828630035096251928}
+  - component: {fileID: -1527364264208979183}
+  - component: {fileID: 5368330334834521530}
   m_Layer: 12
   m_Name: Warehouse_Building
   m_TagString: Untagged
@@ -37,19 +36,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &-7196524248915247002
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8903364822000936487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb8097da5f6d354487ed7b81a4594a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  populationBonus: 0
 --- !u!212 &4743045840448822028
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -102,31 +88,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &7813594909671613469
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8903364822000936487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1935352030adebd4ab810c455ae0f7d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &5870227366426131046
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8903364822000936487}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8fb8097da5f6d354487ed7b81a4594a3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  populationBonus: 0
 --- !u!114 &467488863882295640
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -139,7 +100,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc19e5936f64d74bbe06b60f491a9d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectionUIPrefab: {fileID: 1837047124187819717, guid: e26266174ea08f045a0aa3af99b9c35d, type: 3}
+  opensGlobalWarehouse: 1
+  selectionUIPrefab: {fileID: 0}
 --- !u!61 &-5828630035096251928
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -166,3 +128,32 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-1527364264208979183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8903364822000936487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34152cb605c285b43a73301ec6fe9659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: 
+  buildingIcon: {fileID: 0}
+  costs: []
+  populationBonus: 0
+  OwningKingdom: {fileID: 0}
+--- !u!114 &5368330334834521530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8903364822000936487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 243c45da80ac7fb429f79fca192340f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

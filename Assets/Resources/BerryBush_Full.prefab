@@ -114,12 +114,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodeType: 1
-  resourceType: 3
-  itemType: 4
+  resourceType: 5
   maxAmount: 250
   currentAmount: 0
   depletionBehaviour: 1
-  prefabNameInResources: BerryBush_Full
   depletedPrefab: {fileID: 6354405093508171279, guid: 52819c04362a2c14194c90b503402d15, type: 3}
+  resourcePrefabName: BerryBush_Full
   respawnTime: 60

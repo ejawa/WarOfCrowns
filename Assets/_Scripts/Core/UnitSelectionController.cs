@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.EventSystems; // <-- Добавили using для UI
+using UnityEngine.EventSystems;
 using WarOfCrowns.Units;
 using WarOfCrowns.World;
 using WarOfCrowns.Buildings;
+using WarOfCrowns.Core; // Важно для Kingdom
 
 namespace WarOfCrowns.Core
 {
@@ -19,113 +20,183 @@ namespace WarOfCrowns.Core
         private Unit _selectedUnit;
         private SelectableBuilding _selectedBuilding;
 
-        private void Awake() { _mainCamera = Camera.main; }
-        private void Update() { HandleLeftClick(); HandleRightClick(); }
+        private void Awake()
+        {
+            _mainCamera = Camera.main;
+        }
+
+        private void Update()
+        {
+            // Убираем if(!enabled) return;, чтобы видеть логи даже если он выключен
+
+            // --- СУПЕР-ПРОСТАЯ ПРОВЕРКА ---
+            if (Mouse.current.leftButton.wasPressedThisFrame)
+            {
+            
+            }
+            // --- ---
+
+            if (!enabled) return;
+            HandleLeftClick();
+            HandleRightClick();
+        }
 
         private void HandleLeftClick()
         {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
+            if (EventSystem.current.IsPointerOverGameObject())
+            {
+               
+                return;
+            }
             if (!Mouse.current.leftButton.wasPressedThisFrame) return;
 
-            bool clickedOnSomething = false;
+            Debug.Log("--- Left Click Detected ---");
+
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-            RaycastHit2D unitHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, unitLayerMask);
-            if (unitHit.collider != null && unitHit.collider.TryGetComponent<Unit>(out var hitUnit))
+            // Сначала пускаем луч ТОЛЬКО за юнитами
+            RaycastHit2D unitHit = Physics2D.Raycast(worldPoint, Vector2.zero, Mathf.Infinity, unitLayerMask);
+            if (unitHit.collider != null)
             {
-                if (_selectedBuilding != null) _selectedBuilding.Deselect();
-                _selectedBuilding = null;
-                if (_selectedUnit != null && _selectedUnit != hitUnit) _selectedUnit.Deselect();
-                _selectedUnit = hitUnit;
-                _selectedUnit.Select();
-                clickedOnSomething = true;
-            }
-            else
-            {
-                RaycastHit2D buildingHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
-                if (buildingHit.collider != null)
+                Debug.Log($"SUCCESS: Raycast hit '{unitHit.collider.name}' on the UNIT layer!");
+                if (unitHit.collider.TryGetComponent<Unit>(out var hitUnit))
                 {
-                    Debug.Log($"Raycast HIT the collider of '{buildingHit.collider.name}'!");
-                    if (buildingHit.collider.TryGetComponent<SelectableBuilding>(out var hitBuilding))
-                    {
-                        Debug.Log("Found SelectableBuilding component! Calling Select().");
-                        if (_selectedUnit != null) _selectedUnit.Deselect();
-                        _selectedUnit = null;
-                        if (_selectedBuilding != null && _selectedBuilding != hitBuilding) _selectedBuilding.Deselect();
-                        _selectedBuilding = hitBuilding;
-                        _selectedBuilding.Select();
-                        clickedOnSomething = true;
-                    }
-                    else
-                    {
-                        Debug.LogError("HIT a building collider, but it has NO SelectableBuilding SCRIPT!", buildingHit.collider.gameObject);
-                    }
+                    Debug.Log("Unit component found. Selecting.");
+                    if (_selectedBuilding != null) _selectedBuilding.Deselect();
+                    _selectedBuilding = null;
+                    if (_selectedUnit != null && _selectedUnit != hitUnit) _selectedUnit.Deselect();
+                    _selectedUnit = hitUnit;
+                    _selectedUnit.Select();
                 }
+                else
+                {
+                    Debug.LogError($"CRITICAL: Hit a collider on the 'Units' layer, but it has NO 'Unit' SCRIPT!", unitHit.collider.gameObject);
+                }
+                return; // Выходим, так как мы нашли юнита
             }
 
-            if (!clickedOnSomething)
+            // Если не попали в юнита, пускаем луч за зданиями (они на слое Construction)
+            RaycastHit2D buildingHit = Physics2D.Raycast(worldPoint, Vector2.zero, Mathf.Infinity, constructionLayerMask);
+            if (buildingHit.collider != null)
             {
-                if (_selectedUnit != null) _selectedUnit.Deselect();
-                _selectedUnit = null;
-                if (_selectedBuilding != null) _selectedBuilding.Deselect();
-                _selectedBuilding = null;
+                Debug.Log($"HIT SOMETHING ON BUILDING/CONSTRUCTION LAYER: '{buildingHit.collider.name}'");
+                if (buildingHit.collider.TryGetComponent<SelectableBuilding>(out var hitBuilding))
+                {
+                    Debug.Log("SelectableBuilding component found. Selecting building.");
+                    if (_selectedUnit != null) _selectedUnit.Deselect();
+                    _selectedUnit = null;
+                    if (_selectedBuilding != null && _selectedBuilding != hitBuilding) _selectedBuilding.Deselect();
+                    _selectedBuilding = hitBuilding;
+                    _selectedBuilding.Select();
+                }
+                return;
             }
+
+            // Если не попали ни в юнита, ни в здание - значит, это земля
+            Debug.Log("Raycast hit NO units and NO buildings. Deselecting all.");
+            DeselectAll();
         }
 
         private void HandleRightClick()
         {
-            if (!Mouse.current.rightButton.wasPressedThisFrame || _selectedUnit == null) return;
             if (EventSystem.current.IsPointerOverGameObject()) return;
+            if (!Mouse.current.rightButton.wasPressedThisFrame || _selectedUnit == null) return;
 
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-            // ПРИОРИТЕТ 1: АТАКА
+            // Компоненты
+            var motor = _selectedUnit.GetComponent<UnitMotor>();
+            var gatherer = _selectedUnit.GetComponent<UnitGatherer>();
+            var builder = _selectedUnit.GetComponent<UnitBuilder>();
+            var fighter = _selectedUnit.GetComponent<Fighter>();
+            var worker = _selectedUnit.GetComponent<UnitWorker>(); // <-- НОВЫЙ
+            var unitLogic = _selectedUnit.GetComponent<Unit>(); // <-- НОВЫЙ
+
+            // При любом приказе игрока говорим юниту: "Забудь про голод на 20 секунд!"
+            unitLogic.SetManualCommandOverride();
+
+            // 1. АТАКА
             RaycastHit2D enemyHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, enemiesLayerMask);
             if (enemyHit.collider != null && enemyHit.collider.TryGetComponent<Health>(out var enemyHealth))
             {
-                if (_selectedUnit.TryGetComponent<Fighter>(out var fighter))
+                if (fighter != null)
                 {
+                    gatherer?.StopGathering();
+                    builder?.Cancel();
+                    worker?.StopWorking(); // <-- Отменяем работу
                     fighter.Attack(enemyHealth);
                     return;
                 }
             }
 
-            // ПРИОРИТЕТ 2: СТРОИТЕЛЬСТВО
+            // 2. РАБОТА НА ЗДАНИИ (Новый приоритет)
+            RaycastHit2D jobHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
+            if (jobHit.collider != null && jobHit.collider.TryGetComponent<JobBuilding>(out var jobBuilding))
+            {
+                // Убедимся, что это не стройка
+                if (jobHit.collider.GetComponent<ConstructionSite>() == null)
+                {
+                    if (worker != null)
+                    {
+                        fighter?.Cancel();
+                        builder?.Cancel();
+                        gatherer?.StopGathering();
+                        worker.SetTarget(jobBuilding);
+                        return;
+                    }
+                }
+            }
+
+            // 3. СТРОИТЕЛЬСТВО
             RaycastHit2D constructionHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
             if (constructionHit.collider != null && constructionHit.collider.TryGetComponent<ConstructionSite>(out var site))
             {
-                if (_selectedUnit.TryGetComponent<UnitBuilder>(out var builder))
+                if (builder != null)
                 {
+                    fighter?.Cancel();
+                    gatherer?.StopGathering();
+                    worker?.StopWorking(); // <-- Отменяем работу
                     builder.SetTarget(site);
                     return;
                 }
             }
 
-            // ПРИОРИТЕТ 3: СБОР РЕСУРСОВ
+            // 4. СБОР РЕСУРСОВ
             RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
             if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out var resourceNode))
             {
-                if (_selectedUnit.TryGetComponent<UnitGatherer>(out var gatherer))
+                if (gatherer != null)
                 {
+                    fighter?.Cancel();
+                    builder?.Cancel();
+                    worker?.StopWorking(); // <-- Отменяем работу
                     gatherer.SetTarget(resourceNode);
                     return;
                 }
             }
 
-            // ПРИОРИТЕТ 4: ДВИЖЕНИЕ
+            // 5. ДВИЖЕНИЕ
             RaycastHit2D groundHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, groundLayerMask);
             if (groundHit.collider != null)
             {
-                if (_selectedUnit.TryGetComponent<UnitMotor>(out var unitMotor))
+                if (motor != null)
                 {
-                    // Отменяем все другие задачи
-                    _selectedUnit.GetComponent<UnitBuilder>()?.Cancel();
-                    _selectedUnit.GetComponent<UnitGatherer>()?.StopGathering();
-                    _selectedUnit.GetComponent<Fighter>()?.Cancel();
+                    fighter?.Cancel();
+                    builder?.Cancel();
+                    gatherer?.StopGathering();
+                    worker?.StopWorking(); // <-- Отменяем работу
 
-                    unitMotor.MoveTo(groundHit.point);
+                    motor.MoveTo(groundHit.point);
                 }
             }
+        }
+
+        private void DeselectAll()
+        {
+            if (_selectedUnit != null) _selectedUnit.Deselect();
+            _selectedUnit = null;
+            if (_selectedBuilding != null) _selectedBuilding.Deselect();
+            _selectedBuilding = null;
         }
     }
 }

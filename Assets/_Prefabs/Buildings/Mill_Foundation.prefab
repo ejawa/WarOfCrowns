@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1462291067456713685}
   - component: {fileID: 2241486938583551517}
   - component: {fileID: -8566838427682860994}
+  - component: {fileID: 3502063786885617757}
   m_Layer: 12
   m_Name: Mill_Foundation
   m_TagString: Untagged
@@ -138,5 +139,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fb8f3814ec2e774b803e28f859854d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildTime: 10
-  _finishedBuildingPrefab: {fileID: 5612152511871660002, guid: d41b86ae98aa5554396b26900ba5dbcd, type: 3}
+  buildTime: 10
+  finishedBuildingPrefab: {fileID: 5612152511871660002, guid: d41b86ae98aa5554396b26900ba5dbcd, type: 3}
+--- !u!114 &3502063786885617757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5612152511871660002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34152cb605c285b43a73301ec6fe9659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: Mill
+  buildingIcon: {fileID: 0}
+  description: "\u041F\u0435\u0440\u0435\u043C\u0430\u043B\u044B\u0432\u0430\u0435\u0442
+    \u043F\u0448\u0435\u043D\u043E \u0432 \u043C\u0443\u043A\u0443"
+  costs:
+  - resourceType: 0
+    amount: 50
+  populationBonus: 0
+  OwningKingdom: {fileID: 0}

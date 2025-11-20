@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using WarOfCrowns.Buildings; // Мы подключили библиотеку зданий
+using WarOfCrowns.Buildings;
 
 namespace WarOfCrowns.Units
 {
@@ -8,12 +8,14 @@ namespace WarOfCrowns.Units
     public class UnitBuilder : MonoBehaviour
     {
         private UnitMotor _motor;
-        private ConstructionSite _targetSite; // Теперь он знает, что это такое
+        private ConstructionSite _targetSite;
         private Coroutine _buildCoroutine;
+
+        [SerializeField] private float buildDistance = 0.5f;
 
         private void Awake() { _motor = GetComponent<UnitMotor>(); }
 
-        public void SetTarget(ConstructionSite site) // И здесь тоже знает
+        public void SetTarget(ConstructionSite site)
         {
             Cancel();
             _targetSite = site;
@@ -27,16 +29,35 @@ namespace WarOfCrowns.Units
 
         private IEnumerator BuildRoutine()
         {
-            if (_targetSite == null) yield break; // Добавим проверку на всякий случай
+            if (_targetSite == null) yield break;
 
-            _motor.MoveTo(_targetSite.transform.position);
-            while (Vector3.Distance(transform.position, _targetSite.transform.position) > 2f)
+            Collider2D siteCollider = _targetSite.GetComponent<Collider2D>();
+            if (siteCollider == null)
+            {
+                Debug.LogError($"Foundation {_targetSite.name} has no Collider!");
+                yield break;
+            }
+
+            // --- ИДЕМ К ФУНДАМЕНТУ ---
+            while (true)
             {
                 if (_targetSite == null) yield break;
+
+                // Ищем ближайшую точку на краю фундамента
+                Vector3 targetPoint = siteCollider.ClosestPoint(transform.position);
+
+                if (Vector3.Distance(transform.position, targetPoint) <= buildDistance)
+                {
+                    break; // Пришли
+                }
+
+                _motor.MoveTo(targetPoint);
                 yield return null;
             }
-            _motor.MoveTo(transform.position);
 
+            _motor.MoveTo(transform.position); // Стоп
+
+            // --- СТРОИМ ---
             while (_targetSite != null)
             {
                 yield return new WaitForSeconds(1f);

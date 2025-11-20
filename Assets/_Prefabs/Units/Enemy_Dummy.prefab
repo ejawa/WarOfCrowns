@@ -97,10 +97,9 @@ GameObject:
   - component: {fileID: 4986214059639831926}
   - component: {fileID: 1526726366717327214}
   - component: {fileID: 6716821110792711960}
-  - component: {fileID: -6850484479557729173}
   m_Layer: 13
   m_Name: Enemy_Dummy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -213,16 +212,3 @@ SortingGroup:
   m_SortingLayerID: 1529874477
   m_SortingLayer: 4
   m_SortingOrder: 0
---- !u!114 &-6850484479557729173
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7276777165091647620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 230d1ad8c3b2f894589a42900594aac8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectionIndicator: {fileID: 2547856546734986452}

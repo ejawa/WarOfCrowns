@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6116479673300992069}
   - component: {fileID: 1856371199240432207}
   - component: {fileID: 7607990350978409845}
+  - component: {fileID: 6796587447414659620}
   m_Layer: 12
   m_Name: Bakery_Foundation
   m_TagString: Untagged
@@ -98,8 +99,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fb8f3814ec2e774b803e28f859854d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildTime: 10
-  _finishedBuildingPrefab: {fileID: 3497954585348080676, guid: 15f05bdcdce0d8c409694626afaabec1, type: 3}
+  buildTime: 10
+  finishedBuildingPrefab: {fileID: 3497954585348080676, guid: 15f05bdcdce0d8c409694626afaabec1, type: 3}
 --- !u!61 &7607990350978409845
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -126,3 +127,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &6796587447414659620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4463861467124317788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34152cb605c285b43a73301ec6fe9659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: Bakery
+  buildingIcon: {fileID: 0}
+  description: "\u041F\u0435\u0447\u0435\u0442 \u0445\u043B\u0435\u0431 \u0438\u0437
+    \u043C\u0443\u043A\u0438"
+  costs:
+  - resourceType: 0
+    amount: 50
+  populationBonus: 0
+  OwningKingdom: {fileID: 0}

@@ -5,9 +5,10 @@ using WarOfCrowns.World;
 
 namespace WarOfCrowns.Units
 {
-    [RequireComponent(typeof(UnitMotor))]
+    [RequireComponent(typeof(UnitMotor), typeof(Unit))]
     public class UnitGatherer : MonoBehaviour
     {
+        private Unit _unit;
         private UnitMotor _motor;
         private ResourceNode _currentTarget;
         private Coroutine _gatherCoroutine;
@@ -18,29 +19,26 @@ namespace WarOfCrowns.Units
 
         private void Awake()
         {
+            _unit = GetComponent<Unit>();
             _motor = GetComponent<UnitMotor>();
         }
 
         public void SetTarget(ResourceNode resourceNode)
         {
-            StopGathering(); // Всегда останавливаем предыдущую задачу
+            StopGathering();
             _currentTarget = resourceNode;
             _gatherCoroutine = StartCoroutine(GatherRoutine());
         }
 
         public void StopGathering()
         {
-            if (_gatherCoroutine != null)
-            {
-                StopCoroutine(_gatherCoroutine);
-                _gatherCoroutine = null;
-            }
+            if (_gatherCoroutine != null) StopCoroutine(_gatherCoroutine);
+            _gatherCoroutine = null;
         }
 
         private IEnumerator GatherRoutine()
         {
-
-            if (_currentTarget == null) yield break;
+            if (_currentTarget == null || _unit.OwningKingdom == null) yield break;
 
             _motor.MoveTo(_currentTarget.transform.position);
 
@@ -50,26 +48,17 @@ namespace WarOfCrowns.Units
                 yield return null;
             }
 
-            _motor.MoveTo(transform.position); // Stop moving
+            _motor.MoveTo(transform.position);
 
             while (_currentTarget != null && _currentTarget.currentAmount > 0)
             {
                 yield return new WaitForSeconds(gatherRate);
+                if (_currentTarget == null) yield break;
+
                 int gatheredAmount = _currentTarget.Gather(gatherAmountPerTick);
                 if (gatheredAmount > 0)
                 {
-                    if (_currentTarget.nodeType == ResourceNode.NodeType.Resource)
-                    {
-                        ResourceManager.Instance.AddResource(_currentTarget.resourceType, gatheredAmount);
-                    }
-                    else if (_currentTarget.nodeType == ResourceNode.NodeType.Item)
-                    {
-                        ResourceManager.Instance.AddItem(_currentTarget.itemType, gatheredAmount);
-                    }
-                }
-                else
-                {
-                    yield break;
+                    _unit.OwningKingdom.AddResource(_currentTarget.resourceType, gatheredAmount);
                 }
             }
         }

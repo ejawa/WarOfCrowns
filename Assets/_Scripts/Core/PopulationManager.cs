@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+
 namespace WarOfCrowns.Core
 {
     public class PopulationManager : MonoBehaviour
@@ -14,8 +15,12 @@ namespace WarOfCrowns.Core
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) Destroy(gameObject);
-            else Instance = this;
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
         }
 
         public void SetInitialPopulation(int current, int cap)

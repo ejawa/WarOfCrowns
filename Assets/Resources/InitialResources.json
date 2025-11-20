@@ -1,0 +1,36 @@
+{
+    "resources": [
+        {
+            "type": "Wood",
+            "amount": 150
+        },
+        {
+            "type": "Stone",
+            "amount": 100
+        },
+        {
+            "type": "Gold",
+            "amount": 100
+        },
+        {
+            "type": "Food",
+            "amount": 0
+        },
+        {
+            "type": "Berries",
+            "amount": 0
+        },
+        {
+            "type": "Bread",
+            "amount": 0
+        },
+        {
+            "type": "Wheat",
+            "amount": 0
+        },
+        {
+            "type": "Flour",
+            "amount": 0
+        }
+    ]
+}

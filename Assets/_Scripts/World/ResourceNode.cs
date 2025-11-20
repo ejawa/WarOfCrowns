@@ -1,37 +1,30 @@
 using UnityEngine;
 using WarOfCrowns.Core;
-using WarOfCrowns.Core.Items;
 
 namespace WarOfCrowns.World
 {
     public class ResourceNode : MonoBehaviour
     {
-        public enum NodeType { Resource, Item }
+        // --- ВОТ ЭТОГО НЕ ХВАТАЛО ---
         public enum DepletionBehaviour { Destroy, Respawn }
+        // ---------------------------
 
-        [Header("Node Type")]
-        public NodeType nodeType;
-
-        [Header("Resource Settings (if NodeType is Resource)")]
+        [Header("Настройки Ресурса")]
         public ResourceType resourceType;
-
-        [Header("Item Settings (if NodeType is Item)")]
-        public ItemType itemType;
-
-        [Header("General Settings")]
         public int maxAmount = 250;
-        [HideInInspector] public int currentAmount;
 
-        [Header("Depletion Settings")]
+        [HideInInspector]
+        public int currentAmount;
+
+        [Header("Настройки Истощения")]
         public DepletionBehaviour depletionBehaviour;
 
-        [Tooltip("The name of this prefab AS IT IS IN THE RESOURCES FOLDER.")]
-        [SerializeField] private string prefabNameInResources;
-
-        [Tooltip("Prefab to spawn when this node is depleted. Only used if Behaviour is Respawn.")]
+        [Tooltip("Префаб ПУСТОГО куста (для ягод).")]
         [SerializeField] private GameObject depletedPrefab;
 
-        [Tooltip("Time in seconds for the resource to respawn. Only used if Behaviour is Respawn.")]
+        [Tooltip("Имя файла ПОЛНОГО куста в папке Resources (например 'BerryBush_Full').")]
+        [SerializeField] private string resourcePrefabName;
+
         [SerializeField] private float respawnTime = 60f;
 
         private void Awake()
@@ -56,19 +49,25 @@ namespace WarOfCrowns.World
         {
             switch (depletionBehaviour)
             {
-                // --- ВОТ ИСПРАВЛЕНИЕ ---
                 case DepletionBehaviour.Destroy:
-                    Destroy(gameObject); // Просто уничтожаем объект
+                    // Для дерева и камня - просто уничтожаем
+                    Destroy(gameObject);
                     break;
-                // --- КОНЕЦ ИСПРАВЛЕНИЯ ---
 
                 case DepletionBehaviour.Respawn:
-                    if (depletedPrefab != null && !string.IsNullOrEmpty(prefabNameInResources))
+                    // Для ягод - создаем пустой куст и запускаем таймер
+                    if (depletedPrefab != null)
                     {
-                        GameObject depletedObject = Instantiate(depletedPrefab, transform.position, transform.rotation);
-                        depletedObject.AddComponent<RespawnController>().StartRespawning(prefabNameInResources, respawnTime);
+                        GameObject emptyBush = Instantiate(depletedPrefab, transform.position, transform.rotation);
+
+                        // Чтобы респаун сработал, нам нужно имя файла в папке Resources.
+                        // Если ты забыл написать его в инспекторе, попробуем угадать имя объекта.
+                        string nameToLoad = !string.IsNullOrEmpty(resourcePrefabName) ? resourcePrefabName : gameObject.name.Replace("(Clone)", "");
+
+                        // Добавляем контроллер респауна на пустой куст
+                        emptyBush.AddComponent<RespawnController>().StartRespawning(nameToLoad, respawnTime);
                     }
-                    Destroy(gameObject);
+                    Destroy(gameObject); // Удаляем полный куст
                     break;
             }
         }

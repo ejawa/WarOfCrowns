@@ -2,16 +2,20 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using WarOfCrowns.Buildings;
 using WarOfCrowns.Core;
+using WarOfCrowns.Units;
+using System.Collections.Generic;
+using System.Collections;
 
 namespace WarOfCrowns.Core
 {
-    public enum GameState { Setup, Playing }
+    public enum GameState { PreGame, Setup, Playing }
 
     public class GameManager : MonoBehaviour
     {
         public static GameManager Instance { get; private set; }
-
         public GameState CurrentState { get; private set; }
+
+        // УБРАЛИ: startingResources (теперь это в JSON)
 
         [Header("Prefabs")]
         [SerializeField] private GameObject townHallGhostPrefab;
@@ -22,8 +26,8 @@ namespace WarOfCrowns.Core
         [SerializeField] private float setupTime = 60f;
         [SerializeField] private int startingPeasants = 10;
 
-        [Header("UI References")]
-     
+        [Header("System References")]
+        [SerializeField] private UnitSelectionController selectionController;
 
         private GameObject _currentGhost;
         private float _timer;
@@ -31,14 +35,19 @@ namespace WarOfCrowns.Core
 
         private void Awake()
         {
-            if (Instance != null && Instance != this) Destroy(gameObject);
-            else Instance = this;
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
 
             _mainCamera = Camera.main;
+            CurrentState = GameState.PreGame;
         }
 
-        private void Start()
+        // Вызывается из GameLoader
+        public void InitializeGame()
         {
+            // Мы больше не выдаем ресурсы здесь вручную.
+            // Kingdom сам загрузил их из JSON в своем Awake.
+
             StartSetupPhase();
         }
 
@@ -53,6 +62,7 @@ namespace WarOfCrowns.Core
         private void StartSetupPhase()
         {
             CurrentState = GameState.Setup;
+            selectionController.enabled = false;
             _timer = setupTime;
             _currentGhost = Instantiate(townHallGhostPrefab, Vector3.zero, Quaternion.identity);
         }
@@ -62,41 +72,51 @@ namespace WarOfCrowns.Core
             Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
             Vector3 mouseWorldPos = _mainCamera.ScreenToWorldPoint(mouseScreenPos);
             mouseWorldPos.z = 0;
-            _currentGhost.transform.position = mouseWorldPos;
+            if (_currentGhost != null) _currentGhost.transform.position = mouseWorldPos;
 
             _timer -= Time.deltaTime;
-            if (_timer <= 0) PlaceTownHall();
-            if (Mouse.current.leftButton.wasPressedThisFrame) PlaceTownHall();
+
+            if (CurrentState == GameState.Setup && (_timer <= 0 || Mouse.current.leftButton.wasPressedThisFrame))
+            {
+                PlaceTownHall();
+            }
         }
 
         private void PlaceTownHall()
         {
-            if (CurrentState != GameState.Setup) return;
+            CurrentState = GameState.Playing;
 
+            if (_currentGhost == null) return;
             Vector3 placementPosition = _currentGhost.transform.position;
+            Destroy(_currentGhost);
+            _currentGhost = null;
 
-            // Просто создаем Мэрию. И всё.
             GameObject townHallInstance = Instantiate(townHallPrefab, placementPosition, Quaternion.identity);
 
-            Destroy(_currentGhost);
+            if (townHallInstance.TryGetComponent<Building>(out var buildingLogic))
+                buildingLogic.OwningKingdom = Kingdom.PlayerKingdom;
+            if (townHallInstance.TryGetComponent<TownHall>(out var townHallLogic))
+                townHallLogic.OwningKingdom = Kingdom.PlayerKingdom;
+
             StartGamePhase(placementPosition);
         }
 
         private void StartGamePhase(Vector3 townHallPosition)
         {
-            CurrentState = GameState.Playing;
-            Debug.Log("Game has started!");
+            selectionController.enabled = true;
 
             if (PopulationManager.Instance != null)
-            {
                 PopulationManager.Instance.SetInitialPopulation(0, 10);
-            }
 
             for (int i = 0; i < startingPeasants; i++)
             {
                 float angle = i * (360f / startingPeasants);
                 Vector3 spawnOffset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad), 0) * 5f;
-                Instantiate(peasantPrefab, townHallPosition + spawnOffset, Quaternion.identity);
+                GameObject peasantInstance = Instantiate(peasantPrefab, townHallPosition + spawnOffset, Quaternion.identity);
+                if (peasantInstance.TryGetComponent<Unit>(out var unit))
+                {
+                    unit.OwningKingdom = Kingdom.PlayerKingdom;
+                }
             }
         }
     }

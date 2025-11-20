@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6196100810782778054}
   - component: {fileID: -3173500643547708929}
   - component: {fileID: 8948170590749846860}
+  - component: {fileID: 7467898565288513252}
   m_Layer: 12
   m_Name: Farm_Foundation
   m_TagString: Untagged
@@ -99,8 +100,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fb8f3814ec2e774b803e28f859854d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _buildTime: 10
-  _finishedBuildingPrefab: {fileID: 5059360998193426403, guid: 3fcb06fe633828f488b0fa2650e79254, type: 3}
+  buildTime: 10
+  finishedBuildingPrefab: {fileID: 5059360998193426403, guid: 3fcb06fe633828f488b0fa2650e79254, type: 3}
 --- !u!114 &-3173500643547708929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,3 +141,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &7467898565288513252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180180695958035045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34152cb605c285b43a73301ec6fe9659, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingName: Farm
+  buildingIcon: {fileID: 0}
+  description: "\u041F\u043E\u0437\u0432\u043E\u043B\u044F\u0435\u0442 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u044C
+    \u043F\u0448\u0435\u043D\u043E"
+  costs:
+  - resourceType: 0
+    amount: 50
+  populationBonus: 0
+  OwningKingdom: {fileID: 0}
