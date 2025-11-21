@@ -1,21 +1,22 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // <-- ВАЖНО: Мы подключаем новую систему ввода
+using UnityEngine.InputSystem;
 
 namespace WarOfCrowns.Core
 {
-    /// <summary>
-    /// Manages camera movement and zoom using the new Input System.
-    /// </summary>
     public class CameraController : MonoBehaviour
     {
-        [Header("Movement Settings")]
-        [SerializeField] private float moveSpeed = 50f;
-        [SerializeField] private float edgePanThreshold = 20f;
+        [Header("Клавиатура")]
+        [SerializeField] private float keyboardMoveSpeed = 20f;
 
-        [Header("Zoom Settings")]
+        [Header("Мышь (Перетаскивание)")]
+        [SerializeField] private float dragSpeed = 0.5f; // Чувствительность мыши
+        [Tooltip("Инвертировать ли движение мыши (как на тачпадах)")]
+        [SerializeField] private bool invertDrag = false;
+
+        [Header("Зум")]
         [SerializeField] private float minZoomSize = 5f;
-        [SerializeField] private float maxZoomSize = 50f;
-        [SerializeField] private float zoomStep = 2f; // How much each scroll tick zooms
+        [SerializeField] private float maxZoomSize = 30f;
+        [SerializeField] private float zoomStep = 2f;
 
         private Camera _mainCamera;
 
@@ -24,79 +25,59 @@ namespace WarOfCrowns.Core
             _mainCamera = GetComponent<Camera>();
         }
 
-        private void Update()
+        private void LateUpdate()
         {
-            HandleMovement();
+            HandleKeyboardMovement();
+            HandleMouseDrag();
             HandleZoom();
         }
 
-        private void HandleMovement()
+        private void HandleKeyboardMovement()
         {
-            Vector2 inputDirection = Vector2.zero;
+            if (Keyboard.current == null) return;
 
-            // Keyboard input using the new Input System
-            var keyboard = Keyboard.current;
-            if (keyboard == null) return; // Guard clause in case there's no keyboard
+            Vector3 inputDirection = Vector3.zero;
 
-            if (keyboard.wKey.isPressed || keyboard.upArrowKey.isPressed)
-            {
-                inputDirection.y += 1;
-            }
-            if (keyboard.sKey.isPressed || keyboard.downArrowKey.isPressed)
-            {
-                inputDirection.y -= 1;
-            }
-            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed)
-            {
-                inputDirection.x -= 1;
-            }
-            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed)
-            {
-                inputDirection.x += 1;
-            }
+            // WASD и Стрелки
+            if (Keyboard.current.wKey.isPressed || Keyboard.current.upArrowKey.isPressed) inputDirection.y += 1;
+            if (Keyboard.current.sKey.isPressed || Keyboard.current.downArrowKey.isPressed) inputDirection.y -= 1;
+            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed) inputDirection.x -= 1;
+            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed) inputDirection.x += 1;
 
-            // Mouse edge panning using the new Input System
-            var mouse = Mouse.current;
-            if (mouse != null)
+            transform.position += inputDirection.normalized * (keyboardMoveSpeed * Time.deltaTime);
+        }
+
+        private void HandleMouseDrag()
+        {
+            if (Mouse.current == null) return;
+
+            // ИЗМЕНЕНИЕ: Теперь проверяем ТОЛЬКО среднюю кнопку (колесико)
+            if (Mouse.current.middleButton.isPressed)
             {
-                Vector2 mousePosition = mouse.position.ReadValue();
-                if (mousePosition.x < edgePanThreshold)
-                {
-                    inputDirection.x -= 1;
-                }
-                else if (mousePosition.x > Screen.width - edgePanThreshold)
-                {
-                    inputDirection.x += 1;
-                }
+                Vector2 delta = Mouse.current.delta.ReadValue();
 
-                if (mousePosition.y < edgePanThreshold)
-                {
-                    inputDirection.y -= 1;
-                }
-                else if (mousePosition.y > Screen.height - edgePanThreshold)
-                {
-                    inputDirection.y += 1;
-                }
+                float direction = invertDrag ? 1f : -1f;
+
+                Vector3 move = new Vector3(delta.x * direction, delta.y * direction, 0);
+
+                // Масштабируем скорость от зума
+                float zoomFactor = _mainCamera.orthographicSize / 10f;
+
+                transform.position += move * (dragSpeed * zoomFactor * Time.deltaTime);
             }
-
-            // Apply movement
-            Vector3 moveDirection = transform.up * inputDirection.y + transform.right * inputDirection.x;
-            transform.position += moveDirection.normalized * (moveSpeed * Time.deltaTime);
         }
 
         private void HandleZoom()
         {
-            var mouse = Mouse.current;
-            if (mouse == null) return;
+            if (Mouse.current == null) return;
 
-            float scrollValue = mouse.scroll.ReadValue().y;
+            float scrollValue = Mouse.current.scroll.ReadValue().y;
 
             if (Mathf.Abs(scrollValue) > 0.1f)
             {
-                // Normalize scroll value to be either +1 or -1
                 float direction = Mathf.Sign(scrollValue);
-
                 float newSize = _mainCamera.orthographicSize - direction * zoomStep;
+
                 _mainCamera.orthographicSize = Mathf.Clamp(newSize, minZoomSize, maxZoomSize);
             }
         }

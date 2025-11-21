@@ -1,78 +1,69 @@
 using System;
 using System.Collections.Generic;
-using WarOfCrowns.Core; // Чтобы видеть ResourceType
+using WarOfCrowns.Core;
 
 namespace WarOfCrowns.Data
 {
-    // --- 1. ДАННЫЕ КОРОЛЕВСТВА (resources.json) ---
-    [Serializable]
-    public class KingdomSaveData
-    {
-        // Мы не можем сохранить Dictionary в JSON напрямую, поэтому используем список
-        public List<ResourceSaveEntry> inventory = new List<ResourceSaveEntry>();
+    // --- 1. ЭКОНОМИКА ---
+    [Serializable] public class KingdomSaveData { public List<ResourceSaveEntry> inventory = new List<ResourceSaveEntry>(); }
+    [Serializable] public class ResourceSaveEntry { public ResourceType type; public int amount; public ResourceSaveEntry(ResourceType t, int a) { type = t; amount = a; } }
 
-        // Сюда позже добавим:
-        // public float legitimacy;
-        // public int populationCap;
-    }
-
-    [Serializable]
-    public class ResourceSaveEntry
-    {
-        public ResourceType type;
-        public int amount;
-
-        // Конструктор для удобства
-        public ResourceSaveEntry(ResourceType t, int a)
-        {
-            type = t;
-            amount = a;
-        }
-    }
-
-    // --- 2. ДАННЫЕ ЮНИТОВ (units.json) ---
-    [Serializable]
-    public class UnitListWrapper
-    {
-        public List<UnitSaveData> units = new List<UnitSaveData>();
-    }
+    // --- 2. ЮНИТЫ ---
+    [Serializable] public class UnitListWrapper { public List<UnitSaveData> units = new List<UnitSaveData>(); }
 
     [Serializable]
     public class UnitSaveData
     {
-        public string unitName;      // Имя (Боб, Джек)
-        public string prefabName;    // Имя префаба для загрузки (Peasant_Prototype)
+        public string uniqueID;
+        public string unitName;
+        public string prefabName;
+        public int gender;
 
-        // Позиция (Vector3 не всегда хорошо сериализуется, надежнее хранить отдельно)
-        public float posX;
-        public float posY;
-        public float posZ;
-
+        public float posX, posY, posZ;
         public float currentHealth;
         public float currentHunger;
 
-        // public string job; // На будущее
+        public string profession;
+        public int aiState;
+        public string workplaceID;
+
+        // --- НОВЫЕ ПОЛЯ ---
+        public string targetResourceID; // ID ресурса, который мы рубим
+        public bool isMoving;           // Двигаемся ли мы?
+        public float moveTargetX, moveTargetY, moveTargetZ; // Куда мы идем?
     }
 
-    // --- 3. ДАННЫЕ ЗДАНИЙ (buildings.json) ---
-    [Serializable]
-    public class BuildingListWrapper
-    {
-        public List<BuildingSaveData> buildings = new List<BuildingSaveData>();
-    }
-
+    // --- 3. ЗДАНИЯ ---
+    [Serializable] public class BuildingListWrapper { public List<BuildingSaveData> buildings = new List<BuildingSaveData>(); }
     [Serializable]
     public class BuildingSaveData
     {
-        public string buildingID;    // Уникальный ID (на будущее)
-        public string prefabName;    // Имя префаба (House_Building, Warehouse_Building)
-
-        public float posX;
-        public float posY;
-        public float posZ;
-
-        public float currentHealth;
-        public bool isConstructionSite; // Это фундамент или готовое здание?
-        public float constructionProgress; // Если фундамент
+        public string uniqueID;
+        public string prefabName;
+        public float posX, posY, posZ;
+        public bool isConstructionSite;
+        public float constructionProgress;
+        public float productionProgress;
     }
+
+    // --- 4. РЕСУРСЫ МИРА ---
+    [Serializable]
+    public class WorldResourceListWrapper
+    {
+        public List<ResourceNodeSaveData> activeResources = new List<ResourceNodeSaveData>();
+        public List<RespawnSaveData> respawningResources = new List<RespawnSaveData>();
+    }
+
+    [Serializable]
+    public class ResourceNodeSaveData
+    {
+        public string uniqueID; // <-- ДОБАВИЛИ ID
+        public string prefabName;
+        public float posX, posY, posZ;
+        public int hitsLeft;
+        public float accumulated;
+        public int givenOut;
+    }
+
+    [Serializable] public class RespawnSaveData { public string emptyPrefabName; public string fullPrefabName; public float timeRemaining; public float posX, posY, posZ; }
 }

@@ -1,35 +1,68 @@
-using System.Collections;
 using UnityEngine;
 
 namespace WarOfCrowns.World
 {
     public class RespawnController : MonoBehaviour
     {
-        public void StartRespawning(string prefabName, float time)
+        private string _fullPrefabName;
+        private float _timeRemaining;
+        private bool _isInitialized = false;
+
+        public void StartRespawning(string fullPrefabName, float time)
         {
-            StartCoroutine(RespawnRoutine(prefabName, time));
+            _fullPrefabName = fullPrefabName;
+            _timeRemaining = time;
+            _isInitialized = true;
         }
 
-        private IEnumerator RespawnRoutine(string prefabName, float time)
+        private void Update()
         {
-            // Ждем указанное время (60 секунд)
-            yield return new WaitForSeconds(time);
+            if (!_isInitialized) return;
 
-            // Загружаем префаб полного куста из папки Resources
-            GameObject prefabToRespawn = Resources.Load<GameObject>(prefabName);
+            _timeRemaining -= Time.deltaTime;
+
+            if (_timeRemaining <= 0)
+            {
+                Respawn();
+            }
+        }
+
+        private void Respawn()
+        {
+            GameObject prefabToRespawn = Resources.Load<GameObject>(_fullPrefabName);
 
             if (prefabToRespawn != null)
             {
-                // Создаем полный куст на том же месте
                 Instantiate(prefabToRespawn, transform.position, transform.rotation);
             }
             else
             {
-                Debug.LogError($"RespawnController: Не могу найти префаб с именем '{prefabName}' в папке Assets/Resources!");
+                Debug.LogError($"RespawnController: Не могу найти префаб '{_fullPrefabName}' в Resources!");
             }
 
-            // Уничтожаем пустой куст (себя)
             Destroy(gameObject);
+        }
+
+        // --- МЕТОДЫ ДЛЯ СОХРАНЕНИЯ ---
+        public WarOfCrowns.Data.RespawnSaveData GetSaveData()
+        {
+            var data = new WarOfCrowns.Data.RespawnSaveData();
+            // Получаем имя текущего объекта (пустого куста), убирая (Clone)
+            data.emptyPrefabName = gameObject.name.Replace("(Clone)", "").Trim();
+            data.fullPrefabName = _fullPrefabName;
+            data.timeRemaining = _timeRemaining;
+            data.posX = transform.position.x;
+            data.posY = transform.position.y;
+            data.posZ = transform.position.z;
+            return data;
+        }
+
+        // Метод для загрузки
+        public void LoadFromData(WarOfCrowns.Data.RespawnSaveData data)
+        {
+            _fullPrefabName = data.fullPrefabName;
+            _timeRemaining = data.timeRemaining;
+            _isInitialized = true;
         }
     }
 }

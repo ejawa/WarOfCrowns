@@ -15,7 +15,9 @@ namespace WarOfCrowns.Units
 
         [SerializeField] private float gatherDistance = 2f;
         [SerializeField] private float gatherRate = 1f;
-        [SerializeField] private int gatherAmountPerTick = 10;
+
+        // --- СВОЙСТВО ДЛЯ СОХРАНЕНИЯ ---
+        public ResourceNode CurrentTarget => _currentTarget;
 
         private void Awake()
         {
@@ -34,6 +36,7 @@ namespace WarOfCrowns.Units
         {
             if (_gatherCoroutine != null) StopCoroutine(_gatherCoroutine);
             _gatherCoroutine = null;
+            _currentTarget = null; // Важно сбросить цель
         }
 
         private IEnumerator GatherRoutine()
@@ -50,17 +53,19 @@ namespace WarOfCrowns.Units
 
             _motor.MoveTo(transform.position);
 
-            while (_currentTarget != null && _currentTarget.currentAmount > 0)
+            while (_currentTarget != null)
             {
                 yield return new WaitForSeconds(gatherRate);
                 if (_currentTarget == null) yield break;
 
-                int gatheredAmount = _currentTarget.Gather(gatherAmountPerTick);
+                int gatheredAmount = _currentTarget.TakeHit();
                 if (gatheredAmount > 0)
                 {
                     _unit.OwningKingdom.AddResource(_currentTarget.resourceType, gatheredAmount);
                 }
             }
+            // Ресурс кончился - сбрасываем
+            _currentTarget = null;
         }
     }
 }

@@ -16,7 +16,8 @@ namespace WarOfCrowns.Buildings // <-- Добавили namespace
 
         private List<BuildingCost> _totalCosts;
         private float _currentBuildProgress;
-
+        public float GetProgress() => _currentBuildProgress;
+        public void SetProgress(float value) { _currentBuildProgress = value; }
         private void Start()
         {
             _totalCosts = GetComponent<Building>().costs;
@@ -95,6 +96,7 @@ namespace WarOfCrowns.Buildings // <-- Добавили namespace
                 Destroy(gameObject);
                 return true;
             }
+
             return false;
         }
     }

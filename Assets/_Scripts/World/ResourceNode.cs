@@ -1,45 +1,64 @@
 using UnityEngine;
 using WarOfCrowns.Core;
+using WarOfCrowns.Data;
 
 namespace WarOfCrowns.World
 {
     public class ResourceNode : MonoBehaviour
     {
-        // --- ВОТ ЭТОГО НЕ ХВАТАЛО ---
         public enum DepletionBehaviour { Destroy, Respawn }
-        // ---------------------------
 
         [Header("Настройки Ресурса")]
         public ResourceType resourceType;
-        public int maxAmount = 250;
+        public string resourcePrefabName;
 
-        [HideInInspector]
-        public int currentAmount;
+        [Header("Баланс Добычи")]
+        public int totalResourceAmount = 50;
+        public int hitsToBreak = 10;
 
         [Header("Настройки Истощения")]
         public DepletionBehaviour depletionBehaviour;
-
-        [Tooltip("Префаб ПУСТОГО куста (для ягод).")]
         [SerializeField] private GameObject depletedPrefab;
-
-        [Tooltip("Имя файла ПОЛНОГО куста в папке Resources (например 'BerryBush_Full').")]
-        [SerializeField] private string resourcePrefabName;
-
+        [SerializeField] private string depletedPrefabName;
         [SerializeField] private float respawnTime = 60f;
+
+        [HideInInspector] public int currentHitsLeft;
+        [HideInInspector] public int resourcesGivenOut;
+        [HideInInspector] public float accumulatedDrop;
+
+        // --- НОВОЕ: Уникальный ID ---
+        public string uniqueID;
 
         private void Awake()
         {
-            currentAmount = maxAmount;
+            if (currentHitsLeft == 0) currentHitsLeft = hitsToBreak;
+
+            // Генерируем ID, если его нет (для новых объектов)
+            if (string.IsNullOrEmpty(uniqueID)) uniqueID = System.Guid.NewGuid().ToString();
         }
 
-        public int Gather(int requestedAmount)
+        public int TakeHit()
         {
-            int amountToGive = Mathf.Min(requestedAmount, currentAmount);
-            currentAmount -= amountToGive;
+            if (currentHitsLeft <= 0) return 0;
 
-            if (currentAmount <= 0)
+            currentHitsLeft--;
+
+            if (currentHitsLeft <= 0)
             {
+                int remaining = totalResourceAmount - resourcesGivenOut;
+                resourcesGivenOut += remaining;
                 Deplete();
+                return remaining;
+            }
+
+            float theoreticalDropPerHit = (float)totalResourceAmount / hitsToBreak;
+            accumulatedDrop += theoreticalDropPerHit;
+            int amountToGive = Mathf.FloorToInt(accumulatedDrop);
+
+            if (amountToGive > 0)
+            {
+                accumulatedDrop -= amountToGive;
+                resourcesGivenOut += amountToGive;
             }
 
             return amountToGive;
@@ -50,26 +69,40 @@ namespace WarOfCrowns.World
             switch (depletionBehaviour)
             {
                 case DepletionBehaviour.Destroy:
-                    // Для дерева и камня - просто уничтожаем
                     Destroy(gameObject);
                     break;
 
                 case DepletionBehaviour.Respawn:
-                    // Для ягод - создаем пустой куст и запускаем таймер
-                    if (depletedPrefab != null)
+                    if (depletedPrefab != null && !string.IsNullOrEmpty(depletedPrefabName))
                     {
-                        GameObject emptyBush = Instantiate(depletedPrefab, transform.position, transform.rotation);
-
-                        // Чтобы респаун сработал, нам нужно имя файла в папке Resources.
-                        // Если ты забыл написать его в инспекторе, попробуем угадать имя объекта.
-                        string nameToLoad = !string.IsNullOrEmpty(resourcePrefabName) ? resourcePrefabName : gameObject.name.Replace("(Clone)", "");
-
-                        // Добавляем контроллер респауна на пустой куст
-                        emptyBush.AddComponent<RespawnController>().StartRespawning(nameToLoad, respawnTime);
+                        GameObject depletedObject = Instantiate(depletedPrefab, transform.position, transform.rotation);
+                        depletedObject.AddComponent<RespawnController>().StartRespawning(depletedPrefabName, respawnTime);
                     }
-                    Destroy(gameObject); // Удаляем полный куст
+                    Destroy(gameObject);
                     break;
             }
+        }
+
+        public ResourceNodeSaveData GetSaveData()
+        {
+            ResourceNodeSaveData data = new ResourceNodeSaveData();
+            data.uniqueID = this.uniqueID; // <-- СОХРАНЯЕМ ID
+            data.prefabName = !string.IsNullOrEmpty(resourcePrefabName) ? resourcePrefabName : gameObject.name.Replace("(Clone)", "").Trim();
+            data.posX = transform.position.x;
+            data.posY = transform.position.y;
+            data.posZ = transform.position.z;
+            data.hitsLeft = this.currentHitsLeft;
+            data.accumulated = this.accumulatedDrop;
+            data.givenOut = this.resourcesGivenOut;
+            return data;
+        }
+
+        public void LoadFromData(ResourceNodeSaveData data)
+        {
+            this.uniqueID = data.uniqueID; // <-- ЗАГРУЖАЕМ ID
+            this.currentHitsLeft = data.hitsLeft;
+            this.accumulatedDrop = data.accumulated;
+            this.resourcesGivenOut = data.givenOut;
         }
     }
 }

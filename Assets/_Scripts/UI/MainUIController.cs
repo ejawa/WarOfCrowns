@@ -5,25 +5,25 @@ using UnityEngine.UI;
 using TMPro;
 using WarOfCrowns.Core;
 using WarOfCrowns.Buildings;
+using WarOfCrowns.Units; // Нужно для Unit, но может конфликтовать
 using System.Text;
-using System;
+using Unity.VisualScripting;
+
 
 namespace WarOfCrowns.UI
 {
     [System.Serializable]
-    public class IconMapping
-    {
-        public ResourceType resourceType;
-        public Sprite icon;
-    }
+    public class IconMapping { public ResourceType resourceType; public Sprite icon; }
 
     public class MainUIController : MonoBehaviour
     {
         #region Inspector Fields
         [Header("Главное")]
         private Kingdom _playerKingdom;
-        [Tooltip("Список ВСЕХ типов ресурсов, которые считаются едой.")]
         [SerializeField] private List<ResourceType> allFoodTypesInGame;
+
+        [Header("Инфо-Панель Юнита")]
+        [SerializeField] private UnitInfoUI unitInfoPanel; // <-- Ссылка на панель юнита
 
         [Header("Верхний Стат-бар")]
         [SerializeField] private GameObject topBarSlotPrefab;
@@ -47,6 +47,7 @@ namespace WarOfCrowns.UI
         [SerializeField] private Button openBuildMenuButton;
         [SerializeField] private GameObject buildSlotPrefab;
         [SerializeField] private Transform buildGridParent;
+        [SerializeField] private Button buildMenuCloseButton; // <-- НОВОЕ ПОЛЕ
 
         [Header("База Иконок")]
         [SerializeField] private List<IconMapping> iconMappings;
@@ -62,9 +63,8 @@ namespace WarOfCrowns.UI
         IEnumerator Start()
         {
             while (Kingdom.PlayerKingdom == null || PopulationManager.Instance == null || buildManager == null)
-            {
                 yield return null;
-            }
+
             _playerKingdom = Kingdom.PlayerKingdom;
             Initialize();
         }
@@ -74,14 +74,11 @@ namespace WarOfCrowns.UI
             if (_isInitialized) return;
             _isInitialized = true;
 
-            foreach (var mapping in iconMappings)
-            {
-                _iconMap[mapping.resourceType] = mapping.icon;
-            }
+            foreach (var mapping in iconMappings) _iconMap[mapping.resourceType] = mapping.icon;
 
             if (warehouseCloseButton != null) warehouseCloseButton.onClick.AddListener(ToggleWarehousePanel);
             if (openBuildMenuButton != null) openBuildMenuButton.onClick.AddListener(ToggleBuildMenu);
-
+            if (buildMenuCloseButton != null) buildMenuCloseButton.onClick.AddListener(ToggleBuildMenu);
             if (warehouseTabAllButton != null) warehouseTabAllButton.onClick.AddListener(() => FilterWarehouse("All"));
             if (warehouseTabFoodButton != null) warehouseTabFoodButton.onClick.AddListener(() => FilterWarehouse("Food"));
             if (warehouseTabMaterialsButton != null) warehouseTabMaterialsButton.onClick.AddListener(() => FilterWarehouse("Materials"));
@@ -105,39 +102,54 @@ namespace WarOfCrowns.UI
         {
             if (_playerKingdom != null) _playerKingdom.OnResourceChanged += UpdateResourceUI;
             if (PopulationManager.Instance != null) PopulationManager.OnPopulationChanged += UpdatePopulationUI;
+
+            // Подписка на выделение юнитов
+            UnitSelectionController.OnSelectionChanged += OnUnitSelectionChanged;
         }
 
         private void UnsubscribeFromEvents()
         {
             if (_playerKingdom != null) _playerKingdom.OnResourceChanged -= UpdateResourceUI;
             if (PopulationManager.Instance != null) PopulationManager.OnPopulationChanged -= UpdatePopulationUI;
+
+            UnitSelectionController.OnSelectionChanged -= OnUnitSelectionChanged;
         }
+
+        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ: ЯВНО УКАЗЫВАЕМ ПРОСТРАНСТВО ИМЕН ---
+        private void OnUnitSelectionChanged(List<WarOfCrowns.Units.Unit> selectedUnits)
+        {
+            if (unitInfoPanel != null)
+            {
+                unitInfoPanel.SetTarget(selectedUnits);
+            }
+        }
+        // ----------------------------------------------------------
 
         public void ToggleWarehousePanel()
         {
-            if (warehousePanel != null)
-                warehousePanel.SetActive(!warehousePanel.activeSelf);
-        }
+            if (warehousePanel == null) return;
 
-        public void ToggleBuildMenu()
-        {
-            if (buildMenuPanel != null)
-                buildMenuPanel.SetActive(!buildMenuPanel.activeSelf);
+            bool isActive = !warehousePanel.activeSelf;
+            warehousePanel.SetActive(isActive);
+
+            // --- ИСПРАВЛЕНИЕ: Если мы открыли панель, обновляем цифры ---
+            if (isActive)
+            {
+                RefreshWarehouseUI();
+                // Также сбрасываем фильтр на "All", чтобы показать всё
+                FilterWarehouse("All");
+            }
+            // ------------------------------------------------------------
         }
+        public void ToggleBuildMenu() { if (buildMenuPanel != null) buildMenuPanel.SetActive(!buildMenuPanel.activeSelf); }
 
         private void UpdateResourceUI(ResourceType type, int amount)
         {
             if (_topBarTexts.ContainsKey(type)) _topBarTexts[type].text = amount.ToString();
-
             bool isFood = false;
             foreach (var food in allFoodTypesInGame) { if (food == type) { isFood = true; break; } }
             if (isFood) UpdateTotalFoodDisplay();
-
-            if (_warehouseSlots.ContainsKey(type))
-            {
-                Transform amountTr = _warehouseSlots[type].transform.Find("Amount_Text");
-                if (amountTr != null) amountTr.GetComponent<TextMeshProUGUI>().text = amount.ToString();
-            }
+            if (warehousePanel.activeSelf) UpdateWarehouseSlot(type, amount);
         }
 
         private void UpdatePopulationUI()
@@ -148,13 +160,9 @@ namespace WarOfCrowns.UI
 
         private void UpdateTotalFoodDisplay()
         {
-            int totalFoodAmount = 0;
-            if (_playerKingdom != null)
-            {
-                foreach (var foodType in allFoodTypesInGame)
-                    totalFoodAmount += _playerKingdom.GetResourceAmount(foodType);
-            }
-            if (_totalFoodText != null) _totalFoodText.text = totalFoodAmount.ToString();
+            int total = 0;
+            if (_playerKingdom != null) foreach (var food in allFoodTypesInGame) total += _playerKingdom.GetResourceAmount(food);
+            if (_totalFoodText != null) _totalFoodText.text = total.ToString();
         }
 
         private void CreateTopBar()
@@ -163,94 +171,79 @@ namespace WarOfCrowns.UI
             {
                 GameObject newSlot = Instantiate(topBarSlotPrefab, topBarParent);
                 newSlot.transform.localScale = Vector3.one;
-
                 Image icon = newSlot.transform.Find("Icon").GetComponent<Image>();
                 if (_iconMap.ContainsKey(resourceType)) icon.sprite = _iconMap[resourceType];
-
-                TextMeshProUGUI text = newSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
-                text.text = _playerKingdom.GetResourceAmount(resourceType).ToString();
-                _topBarTexts[resourceType] = text;
+                newSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>().text = _playerKingdom.GetResourceAmount(resourceType).ToString();
+                _topBarTexts[resourceType] = newSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
             }
-
             GameObject foodSlot = Instantiate(topBarSlotPrefab, topBarParent);
             foodSlot.transform.localScale = Vector3.one;
             foodSlot.transform.Find("Icon").GetComponent<Image>().sprite = totalFoodIcon;
             _totalFoodText = foodSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
             UpdateTotalFoodDisplay();
-
             GameObject popSlot = Instantiate(topBarSlotPrefab, topBarParent);
             popSlot.transform.localScale = Vector3.one;
             popSlot.transform.Find("Icon").GetComponent<Image>().sprite = populationIcon;
             _populationText = popSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
             UpdatePopulationUI();
         }
+        private void RefreshWarehouseUI()
+        {
+            if (_playerKingdom == null) return;
 
+            // Проходим по всем уже созданным слотам
+            foreach (var kvp in _warehouseSlots)
+            {
+                ResourceType type = kvp.Key;
+                GameObject slot = kvp.Value;
+
+                // Получаем актуальное значение из Королевства
+                int currentAmount = _playerKingdom.GetResourceAmount(type);
+
+                // Находим текст и обновляем
+                Transform amountTr = slot.transform.Find("Amount_Text");
+                if (amountTr != null)
+                {
+                    amountTr.GetComponent<TextMeshProUGUI>().text = currentAmount.ToString();
+                }
+            }
+        }
         private void CreateWarehouseSlots()
         {
-            // 1. Защита: проверяем ссылки
-            if (warehouseSlotPrefab == null || warehouseContentParent == null)
-            {
-                Debug.LogError("ОШИБКА: Не назначен Warehouse Slot Prefab или Content Parent!");
-                return;
-            }
-
-            // 2. Очистка старого
+            if (warehouseSlotPrefab == null || warehouseContentParent == null) return;
             foreach (Transform child in warehouseContentParent) Destroy(child.gameObject);
             _warehouseSlots.Clear();
-
-            // 3. Проходим по ВСЕМ ресурсам (аналог списка в топ-баре, только тут берем всё подряд)
             foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
             {
-                if (type == ResourceType.Food) continue; // Пропускаем сытость
-
-                // --- СОЗДАНИЕ (Точно как в Топ-Баре) ---
+                if (type == ResourceType.Food) continue;
                 GameObject newSlot = Instantiate(warehouseSlotPrefab, warehouseContentParent);
-
-                // ВАЖНО: Сброс масштаба, чтобы плашка не была микроскопической или огромной
                 newSlot.transform.localScale = Vector3.one;
-                newSlot.transform.localPosition = Vector3.zero;
+                newSlot.name = $"Slot_{type}";
 
-                // --- НАСТРОЙКА ИКОНКИ ---
-                // Ищем картинку с именем "Icon"
                 Transform iconTr = newSlot.transform.Find("Icon");
                 if (iconTr != null)
                 {
-                    Image icon = iconTr.GetComponent<Image>();
                     if (_iconMap.ContainsKey(type))
                     {
-                        icon.sprite = _iconMap[type];
-                        icon.color = Color.white; // Делаем видимой
+                        iconTr.GetComponent<Image>().sprite = _iconMap[type];
+                        iconTr.GetComponent<Image>().color = Color.white;
                     }
-                    else
-                    {
-                        // Если иконки нет в списке - ставим красную заглушку
-                        icon.color = Color.red;
-                    }
+                    else iconTr.GetComponent<Image>().color = Color.red;
                 }
 
-                // --- НАСТРОЙКА ИМЕНИ ---
-                // Ищем текст с именем "ItemName_Text"
                 Transform nameTr = newSlot.transform.Find("ItemName_Text");
-                if (nameTr != null)
-                {
-                    nameTr.GetComponent<TextMeshProUGUI>().text = type.ToString();
-                }
+                if (nameTr != null) nameTr.GetComponent<TextMeshProUGUI>().text = type.ToString();
 
-                // --- НАСТРОЙКА КОЛИЧЕСТВА ---
-                // Ищем текст с именем "Amount_Text" (в топ-баре это Value_Text)
                 Transform amountTr = newSlot.transform.Find("Amount_Text");
                 if (amountTr != null)
                 {
-                    TextMeshProUGUI amountText = amountTr.GetComponent<TextMeshProUGUI>();
-                    // Берем данные из Kingdom, как и в Топ-Баре
-                    amountText.text = _playerKingdom.GetResourceAmount(type).ToString();
+                    TextMeshProUGUI txt = amountTr.GetComponent<TextMeshProUGUI>();
+                    txt.text = _playerKingdom.GetResourceAmount(type).ToString();
+                    // Мы не сохраняем ссылку на слот в _warehouseSlots, если там нет текста, 
+                    // но так как мы только что его создали, все ок.
                 }
-
-                // Сохраняем в словарь для обновлений
                 _warehouseSlots[type] = newSlot;
             }
-
-            // Заставляем Unity пересчитать размеры списка (иногда глючит без этого)
             LayoutRebuilder.ForceRebuildLayoutImmediate(warehouseContentParent.GetComponent<RectTransform>());
         }
 
@@ -258,23 +251,23 @@ namespace WarOfCrowns.UI
         {
             if (buildManager == null) return;
             foreach (Transform child in buildGridParent) Destroy(child.gameObject);
-
             foreach (var foundationPrefab in buildManager.buildableFoundations)
             {
                 if (foundationPrefab == null) continue;
                 GameObject newSlot = Instantiate(buildSlotPrefab, buildGridParent);
                 newSlot.transform.localScale = Vector3.one;
-
                 Building buildableData = foundationPrefab.GetComponent<Building>();
                 if (buildableData == null) { newSlot.SetActive(false); continue; }
-
                 newSlot.transform.Find("Icon").GetComponent<Image>().sprite = buildableData.buildingIcon;
                 newSlot.transform.Find("Name_Text").GetComponent<TextMeshProUGUI>().text = buildableData.buildingName;
 
                 StringBuilder costText = new StringBuilder();
-                foreach (var cost in buildableData.costs)
-                    costText.Append($"{cost.resourceType}: {cost.amount} ");
+                foreach (var cost in buildableData.costs) costText.Append($"{cost.resourceType}: {cost.amount} ");
                 newSlot.transform.Find("Cost_Text").GetComponent<TextMeshProUGUI>().text = costText.ToString();
+
+                // --- ТЕПЕРЬ МЫ ИСПОЛЬЗУЕМ ОПИСАНИЕ ---
+                Transform descTr = newSlot.transform.Find("Description_Text");
+                if (descTr != null) descTr.GetComponent<TextMeshProUGUI>().text = buildableData.description;
 
                 Button button = newSlot.GetComponent<Button>();
                 button.onClick.AddListener(() => {
@@ -284,21 +277,28 @@ namespace WarOfCrowns.UI
             }
         }
 
+        private void UpdateWarehouseSlot(ResourceType type, int amount)
+        {
+            if (type == ResourceType.Food) return;
+            if (_warehouseSlots.ContainsKey(type))
+            {
+                Transform tr = _warehouseSlots[type].transform.Find("Amount_Text");
+                if (tr != null) tr.GetComponent<TextMeshProUGUI>().text = amount.ToString();
+            }
+        }
+
         private void FilterWarehouse(string category)
         {
             foreach (var slotPair in _warehouseSlots)
             {
                 ResourceType type = slotPair.Key;
                 GameObject slotObject = slotPair.Value;
-
                 bool isFoodType = false;
                 foreach (var food in allFoodTypesInGame) { if (food == type) { isFoodType = true; break; } }
-
                 bool shouldBeActive = false;
                 if (category == "All") shouldBeActive = true;
                 else if (category == "Food" && isFoodType) shouldBeActive = true;
                 else if (category == "Materials" && !isFoodType && type != ResourceType.Food) shouldBeActive = true;
-
                 slotObject.SetActive(shouldBeActive);
             }
         }

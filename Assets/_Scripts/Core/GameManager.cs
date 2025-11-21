@@ -15,7 +15,8 @@ namespace WarOfCrowns.Core
         public static GameManager Instance { get; private set; }
         public GameState CurrentState { get; private set; }
 
-        // УБРАЛИ: startingResources (теперь это в JSON)
+        [Header("Настройки Имен")]
+        [SerializeField] private NameDatabase nameDatabase; // <-- НОВОЕ
 
         [Header("Prefabs")]
         [SerializeField] private GameObject townHallGhostPrefab;
@@ -37,26 +38,30 @@ namespace WarOfCrowns.Core
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-
             _mainCamera = Camera.main;
             CurrentState = GameState.PreGame;
         }
 
-        // Вызывается из GameLoader
         public void InitializeGame()
         {
-            // Мы больше не выдаем ресурсы здесь вручную.
-            // Kingdom сам загрузил их из JSON в своем Awake.
-
             StartSetupPhase();
         }
 
+        // --- НОВЫЙ МЕТОД ---
+        public string GetRandomFullName(Gender gender)
+        {
+            if (nameDatabase != null) return nameDatabase.GetRandomName(gender);
+            return "Unnamed";
+        }
+        // -------------------
+        public Sprite GetRandomPortrait(Gender gender)
+        {
+            if (nameDatabase != null) return nameDatabase.GetRandomPortrait(gender);
+            return null;
+        }
         private void Update()
         {
-            if (CurrentState == GameState.Setup)
-            {
-                UpdateSetupPhase();
-            }
+            if (CurrentState == GameState.Setup) UpdateSetupPhase();
         }
 
         private void StartSetupPhase()
@@ -75,7 +80,6 @@ namespace WarOfCrowns.Core
             if (_currentGhost != null) _currentGhost.transform.position = mouseWorldPos;
 
             _timer -= Time.deltaTime;
-
             if (CurrentState == GameState.Setup && (_timer <= 0 || Mouse.current.leftButton.wasPressedThisFrame))
             {
                 PlaceTownHall();
@@ -85,18 +89,14 @@ namespace WarOfCrowns.Core
         private void PlaceTownHall()
         {
             CurrentState = GameState.Playing;
-
             if (_currentGhost == null) return;
             Vector3 placementPosition = _currentGhost.transform.position;
             Destroy(_currentGhost);
             _currentGhost = null;
 
             GameObject townHallInstance = Instantiate(townHallPrefab, placementPosition, Quaternion.identity);
-
-            if (townHallInstance.TryGetComponent<Building>(out var buildingLogic))
-                buildingLogic.OwningKingdom = Kingdom.PlayerKingdom;
-            if (townHallInstance.TryGetComponent<TownHall>(out var townHallLogic))
-                townHallLogic.OwningKingdom = Kingdom.PlayerKingdom;
+            if (townHallInstance.TryGetComponent<Building>(out var buildingLogic)) buildingLogic.OwningKingdom = Kingdom.PlayerKingdom;
+            if (townHallInstance.TryGetComponent<TownHall>(out var townHallLogic)) townHallLogic.OwningKingdom = Kingdom.PlayerKingdom;
 
             StartGamePhase(placementPosition);
         }
@@ -104,9 +104,7 @@ namespace WarOfCrowns.Core
         private void StartGamePhase(Vector3 townHallPosition)
         {
             selectionController.enabled = true;
-
-            if (PopulationManager.Instance != null)
-                PopulationManager.Instance.SetInitialPopulation(0, 10);
+            if (PopulationManager.Instance != null) PopulationManager.Instance.SetInitialPopulation(0, 10);
 
             for (int i = 0; i < startingPeasants; i++)
             {

@@ -2,42 +2,48 @@ using UnityEngine;
 
 namespace WarOfCrowns.Units
 {
+    [RequireComponent(typeof(Rigidbody2D))]
     public class UnitMotor : MonoBehaviour
     {
         [SerializeField] private float moveSpeed = 5f;
 
+        private Rigidbody2D _rb;
         private Vector3 _targetPosition;
         private bool _isMoving;
 
+        // --- ÑÂÎÉÑÒÂÀ ÄËß ÑÎÕÐÀÍÅÍÈß ---
+        public bool IsMoving => _isMoving;
+        public Vector3 TargetPosition => _targetPosition;
+
         private void Awake()
         {
-            // Set initial target to current position to avoid moving at start
+            _rb = GetComponent<Rigidbody2D>();
             _targetPosition = transform.position;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            if (!_isMoving) return;
-
-            // If we are very close to the target, stop moving
-            if (Vector3.Distance(transform.position, _targetPosition) < 0.1f)
+            if (!_isMoving)
             {
-                _isMoving = false;
+                _rb.velocity = Vector2.zero;
                 return;
             }
 
-            // Move towards the target position
-            transform.position = Vector3.MoveTowards(transform.position, _targetPosition, moveSpeed * Time.deltaTime);
+            float distance = Vector3.Distance(transform.position, _targetPosition);
+            if (distance < 0.1f)
+            {
+                _isMoving = false;
+                _rb.velocity = Vector2.zero;
+                return;
+            }
+
+            Vector2 direction = (_targetPosition - transform.position).normalized;
+            _rb.MovePosition(_rb.position + direction * moveSpeed * Time.fixedDeltaTime);
         }
 
         public void MoveTo(Vector3 destination)
         {
-            // We force the destination to be on the same Z plane as the unit
-            destination.z = transform.position.z; // <-- ÃËÀÂÍÎÅ ÈÇÌÅÍÅÍÈÅ
-
-            // We also keep ignoring Y in case of any weird physics interactions
-            //destination.y = transform.position.y;
-
+            destination.z = 0;
             _targetPosition = destination;
             _isMoving = true;
         }

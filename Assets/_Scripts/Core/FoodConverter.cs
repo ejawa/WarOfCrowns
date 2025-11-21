@@ -12,9 +12,12 @@ namespace WarOfCrowns.Core
 
     public class FoodConverter : MonoBehaviour
     {
-        public static FoodConverter Instance { get; private set; } // Синглтон для доступа
+        public static FoodConverter Instance { get; private set; }
 
+        [Header("Справочник Сытости")]
+        [Tooltip("Здесь мы просто указываем, сколько сытости восстанавливает та или иная еда.")]
         [SerializeField] private List<FoodSatietyMapping> foodSatietyTable;
+
         private Dictionary<ResourceType, int> _satietyMap = new Dictionary<ResourceType, int>();
 
         private void Awake()
@@ -24,17 +27,18 @@ namespace WarOfCrowns.Core
 
             foreach (var mapping in foodSatietyTable)
             {
-                _satietyMap[mapping.foodType] = mapping.satietyValue;
+                if (!_satietyMap.ContainsKey(mapping.foodType))
+                    _satietyMap.Add(mapping.foodType, mapping.satietyValue);
             }
         }
 
-        // --- НОВЫЙ МЕТОД, КОТОРЫЙ НУЖЕН ДЛЯ UNIT AI ---
+        // Юнит вызывает это, чтобы узнать, наелся ли он
         public int GetSatietyValue(ResourceType type)
         {
-            if (_satietyMap.ContainsKey(type))
-                return _satietyMap[type];
-
-            return 0; // Если не нашли, питательность 0
+            if (_satietyMap.ContainsKey(type)) return _satietyMap[type];
+            return 0;
         }
+
+        // МЕТОД ConvertResourceToSatiety УДАЛЕН, так как он больше не нужен
     }
 }

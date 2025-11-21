@@ -103,6 +103,7 @@ GameObject:
   - component: {fileID: 1566063169048990585}
   - component: {fileID: -6850484479557729173}
   - component: {fileID: 8254754645931274569}
+  - component: {fileID: 7092683016177499422}
   m_Layer: 9
   m_Name: Peasant_Prototype
   m_TagString: Untagged
@@ -140,7 +141,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherDistance: 2
   gatherRate: 1
-  gatherAmountPerTick: 10
 --- !u!114 &-538273275170642266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289,7 +289,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selectionIndicator: {fileID: 2547856546734986452}
-  hunger: 0
+  unitName: 
+  gender: 0
+  unitPortrait: {fileID: 0}
+  profession: 0
+  satiety: 100
+  uniqueID: 
+  savedWorkplaceID: 
+  savedState: 0
 --- !u!114 &8254754645931274569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303,3 +310,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   foodPriorityList: 0500000006000000
+--- !u!50 &7092683016177499422
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276777165091647620}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0

@@ -11,8 +11,12 @@ namespace WarOfCrowns.Units
         private JobBuilding _targetJob;
         private Coroutine _workCoroutine;
 
-        // На каком расстоянии от стены здания останавливаться
         [SerializeField] private float workDistance = 0.5f;
+
+        // --- НОВОЕ СВОЙСТВО ---
+        // Позволяет узнать текущее место работы (нужно для AI)
+        public JobBuilding CurrentJob => _targetJob;
+        // ----------------------
 
         private void Awake() { _motor = GetComponent<UnitMotor>(); }
 
@@ -25,53 +29,36 @@ namespace WarOfCrowns.Units
 
         public void StopWorking()
         {
-            if (_workCoroutine != null) StopCoroutine(_workCoroutine);
-            _workCoroutine = null;
+            if (_workCoroutine != null)
+            {
+                StopCoroutine(_workCoroutine);
+                _workCoroutine = null;
+            }
+            _targetJob = null;
         }
 
         private IEnumerator WorkRoutine()
         {
             if (_targetJob == null) yield break;
 
-            // Получаем коллайдер здания (стены), чтобы знать, где остановиться
             Collider2D buildingCollider = _targetJob.GetComponent<Collider2D>();
+            if (buildingCollider == null) yield break;
 
-            if (buildingCollider == null)
-            {
-                Debug.LogError($"Building {_targetJob.name} has no Collider! Unit cannot find where to stop.");
-                yield break;
-            }
-
-            // --- ДВИЖЕНИЕ К ЦЕЛИ ---
             while (true)
             {
                 if (_targetJob == null) yield break;
-
-                // Находим ближайшую точку на КРАЮ (периметре) здания
                 Vector3 targetPoint = buildingCollider.ClosestPoint(transform.position);
-
-                // Проверяем расстояние до этой точки (до стены)
-                float distanceToWall = Vector3.Distance(transform.position, targetPoint);
-
-                if (distanceToWall <= workDistance)
-                {
-                    // Мы пришли!
-                    break;
-                }
-
-                // Идем к этой точке на стене
+                if (Vector3.Distance(transform.position, targetPoint) <= workDistance) break;
                 _motor.MoveTo(targetPoint);
                 yield return null;
             }
 
-            // Останавливаемся
             _motor.MoveTo(transform.position);
 
-            // --- РАБОТА ---
             while (_targetJob != null)
             {
                 yield return new WaitForSeconds(1f);
-                _targetJob.AddWorkProgress(1f);
+                if (_targetJob != null) _targetJob.AddWorkProgress(1f);
             }
         }
     }

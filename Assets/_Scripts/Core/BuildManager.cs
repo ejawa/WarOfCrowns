@@ -75,47 +75,22 @@ namespace WarOfCrowns.Core
 
         private void PlaceFoundation()
         {
-            if (_foundationToBuild == null) return;
-
-            Building buildingData = _foundationToBuild.GetComponent<Building>();
-
-            // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
-            // Мы НЕ вызываем TrySpendResources. Мы делаем "фейковую" проверку вручную.
-            bool canAfford = true;
-            if (buildingData != null)
+            if (_foundationToBuild == null)
             {
-                foreach (var cost in buildingData.costs)
-                {
-                    if (Kingdom.PlayerKingdom.GetResourceAmount(cost.resourceType) < cost.amount)
-                    {
-                        canAfford = false;
-                        break;
-                    }
-                }
+                ExitBuildMode();
+                return;
             }
 
-            if (canAfford)
-            {
-                // Ресурсы НЕ тратим, просто ставим фундамент.
-                // Тратить их будет ConstructionSite.cs по мере работы.
-                GameObject foundationInstance = Instantiate(_foundationToBuild, _ghostInstance.transform.position, Quaternion.identity);
+            // --- ИЗМЕНЕНИЕ: УБРАЛИ ПРОВЕРКУ РЕСУРСОВ ---
+            // Мы просто ставим фундамент. Проверять ресурсы будет строитель.
 
-                if (foundationInstance.TryGetComponent<ConstructionSite>(out var site))
-                {
-                    site.OwningKingdom = Kingdom.PlayerKingdom;
-                }
+            GameObject foundationInstance = Instantiate(_foundationToBuild, _ghostInstance.transform.position, Quaternion.identity);
 
-                // Присваиваем гражданство, если есть Building компонент
-                if (foundationInstance.TryGetComponent<Building>(out var building))
-                {
-                    building.OwningKingdom = Kingdom.PlayerKingdom;
-                }
-            }
-            else
+            // Передаем гражданство на стройплощадку
+            if (foundationInstance.TryGetComponent<ConstructionSite>(out var site))
             {
-                Debug.Log("Not enough resources to start construction!");
+                site.OwningKingdom = Kingdom.PlayerKingdom;
             }
-            // --- ---
 
             ExitBuildMode();
         }

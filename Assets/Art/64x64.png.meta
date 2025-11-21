@@ -177,7 +177,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_4
+      name: Army
       rect:
         serializedVersion: 2
         x: 256
@@ -13911,7 +13911,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_658
+      name: Heart
       rect:
         serializedVersion: 2
         x: 128
@@ -47654,7 +47654,6 @@ TextureImporter:
       64x64_397: -369220661
       64x64_398: -1859001721
       64x64_399: -633732989
-      64x64_4: -1300717648
       64x64_40: -1525838865
       64x64_400: 908904290
       64x64_401: 728621441
@@ -47935,7 +47934,6 @@ TextureImporter:
       64x64_654: -383255989
       64x64_656: 1855847993
       64x64_657: -293442657
-      64x64_658: -1510168959
       64x64_659: 331549821
       64x64_66: 852590842
       64x64_660: -2114593198
@@ -48314,10 +48312,12 @@ TextureImporter:
       64x64_997: -1325765954
       64x64_998: -448903090
       64x64_999: -1640345144
+      Army: -1300717648
       Berry: 930584566
       Bread: 1246227248
       Flour: 1376993505
       Gold: 214396534
+      Heart: -1510168959
       Hous: -1246915534
       House: -587968393
       Legitim: 361977344

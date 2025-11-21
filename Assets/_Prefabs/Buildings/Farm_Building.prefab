@@ -140,7 +140,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc19e5936f64d74bbe06b60f491a9d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectionUIPrefab: {fileID: 0}
+  opensGlobalWarehouse: 0
+  selectionUIPrefab: {fileID: 8844993809538989454, guid: 647c5668cc5efa24e8aa7694e93d1d17, type: 3}
 --- !u!114 &5750724852858085403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,6 +154,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 327615bb67d482548a794b629338ac93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  requiredProfession: 2
+  maxWorkers: 2
   producedResource: 3
   producedAmount: 1
   productionTime: 10

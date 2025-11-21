@@ -59,6 +59,10 @@ namespace WarOfCrowns.Buildings
 
                 if (_uiInstance != null) _uiInstance.SetActive(true);
             }
+            if (_uiInstance.TryGetComponent<JobUIProxy>(out var jobProxy) && TryGetComponent<JobBuilding>(out var jobBuilding))
+            {
+                jobProxy.Initialize(jobBuilding);
+            }
         }
 
         public void Deselect()

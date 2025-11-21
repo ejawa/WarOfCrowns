@@ -115,9 +115,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceType: 5
-  maxAmount: 250
-  currentAmount: 0
+  resourcePrefabName: BerryBush_Full
+  totalResourceAmount: 50
+  hitsToBreak: 10
   depletionBehaviour: 1
   depletedPrefab: {fileID: 6354405093508171279, guid: 52819c04362a2c14194c90b503402d15, type: 3}
-  resourcePrefabName: BerryBush_Full
+  depletedPrefabName: BerryBush_Full
   respawnTime: 60
+  currentHitsLeft: 0
+  resourcesGivenOut: 0
+  accumulatedDrop: 0
