@@ -17,7 +17,11 @@ namespace WarOfCrowns.Core
 
         [Header("Настройки Имен")]
         [SerializeField] private NameDatabase nameDatabase; // <-- НОВОЕ
+                                                            // В GameManager.cs добавь:
 
+        [Header("Внешность")]
+        [SerializeField] private AppearanceDatabase appearanceDatabase;
+        public AppearanceDatabase AppearanceDB => appearanceDatabase; // Свойство для доступа
         [Header("Prefabs")]
         [SerializeField] private GameObject townHallGhostPrefab;
         [SerializeField] private GameObject townHallPrefab;

@@ -69,6 +69,10 @@ namespace WarOfCrowns.Core
 
         private void HandleZoom()
         {
+            // --- ИСПРАВЛЕНИЕ: Если курсор на UI, не зумим ---
+            if (UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject()) return;
+            // ------------------------------------------------
+
             if (Mouse.current == null) return;
 
             float scrollValue = Mouse.current.scroll.ReadValue().y;

@@ -1,12 +1,12 @@
 using UnityEngine;
 using WarOfCrowns.Core;
 using WarOfCrowns.Data;
-using WarOfCrowns.World; // Для ResourceNode
-using System.Linq;       // Для поиска по ID
+using WarOfCrowns.World;
+using System.Linq;
 
 namespace WarOfCrowns.Units
 {
-    [RequireComponent(typeof(UnitAI))]
+    [RequireComponent(typeof(UnitAI), typeof(UnitVisuals))]
     public class Unit : MonoBehaviour
     {
         [Header("Настройки")]
@@ -15,8 +15,11 @@ namespace WarOfCrowns.Units
         [Header("Личность")]
         public string unitName;
         public Gender gender;
-        public Sprite unitPortrait;
         public ProfessionType profession = ProfessionType.Unemployed;
+
+        // --- ВЕРНУЛИ ЭТО ПОЛЕ ---
+        public Sprite unitPortrait; // Аватарка для UI списков
+        // ------------------------
 
         [Header("Потребности")]
         [Tooltip("100 = сыт, 0 = умирает")]
@@ -24,17 +27,22 @@ namespace WarOfCrowns.Units
         private const float HUNGER_RATE = 0.5f;
         public bool IsEating { get; set; } = false;
 
-        // Ссылки и ID
+        [Header("Экипировка")]
+        public ResourceType currentTool = ResourceType.Wood;
+        public ResourceType currentWeapon = ResourceType.Wood;
+        public ResourceType currentArmor = ResourceType.Wood;
+
+        // Ссылки
         public Kingdom OwningKingdom { get; set; }
-        public string uniqueID; // Уникальный ID для сохранений
+        public string uniqueID;
 
         // Компоненты
         private UnitAI _ai;
         private Health _health;
+        private UnitVisuals _visuals;
         private float _manualOverrideTimer = 0f;
 
-        // --- ВРЕМЕННЫЕ ДАННЫЕ ДЛЯ ЗАГРУЗКИ ---
-        // Мы храним их здесь, пока SaveManager не вызовет RestoreActions
+        // Временные данные для загрузки
         [HideInInspector] public string savedWorkplaceID;
         [HideInInspector] public UnitState savedState;
         private string _savedResourceID;
@@ -45,22 +53,31 @@ namespace WarOfCrowns.Units
         {
             _ai = GetComponent<UnitAI>();
             _health = GetComponent<Health>();
+            _visuals = GetComponent<UnitVisuals>();
 
-            // Если это новый юнит (не загруженный), генерируем ID
             if (string.IsNullOrEmpty(uniqueID)) uniqueID = System.Guid.NewGuid().ToString();
         }
 
         private void Start()
         {
-            // Генерация личности
             if (string.IsNullOrEmpty(unitName))
             {
+                // 1. Генерируем пол
                 gender = (Random.Range(0, 2) == 0) ? Gender.Male : Gender.Female;
 
                 if (GameManager.Instance != null)
                 {
+                    // 2. Генерируем имя
                     unitName = GameManager.Instance.GetRandomFullName(gender);
+
+                    // 3. Генерируем ПОРТРЕТ (Аватарку)
                     unitPortrait = GameManager.Instance.GetRandomPortrait(gender);
+
+                    // 4. Генерируем ВНЕШНОСТЬ на карте (Тело, Голова, Одежда)
+                    if (GameManager.Instance.AppearanceDB != null)
+                    {
+                        _visuals.InitAppearance(gender, GameManager.Instance.AppearanceDB);
+                    }
                 }
                 else
                 {
@@ -70,7 +87,6 @@ namespace WarOfCrowns.Units
                 satiety = 100f;
             }
 
-            // Регистрация в населении
             if (PopulationManager.Instance != null && !gameObject.CompareTag("Enemy"))
                 PopulationManager.Instance.AddUnit(this);
         }
@@ -80,25 +96,41 @@ namespace WarOfCrowns.Units
             if (!IsEating) satiety -= HUNGER_RATE * Time.deltaTime;
             if (_manualOverrideTimer > 0) _manualOverrideTimer -= Time.deltaTime;
 
-            // Поиск еды (AI)
             if (satiety < 30f && _ai.CurrentState != UnitState.SeekingFood && _manualOverrideTimer <= 0)
             {
                 _ai.SeekFood();
             }
 
-            // Смерть
             if (satiety <= 0f)
             {
                 satiety = 0;
-                Debug.Log($"{unitName} died of starvation!");
                 if (_health != null) _health.TakeDamage(9999);
                 else Destroy(gameObject);
+            }
+        }
+
+        public void EquipItem(ResourceType item)
+        {
+            string itemName = item.ToString();
+
+            if (itemName.Contains("Pickaxe") || itemName.Contains("Axe") || itemName.Contains("Hammer"))
+                currentTool = item;
+            else if (itemName.Contains("Sword") || itemName.Contains("Spear") || itemName.Contains("Bow"))
+                currentWeapon = item;
+            else if (itemName.Contains("Armor"))
+                currentArmor = item;
+
+            if (GameManager.Instance != null && GameManager.Instance.AppearanceDB != null)
+            {
+                _visuals.UpdateEquipment(currentTool, currentWeapon, currentArmor, GameManager.Instance.AppearanceDB);
             }
         }
 
         public void SetProfession(ProfessionType newProfession)
         {
             this.profession = newProfession;
+            if (GameManager.Instance != null && GameManager.Instance.AppearanceDB != null)
+                _visuals.UpdateProfession(newProfession, GameManager.Instance.AppearanceDB);
         }
 
         public void SetManualCommandOverride()
@@ -123,15 +155,9 @@ namespace WarOfCrowns.Units
         public void Select() { if (selectionIndicator) selectionIndicator.SetActive(true); }
         public void Deselect() { if (selectionIndicator) selectionIndicator.SetActive(false); }
 
-        // ==========================================
-        // СИСТЕМА СОХРАНЕНИЯ И ЗАГРУЗКИ
-        // ==========================================
-
         public UnitSaveData GetSaveData()
         {
             UnitSaveData data = new UnitSaveData();
-
-            // Основные данные
             data.uniqueID = this.uniqueID;
             data.unitName = this.unitName;
             data.gender = (int)this.gender;
@@ -139,28 +165,20 @@ namespace WarOfCrowns.Units
             data.posX = transform.position.x;
             data.posY = transform.position.y;
             data.posZ = transform.position.z;
-
-            // Состояние
             data.currentHunger = this.satiety;
             data.profession = this.profession.ToString();
             data.aiState = (int)_ai.CurrentState;
             if (_health != null) data.currentHealth = _health.CurrentHealth;
 
-            // 1. Сохраняем РАБОТУ (ID здания)
             if (TryGetComponent<UnitWorker>(out var worker) && worker.CurrentJob != null)
             {
                 var jobData = worker.CurrentJob.GetComponent<WarOfCrowns.Buildings.Building>();
                 if (jobData != null) data.workplaceID = jobData.uniqueID;
             }
-
-            // 2. Сохраняем СБОР РЕСУРСОВ (ID ресурса)
-            // Нам нужно знать, какой именно куст мы рубим
             if (TryGetComponent<UnitGatherer>(out var gatherer) && gatherer.CurrentTarget != null)
             {
                 data.targetResourceID = gatherer.CurrentTarget.uniqueID;
             }
-
-            // 3. Сохраняем ДВИЖЕНИЕ (куда шли)
             if (TryGetComponent<UnitMotor>(out var motor))
             {
                 data.isMoving = motor.IsMoving;
@@ -174,60 +192,43 @@ namespace WarOfCrowns.Units
 
         public void LoadFromData(UnitSaveData data)
         {
-            this.uniqueID = data.uniqueID;
             this.unitName = data.unitName;
             this.gender = (Gender)data.gender;
-
             gameObject.name = $"Unit_{this.unitName}";
             transform.position = new Vector3(data.posX, data.posY, data.posZ);
-
             this.satiety = data.currentHunger;
             if (_health != null) _health.SetHealth(data.currentHealth);
-
-            if (System.Enum.TryParse(data.profession, out ProfessionType prof))
-                this.profession = prof;
+            if (System.Enum.TryParse(data.profession, out ProfessionType prof)) this.profession = prof;
 
             if (GameManager.Instance != null)
+            {
+                // Генерируем внешность и портрет заново при загрузке (упрощение)
                 unitPortrait = GameManager.Instance.GetRandomPortrait(gender);
 
-            // Сохраняем "сложные" данные во временные переменные.
-            // Мы не можем применить их прямо сейчас, потому что здания и ресурсы могут быть еще не загружены.
+                if (GameManager.Instance.AppearanceDB != null)
+                    _visuals.InitAppearance(gender, GameManager.Instance.AppearanceDB);
+            }
+
+            _savedResourceID = data.targetResourceID;
+            _savedIsMoving = data.isMoving;
+            _savedMoveTarget = new Vector3(data.moveTargetX, data.moveTargetY, data.moveTargetZ);
             this.savedWorkplaceID = data.workplaceID;
             this.savedState = (UnitState)data.aiState;
-
-            this._savedResourceID = data.targetResourceID;
-            this._savedIsMoving = data.isMoving;
-            this._savedMoveTarget = new Vector3(data.moveTargetX, data.moveTargetY, data.moveTargetZ);
         }
 
-        // Вызывается из SaveManager ПОСЛЕ загрузки всего мира
         public void RestoreActions()
         {
-            // 1. Восстанавливаем РУБКУ/СБОР
             if (!string.IsNullOrEmpty(_savedResourceID))
             {
-                // Ищем ресурс по ID среди всех загруженных ресурсов
                 ResourceNode[] allResources = FindObjectsOfType<ResourceNode>();
                 ResourceNode targetNode = allResources.FirstOrDefault(r => r.uniqueID == _savedResourceID);
-
-                if (targetNode != null && TryGetComponent<UnitGatherer>(out var gatherer))
-                {
-                    gatherer.SetTarget(targetNode);
-                    return; // Если начали собирать, движение произойдет само
-                }
+                if (targetNode != null && TryGetComponent<UnitGatherer>(out var gatherer)) gatherer.SetTarget(targetNode);
             }
-
-            // 2. Восстанавливаем ДВИЖЕНИЕ
             if (_savedIsMoving)
             {
-                // Если мы просто шли (и не работали, и не ели)
                 if (_ai.CurrentState != UnitState.SeekingFood && _ai.CurrentState != UnitState.Working)
-                {
                     GetComponent<UnitMotor>().MoveTo(_savedMoveTarget);
-                }
             }
-
-            // (Восстановление работы на здании происходит в SaveManager через JobBuilding.AddWorker)
         }
     }
 }

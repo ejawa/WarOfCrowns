@@ -8,12 +8,17 @@ namespace WarOfCrowns.Units
     public class UnitBuilder : MonoBehaviour
     {
         private UnitMotor _motor;
+        private UnitVisuals _visuals; // <-- Ссылка на визуал
         private ConstructionSite _targetSite;
         private Coroutine _buildCoroutine;
 
         [SerializeField] private float buildDistance = 0.5f;
 
-        private void Awake() { _motor = GetComponent<UnitMotor>(); }
+        private void Awake()
+        {
+            _motor = GetComponent<UnitMotor>();
+            _visuals = GetComponent<UnitVisuals>(); // <-- Получаем компонент
+        }
 
         public void SetTarget(ConstructionSite site)
         {
@@ -38,7 +43,7 @@ namespace WarOfCrowns.Units
                 yield break;
             }
 
-            // --- ИДЕМ К ФУНДАМЕНТУ ---
+            // --- 1. ИДЕМ К ФУНДАМЕНТУ ---
             while (true)
             {
                 if (_targetSite == null) yield break;
@@ -57,13 +62,27 @@ namespace WarOfCrowns.Units
 
             _motor.MoveTo(transform.position); // Стоп
 
-            // --- СТРОИМ ---
+            // --- 2. СТРОИМ ---
             while (_targetSite != null)
             {
+                // --- ДОБАВЛЕНА АНИМАЦИЯ ---
+                if (_visuals != null)
+                {
+                    // Поворачиваемся к центру фундамента
+                    _visuals.FaceTarget(_targetSite.transform.position);
+                    // Запускаем наклон
+                    _visuals.TriggerAttackAnimation();
+                }
+                // ---------------------------
+
                 yield return new WaitForSeconds(1f);
+
+                // Проверка на случай, если здание достроилось или уничтожилось во время ожидания
+                if (_targetSite == null) yield break;
+
                 if (_targetSite.AddBuildProgress(1f))
                 {
-                    yield break;
+                    yield break; // Стройка завершена
                 }
             }
         }

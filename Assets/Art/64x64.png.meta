@@ -3180,7 +3180,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_147
+      name: IronIngot
       rect:
         serializedVersion: 2
         x: 192
@@ -3222,7 +3222,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_149
+      name: GoldIngot
       rect:
         serializedVersion: 2
         x: 320
@@ -3264,7 +3264,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_151
+      name: SteelIngot
       rect:
         serializedVersion: 2
         x: 448
@@ -3453,7 +3453,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_160
+      name: MithrilIngot
       rect:
         serializedVersion: 2
         x: 0
@@ -3537,7 +3537,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_164
+      name: MithrilOre
       rect:
         serializedVersion: 2
         x: 256
@@ -3558,7 +3558,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_165
+      name: ObsidianPlate
       rect:
         serializedVersion: 2
         x: 320
@@ -3705,10 +3705,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_172
+      name: Obsidian
       rect:
         serializedVersion: 2
-        x: 768
+        x: 769
         y: 8064
         width: 64
         height: 64
@@ -4125,7 +4125,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_192
+      name: IronOre
       rect:
         serializedVersion: 2
         x: 0
@@ -4461,7 +4461,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_208
+      name: SteelOre
       rect:
         serializedVersion: 2
         x: 0
@@ -8493,7 +8493,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_400
+      name: IronSpear
       rect:
         serializedVersion: 2
         x: 0
@@ -8535,7 +8535,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_402
+      name: MithrilSpear
       rect:
         serializedVersion: 2
         x: 128
@@ -8577,7 +8577,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_404
+      name: GoldSpear
       rect:
         serializedVersion: 2
         x: 256
@@ -10173,7 +10173,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_480
+      name: RawMeat
       rect:
         serializedVersion: 2
         x: 0
@@ -10341,7 +10341,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_488
+      name: CookedMeat
       rect:
         serializedVersion: 2
         x: 512
@@ -16074,11 +16074,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_761
+      name: GoldOre
       rect:
         serializedVersion: 2
         x: 576
-        y: 5696
+        y: 5697
         width: 64
         height: 64
       alignment: 0
@@ -17922,7 +17922,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_849
+      name: Coal
       rect:
         serializedVersion: 2
         x: 64
@@ -30543,7 +30543,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1450
+      name: IronSword
       rect:
         serializedVersion: 2
         x: 640
@@ -30669,11 +30669,11 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1456
+      name: IronPickaxe
       rect:
         serializedVersion: 2
         x: 0
-        y: 2880
+        y: 2881
         width: 64
         height: 64
       alignment: 0
@@ -30690,7 +30690,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1457
+      name: SteelPickaxe
       rect:
         serializedVersion: 2
         x: 64
@@ -30816,7 +30816,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1463
+      name: SteelAxe
       rect:
         serializedVersion: 2
         x: 448
@@ -30837,7 +30837,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1464
+      name: IronAxe
       rect:
         serializedVersion: 2
         x: 512
@@ -31068,7 +31068,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1475
+      name: SteelHammer
       rect:
         serializedVersion: 2
         x: 192
@@ -31089,7 +31089,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1476
+      name: IronHammer
       rect:
         serializedVersion: 2
         x: 256
@@ -31488,7 +31488,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1495
+      name: StoneSpear
       rect:
         serializedVersion: 2
         x: 448
@@ -31509,7 +31509,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1496
+      name: SteelSpear
       rect:
         serializedVersion: 2
         x: 512
@@ -31761,7 +31761,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1508
+      name: SteelSword
       rect:
         serializedVersion: 2
         x: 256
@@ -31887,10 +31887,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1514
+      name: IronBow
       rect:
         serializedVersion: 2
-        x: 640
+        x: 637
         y: 2688
         width: 64
         height: 64
@@ -31908,7 +31908,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1515
+      name: SteelBow
       rect:
         serializedVersion: 2
         x: 704
@@ -32370,10 +32370,10 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1537
+      name: GoldPickaxe
       rect:
         serializedVersion: 2
-        x: 64
+        x: 65
         y: 2560
         width: 64
         height: 64
@@ -32748,7 +32748,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1555
+      name: WoodenHammer
       rect:
         serializedVersion: 2
         x: 192
@@ -33168,7 +33168,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1575
+      name: WoodenSpear
       rect:
         serializedVersion: 2
         x: 448
@@ -33546,7 +33546,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1593
+      name: GoldBow
       rect:
         serializedVersion: 2
         x: 576
@@ -33651,7 +33651,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1598
+      name: GoldSword
       rect:
         serializedVersion: 2
         x: 896
@@ -34428,7 +34428,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1635
+      name: MithrilHammer
       rect:
         serializedVersion: 2
         x: 192
@@ -35121,7 +35121,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1668
+      name: MithrilSword
       rect:
         serializedVersion: 2
         x: 256
@@ -35247,7 +35247,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1674
+      name: MithrilBow
       rect:
         serializedVersion: 2
         x: 640
@@ -35667,7 +35667,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1694
+      name: ObsidianPickaxe
       rect:
         serializedVersion: 2
         x: 896
@@ -35730,7 +35730,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1697
+      name: ObsidianSword
       rect:
         serializedVersion: 2
         x: 64
@@ -35898,7 +35898,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1705
+      name: GoldHammer
       rect:
         serializedVersion: 2
         x: 576
@@ -35919,7 +35919,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1706
+      name: ObsidianAxe
       rect:
         serializedVersion: 2
         x: 640
@@ -35940,7 +35940,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1707
+      name: WoodenSword
       rect:
         serializedVersion: 2
         x: 704
@@ -35982,7 +35982,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1709
+      name: ObsidianHammer
       rect:
         serializedVersion: 2
         x: 832
@@ -36003,7 +36003,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1710
+      name: GoldAxe
       rect:
         serializedVersion: 2
         x: 896
@@ -36444,7 +36444,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1731
+      name: StoneSword
       rect:
         serializedVersion: 2
         x: 192
@@ -36570,7 +36570,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1737
+      name: MithrilAxe
       rect:
         serializedVersion: 2
         x: 576
@@ -37074,7 +37074,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1761
+      name: WoodenPickaxe
       rect:
         serializedVersion: 2
         x: 64
@@ -37095,7 +37095,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1762
+      name: StonePickaxe
       rect:
         serializedVersion: 2
         x: 128
@@ -37116,7 +37116,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1763
+      name: MithrilPickaxe
       rect:
         serializedVersion: 2
         x: 192
@@ -37368,7 +37368,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1775
+      name: ObsidianSpear
       rect:
         serializedVersion: 2
         x: 960
@@ -37410,7 +37410,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1777
+      name: StoneAxe
       rect:
         serializedVersion: 2
         x: 64
@@ -37452,7 +37452,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1779
+      name: StoneHammer
       rect:
         serializedVersion: 2
         x: 192
@@ -37641,7 +37641,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1788
+      name: WoodenBow
       rect:
         serializedVersion: 2
         x: 768
@@ -37830,7 +37830,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1797
+      name: WoodenAxe
       rect:
         serializedVersion: 2
         x: 320
@@ -38292,7 +38292,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1819
+      name: ObsidianArmor
       rect:
         serializedVersion: 2
         x: 704
@@ -39972,7 +39972,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1899
+      name: MithrilArmor
       rect:
         serializedVersion: 2
         x: 704
@@ -40413,7 +40413,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1920
+      name: IronArmor
       rect:
         serializedVersion: 2
         x: 0
@@ -40434,7 +40434,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1921
+      name: SteelArmor
       rect:
         serializedVersion: 2
         x: 64
@@ -40539,7 +40539,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_1926
+      name: GoldArmor
       rect:
         serializedVersion: 2
         x: 384
@@ -46635,35 +46635,27 @@ TextureImporter:
       64x64_1448: -1397495169
       64x64_1449: -33499863
       64x64_145: -1529477970
-      64x64_1450: -70666053
       64x64_1451: 1659785217
       64x64_1452: 652284683
       64x64_1453: 810336929
       64x64_1454: 2146312512
       64x64_1455: 1191916150
-      64x64_1456: -1033748986
-      64x64_1457: -810904388
       64x64_1458: 1798337534
       64x64_1459: 1628237940
       64x64_146: 450446128
       64x64_1460: -831834932
       64x64_1461: 756063135
       64x64_1462: 64176024
-      64x64_1463: -931648831
-      64x64_1464: -1613638215
       64x64_1465: -631113500
       64x64_1466: 1022306560
       64x64_1467: 741642108
       64x64_1468: -95255546
       64x64_1469: 1228336704
-      64x64_147: 1978088094
       64x64_1470: 2063817410
       64x64_1471: 1891238418
       64x64_1472: -672985426
       64x64_1473: -317291887
       64x64_1474: 2015807126
-      64x64_1475: -296786141
-      64x64_1476: 129497914
       64x64_1477: 1335060075
       64x64_1478: 749982596
       64x64_1479: -1225114868
@@ -46678,14 +46670,11 @@ TextureImporter:
       64x64_1487: 1032288347
       64x64_1488: -759818973
       64x64_1489: -1897248257
-      64x64_149: -27027282
       64x64_1490: 894667205
       64x64_1491: 1949970674
       64x64_1492: 359797952
       64x64_1493: 923739530
       64x64_1494: 1542073079
-      64x64_1495: -1186349001
-      64x64_1496: 1285355313
       64x64_1497: -1024282497
       64x64_1498: -1357492075
       64x64_1499: -1417956597
@@ -46698,15 +46687,11 @@ TextureImporter:
       64x64_1505: 377781048
       64x64_1506: 13031965
       64x64_1507: 153671083
-      64x64_1508: -707360121
       64x64_1509: -133268064
-      64x64_151: -54200413
       64x64_1510: 1054741397
       64x64_1511: -1684124210
       64x64_1512: 199814405
       64x64_1513: 1555983671
-      64x64_1514: 31782384
-      64x64_1515: 303657737
       64x64_1516: -2118935858
       64x64_1517: -379976448
       64x64_1518: -2005547891
@@ -46730,7 +46715,6 @@ TextureImporter:
       64x64_1534: 366030464
       64x64_1535: -473332413
       64x64_1536: -475410543
-      64x64_1537: 212124984
       64x64_1538: 1425511087
       64x64_1539: -1084906348
       64x64_154: 129317223
@@ -46750,7 +46734,6 @@ TextureImporter:
       64x64_1552: -921064767
       64x64_1553: -251201518
       64x64_1554: 513478762
-      64x64_1555: -1341746427
       64x64_1556: 615321043
       64x64_1557: -195712947
       64x64_1558: 588594360
@@ -46772,7 +46755,6 @@ TextureImporter:
       64x64_1572: -1304747780
       64x64_1573: 1089442334
       64x64_1574: -1044829124
-      64x64_1575: 2007784005
       64x64_1576: -1402346311
       64x64_1577: 1242386454
       64x64_1578: -593212035
@@ -46792,15 +46774,12 @@ TextureImporter:
       64x64_1590: -1469674095
       64x64_1591: -243865394
       64x64_1592: -1794954920
-      64x64_1593: 320518372
       64x64_1594: 180093431
       64x64_1595: -1510227120
       64x64_1596: 1214817790
       64x64_1597: -797268694
-      64x64_1598: -2049968349
       64x64_1599: 1842167710
       64x64_16: -1388871595
-      64x64_160: -901534051
       64x64_1600: -381120166
       64x64_1601: -585489058
       64x64_1602: -79179062
@@ -46839,12 +46818,10 @@ TextureImporter:
       64x64_1632: -1338850969
       64x64_1633: -1941788130
       64x64_1634: -1204892375
-      64x64_1635: 1811099176
       64x64_1636: 1494852702
       64x64_1637: 1655964285
       64x64_1638: -1716844756
       64x64_1639: 932973364
-      64x64_164: 207407744
       64x64_1640: 292733229
       64x64_1641: -1210305479
       64x64_1642: 1121661982
@@ -46855,7 +46832,6 @@ TextureImporter:
       64x64_1647: -2060684514
       64x64_1648: -1006028583
       64x64_1649: -2041194633
-      64x64_165: 381110848
       64x64_1650: 794020427
       64x64_1651: -1711022857
       64x64_1652: -844576804
@@ -46875,14 +46851,12 @@ TextureImporter:
       64x64_1665: -672674369
       64x64_1666: -1148485339
       64x64_1667: 1481973800
-      64x64_1668: -1150255909
       64x64_1669: -1584643281
       64x64_167: 1372204146
       64x64_1670: -1100065523
       64x64_1671: 778251809
       64x64_1672: -1933360789
       64x64_1673: -449762345
-      64x64_1674: -1276740683
       64x64_1675: -1722740999
       64x64_1676: -950424290
       64x64_1677: 1419409147
@@ -46904,10 +46878,8 @@ TextureImporter:
       64x64_1691: -1401404822
       64x64_1692: 1294835246
       64x64_1693: 47077380
-      64x64_1694: 1354843205
       64x64_1695: 347334264
       64x64_1696: 1063652368
-      64x64_1697: 311085004
       64x64_1698: 1024258565
       64x64_1699: -61467782
       64x64_17: -1244780317
@@ -46917,13 +46889,8 @@ TextureImporter:
       64x64_1702: 603459151
       64x64_1703: -1653731090
       64x64_1704: -1245210787
-      64x64_1705: -2014663129
-      64x64_1706: -64560005
-      64x64_1707: -2119004919
       64x64_1708: -1858761383
-      64x64_1709: 527198223
       64x64_171: -80936782
-      64x64_1710: 1748031167
       64x64_1711: 1342082838
       64x64_1712: -523693465
       64x64_1713: -995056563
@@ -46933,7 +46900,6 @@ TextureImporter:
       64x64_1717: 404515928
       64x64_1718: -1943817332
       64x64_1719: 89564331
-      64x64_172: -1321801225
       64x64_1720: 1645679882
       64x64_1721: -10313908
       64x64_1722: 2024450117
@@ -46946,13 +46912,11 @@ TextureImporter:
       64x64_1729: 1345767846
       64x64_173: -1543712182
       64x64_1730: -1740906415
-      64x64_1731: -334130915
       64x64_1732: -1472725270
       64x64_1733: 898440724
       64x64_1734: -577257196
       64x64_1735: 1027058466
       64x64_1736: 361689891
-      64x64_1737: 751597660
       64x64_1738: -1593791533
       64x64_1739: -924157454
       64x64_174: -652132368
@@ -46979,9 +46943,6 @@ TextureImporter:
       64x64_1759: 1280692560
       64x64_176: -892529919
       64x64_1760: 1683827376
-      64x64_1761: 484689718
-      64x64_1762: 614397604
-      64x64_1763: -1742959365
       64x64_1764: -2041482123
       64x64_1765: -15733028
       64x64_1766: 1074086849
@@ -46994,11 +46955,8 @@ TextureImporter:
       64x64_1772: 93946839
       64x64_1773: 1353929353
       64x64_1774: 1693320843
-      64x64_1775: 1204016110
       64x64_1776: -260656738
-      64x64_1777: 1252473942
       64x64_1778: -1867252205
-      64x64_1779: -1520509625
       64x64_178: -961836537
       64x64_1780: 541884972
       64x64_1781: -1442731326
@@ -47008,7 +46966,6 @@ TextureImporter:
       64x64_1785: 1837328728
       64x64_1786: -2062814490
       64x64_1787: 1119098648
-      64x64_1788: -540560126
       64x64_1789: -1903042834
       64x64_179: -1982920562
       64x64_1790: 750655784
@@ -47018,7 +46975,6 @@ TextureImporter:
       64x64_1794: 1096037552
       64x64_1795: -1103947955
       64x64_1796: -606034433
-      64x64_1797: -1093322246
       64x64_1798: -291054183
       64x64_1799: 1122588265
       64x64_18: 569903285
@@ -47043,7 +46999,6 @@ TextureImporter:
       64x64_1816: -833268587
       64x64_1817: 529557150
       64x64_1818: -641181763
-      64x64_1819: -685099939
       64x64_182: 1698352902
       64x64_1820: -2143387554
       64x64_1821: -1543774795
@@ -47131,7 +47086,6 @@ TextureImporter:
       64x64_1896: -74286195
       64x64_1897: -946675651
       64x64_1898: 228707428
-      64x64_1899: 1850641570
       64x64_19: -1227487736
       64x64_190: 883648505
       64x64_1900: 569820022
@@ -47155,14 +47109,10 @@ TextureImporter:
       64x64_1917: -531947831
       64x64_1918: -137353196
       64x64_1919: -818571372
-      64x64_192: 801998760
-      64x64_1920: 296770075
-      64x64_1921: 2032001553
       64x64_1922: 2090590889
       64x64_1923: -1432999286
       64x64_1924: -1161325239
       64x64_1925: 1988461176
-      64x64_1926: 1232353200
       64x64_1927: 1483059338
       64x64_1928: -1094048672
       64x64_1929: -865317232
@@ -47332,7 +47282,6 @@ TextureImporter:
       64x64_2077: -1179269056
       64x64_2078: -1325008119
       64x64_2079: 2093847130
-      64x64_208: -1228556459
       64x64_2080: -2029090149
       64x64_2081: 2125030008
       64x64_2082: -969460526
@@ -47655,11 +47604,8 @@ TextureImporter:
       64x64_398: -1859001721
       64x64_399: -633732989
       64x64_40: -1525838865
-      64x64_400: 908904290
       64x64_401: 728621441
-      64x64_402: 452510540
       64x64_403: -1891373780
-      64x64_404: 449913465
       64x64_405: 596862267
       64x64_406: -1665331749
       64x64_407: -2088720846
@@ -47740,7 +47686,6 @@ TextureImporter:
       64x64_478: -185253388
       64x64_479: -652231476
       64x64_48: -157790998
-      64x64_480: -588668260
       64x64_481: 298796334
       64x64_482: 1230344665
       64x64_483: -210524302
@@ -47748,7 +47693,6 @@ TextureImporter:
       64x64_485: 1067586150
       64x64_486: 1126274836
       64x64_487: 1386616225
-      64x64_488: 1826642663
       64x64_489: -1631451825
       64x64_49: 140207602
       64x64_490: 710081903
@@ -48048,7 +47992,6 @@ TextureImporter:
       64x64_759: 145665109
       64x64_76: 613409034
       64x64_760: -2037136030
-      64x64_761: -1736734822
       64x64_762: 1041124479
       64x64_763: 1434356074
       64x64_764: 1321281160
@@ -48145,7 +48088,6 @@ TextureImporter:
       64x64_846: -361628217
       64x64_847: 670356159
       64x64_848: 1244145157
-      64x64_849: -318659269
       64x64_85: -1263457494
       64x64_850: -164759111
       64x64_851: 1764737435
@@ -48315,16 +48257,74 @@ TextureImporter:
       Army: -1300717648
       Berry: 930584566
       Bread: 1246227248
+      Coal: -318659269
+      CookedMeat: 1826642663
       Flour: 1376993505
       Gold: 214396534
+      GoldArmor: 1232353200
+      GoldAxe: 1748031167
+      GoldBow: 320518372
+      GoldHammer: -2014663129
+      GoldIngot: -27027282
+      GoldOre: -1736734822
+      GoldPickaxe: 212124984
+      GoldSpear: 449913465
+      GoldSword: -2049968349
       Heart: -1510168959
       Hous: -1246915534
       House: -587968393
+      IronArmor: 296770075
+      IronAxe: -1613638215
+      IronBow: 31782384
+      IronHammer: 129497914
+      IronIngot: 1978088094
+      IronOre: 801998760
+      IronPickaxe: -1033748986
+      IronSpear: 908904290
+      IronSword: -70666053
       Legitim: 361977344
+      MithrilArmor: 1850641570
+      MithrilAxe: 751597660
+      MithrilBow: -1276740683
+      MithrilHammer: 1811099176
+      MithrilIngot: -901534051
+      MithrilOre: 207407744
+      MithrilPickaxe: -1742959365
+      MithrilSpear: 452510540
+      MithrilSword: -1150255909
+      Obsidian: -1321801225
+      ObsidianArmor: -685099939
+      ObsidianAxe: -64560005
+      ObsidianHammer: 527198223
+      ObsidianPickaxe: 1354843205
+      ObsidianPlate: 381110848
+      ObsidianSpear: 1204016110
+      ObsidianSword: 311085004
       Population: 1482650308
+      RawMeat: -588668260
+      SteelArmor: 2032001553
+      SteelAxe: -931648831
+      SteelBow: 303657737
+      SteelHammer: -296786141
+      SteelIngot: -54200413
+      SteelOre: -1228556459
+      SteelPickaxe: -810904388
+      SteelSpear: 1285355313
+      SteelSword: -707360121
       Stone: 1332612408
+      StoneAxe: 1252473942
+      StoneHammer: -1520509625
+      StonePickaxe: 614397604
+      StoneSpear: -1186349001
+      StoneSword: -334130915
       Wheat: 1117629983
       Wood: 1799755372
+      WoodenAxe: -1093322246
+      WoodenBow: -540560126
+      WoodenHammer: -1341746427
+      WoodenPickaxe: 484689718
+      WoodenSpear: 2007784005
+      WoodenSword: -2119004919
       bread: -1159377384
       close: -136608296
   spritePackingTag: 

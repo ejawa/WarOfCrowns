@@ -9,16 +9,26 @@ namespace WarOfCrowns.UI
 {
     public class UnitInfoUI : MonoBehaviour
     {
-        [Header("Элементы UI")]
+        [Header("Общие Элементы")]
         [SerializeField] private TextMeshProUGUI nameText;
+        [SerializeField] private Button closeButton;
+
+        [Header("Одиночный Юнит")]
+        [SerializeField] private GameObject singleUnitParent; // <-- Ссылка на контейнер (SingleUnit_Container)
         [SerializeField] private TextMeshProUGUI genderText;
         [SerializeField] private Slider healthBar;
         [SerializeField] private Slider satietyBar;
-        [SerializeField] private Image portraitImage;
-        [SerializeField] private Button closeButton;
 
-        [Header("Группа")]
-        [SerializeField] private Sprite groupIcon;
+        // Слои портрета
+        [SerializeField] private Image portraitBody;
+        [SerializeField] private Image portraitClothes;
+        [SerializeField] private Image portraitHead;
+        [SerializeField] private Image portraitArmor;
+        [SerializeField] private Image portraitWeapon;
+
+        [Header("Группа Юнитов")]
+        [SerializeField] private GameObject groupIconObj; // <-- Ссылка на картинку Group_Icon
+        // [SerializeField] private Image groupIconImage; // Если захочешь менять картинку динамически
 
         private Unit _targetSingleUnit;
 
@@ -37,7 +47,6 @@ namespace WarOfCrowns.UI
 
         public void SetTarget(List<Unit> units)
         {
-            // Проверка на null и пустой список
             if (units == null || units.Count == 0)
             {
                 ClosePanel();
@@ -63,27 +72,28 @@ namespace WarOfCrowns.UI
 
         private void ShowSingleUnitInfo(Unit unit)
         {
-            // Безопасное включение элементов
+            // 1. ВКЛЮЧАЕМ режим одиночки
+            if (singleUnitParent != null) singleUnitParent.SetActive(true);
+            if (groupIconObj != null) groupIconObj.SetActive(false);
+
+            // Включаем статы (если они не внутри контейнера, а отдельно)
             if (healthBar != null) healthBar.gameObject.SetActive(true);
             if (satietyBar != null) satietyBar.gameObject.SetActive(true);
-            if (portraitImage != null) portraitImage.gameObject.SetActive(true);
             if (genderText != null) genderText.gameObject.SetActive(true);
 
-            // Заполнение данных
+            // Заполняем текст
             if (nameText != null) nameText.text = unit.unitName;
             if (genderText != null) genderText.text = unit.gender.ToString();
 
-            if (portraitImage != null)
+            // --- СБОРКА ПОРТРЕТА ---
+            var visuals = unit.GetComponent<UnitVisuals>();
+            if (visuals != null)
             {
-                if (unit.unitPortrait != null)
-                {
-                    portraitImage.sprite = unit.unitPortrait;
-                    portraitImage.enabled = true;
-                }
-                else
-                {
-                    portraitImage.enabled = false;
-                }
+                SetPortraitLayer(portraitBody, visuals.BodySprite);
+                SetPortraitLayer(portraitClothes, visuals.ClothesSprite);
+                SetPortraitLayer(portraitHead, visuals.HeadSprite);
+                SetPortraitLayer(portraitArmor, visuals.ArmorSprite);
+                SetPortraitLayer(portraitWeapon, visuals.WeaponSprite);
             }
 
             UpdateDynamicStats();
@@ -91,23 +101,31 @@ namespace WarOfCrowns.UI
 
         private void ShowGroupInfo(List<Unit> units)
         {
+            // 1. ВКЛЮЧАЕМ режим группы
+            if (singleUnitParent != null) singleUnitParent.SetActive(false);
+            if (groupIconObj != null) groupIconObj.SetActive(true);
+
+            // Скрываем лишние статы
             if (healthBar != null) healthBar.gameObject.SetActive(false);
             if (satietyBar != null) satietyBar.gameObject.SetActive(false);
             if (genderText != null) genderText.gameObject.SetActive(false);
 
-            if (nameText != null) nameText.text = $"Выбрано: {units.Count}";
+            // Пишем количество
+            if (nameText != null) nameText.text = $"Отряд: {units.Count} чел.";
+        }
 
-            if (portraitImage != null)
+        private void SetPortraitLayer(Image img, Sprite sprite)
+        {
+            if (img == null) return;
+            if (sprite != null)
             {
-                if (groupIcon != null)
-                {
-                    portraitImage.sprite = groupIcon;
-                    portraitImage.enabled = true;
-                }
-                else
-                {
-                    portraitImage.enabled = false;
-                }
+                img.sprite = sprite;
+                img.enabled = true;
+                img.color = Color.white;
+            }
+            else
+            {
+                img.enabled = false;
             }
         }
 
@@ -115,12 +133,9 @@ namespace WarOfCrowns.UI
         {
             if (_targetSingleUnit == null) return;
 
-            if (satietyBar != null)
-                satietyBar.value = _targetSingleUnit.satiety;
-
+            if (satietyBar != null) satietyBar.value = _targetSingleUnit.satiety;
             var health = _targetSingleUnit.GetComponent<Health>();
-            if (health != null && healthBar != null)
-                healthBar.value = health.CurrentHealth;
+            if (health != null && healthBar != null) healthBar.value = health.CurrentHealth;
         }
 
         private void ClosePanel()
