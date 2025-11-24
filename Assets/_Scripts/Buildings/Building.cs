@@ -74,6 +74,12 @@ namespace WarOfCrowns.Buildings
                 data.isConstructionSite = false;
                 data.productionProgress = job.GetProgress();
             }
+            else if (TryGetComponent<Smithy>(out var smithy))
+            {
+                data.isConstructionSite = false;
+                data.activeRecipeIndex = smithy.GetCurrentRecipeIndex();
+                data.craftingTimer = smithy.GetCurrentTimer();
+            }
 
             return data;
         }
@@ -92,6 +98,10 @@ namespace WarOfCrowns.Buildings
             {
                 if (TryGetComponent<JobBuilding>(out var job))
                     job.SetProgress(data.productionProgress);
+            }
+            if (TryGetComponent<Smithy>(out var smithy))
+            {
+                smithy.LoadState(data.activeRecipeIndex, data.craftingTimer);
             }
         }
 

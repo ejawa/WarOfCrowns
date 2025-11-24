@@ -73,8 +73,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 448897709
-  m_SortingLayer: 3
+  m_SortingLayerID: 2113555077
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.7207546, g: 0.34721774, b: 0, a: 1}
@@ -125,6 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc19e5936f64d74bbe06b60f491a9d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  opensGlobalWarehouse: 0
   selectionUIPrefab: {fileID: 0}
 --- !u!114 &-5938945415549471851
 MonoBehaviour:
@@ -140,6 +141,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingName: 
   buildingIcon: {fileID: 0}
+  description: 
   costs: []
   populationBonus: 5
   OwningKingdom: {fileID: 0}
+  uniqueID: 

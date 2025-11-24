@@ -60,17 +60,35 @@ namespace WarOfCrowns.Core
 
             _isBuildingMode = true;
 
+            // Создаем призрака
             _ghostInstance = Instantiate(_foundationToBuild);
 
-            if (_ghostInstance.TryGetComponent<SpriteRenderer>(out var renderer))
+            // --- ИСПРАВЛЕНИЕ: НАСТРОЙКА ВНЕШНЕГО ВИДА ПРИЗРАКА ---
+
+            // 1. Красим основной спрайт (сам фундамент) в зеленый
+            if (_ghostInstance.TryGetComponent<SpriteRenderer>(out var mainRenderer))
             {
-                renderer.color = new Color(0, 1, 0, 0.5f);
+                mainRenderer.color = new Color(0, 1, 0, 0.5f);
             }
+
+            // 2. ВЫКЛЮЧАЕМ все дочерние спрайты (ту самую иконку/белый квадрат)
+            // Мы ищем все рендереры внутри призрака
+            SpriteRenderer[] allRenderers = _ghostInstance.GetComponentsInChildren<SpriteRenderer>();
+            foreach (var r in allRenderers)
+            {
+                // Если это НЕ основной объект (не сам фундамент), а дочерний (иконка)
+                if (r.gameObject != _ghostInstance)
+                {
+                    r.gameObject.SetActive(false); // Скрываем его
+                }
+            }
+            // -----------------------------------------------------
+
+            // Удаляем лишние компоненты, чтобы призрак не работал как здание
             if (_ghostInstance.GetComponent<Collider2D>() != null) Destroy(_ghostInstance.GetComponent<Collider2D>());
             if (_ghostInstance.GetComponent<ConstructionSite>() != null) Destroy(_ghostInstance.GetComponent<ConstructionSite>());
 
-            if (buildMenuPanel != null && buildMenuPanel.activeSelf)
-                ToggleBuildMenu();
+            if (buildMenuPanel != null) buildMenuPanel.SetActive(false);
         }
 
         private void PlaceFoundation()

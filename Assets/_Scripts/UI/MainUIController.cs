@@ -135,7 +135,37 @@ namespace WarOfCrowns.UI
         #region UI Panel Logic
         public void ToggleWarehousePanel()
         {
-            if (warehousePanel != null) warehousePanel.SetActive(!warehousePanel.activeSelf);
+            if (warehousePanel == null) return;
+
+            bool isActive = !warehousePanel.activeSelf;
+            warehousePanel.SetActive(isActive);
+
+            // --- ИСПРАВЛЕНИЕ: Принудительное обновление при открытии ---
+            if (isActive)
+            {
+                RefreshWarehouseUI();
+            }
+        }
+        private void RefreshWarehouseUI()
+        {
+            if (_playerKingdom == null) return;
+
+            // Проходим по всем существующим слотам и ставим актуальные цифры
+            foreach (var pair in _warehouseSlots)
+            {
+                ResourceType type = pair.Key;
+                GameObject slot = pair.Value;
+
+                // Получаем свежие данные
+                int currentAmount = _playerKingdom.GetResourceAmount(type);
+
+                // Обновляем текст
+                Transform amountTr = slot.transform.Find("Amount_Text");
+                if (amountTr != null)
+                {
+                    amountTr.GetComponent<TextMeshProUGUI>().text = currentAmount.ToString();
+                }
+            }
         }
         public void ToggleBuildMenu()
         {

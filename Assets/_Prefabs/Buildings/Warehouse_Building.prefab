@@ -74,8 +74,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 448897709
-  m_SortingLayer: 3
+  m_SortingLayerID: 2113555077
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0.78867924, g: 0.6734049, b: 0, a: 1}
@@ -142,9 +142,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildingName: 
   buildingIcon: {fileID: 0}
+  description: 
   costs: []
   populationBonus: 0
   OwningKingdom: {fileID: 0}
+  uniqueID: 
 --- !u!114 &5368330334834521530
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -156,7 +156,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_3
+      name: Barrack
       rect:
         serializedVersion: 2
         x: 192
@@ -198,7 +198,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_5
+      name: Warehouse
       rect:
         serializedVersion: 2
         x: 320
@@ -408,7 +408,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Hous
+      name: Farm
       rect:
         serializedVersion: 2
         x: 960
@@ -765,7 +765,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_32
+      name: Mill
       rect:
         serializedVersion: 2
         x: 0
@@ -891,7 +891,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_38
+      name: Forge
       rect:
         serializedVersion: 2
         x: 384
@@ -1143,7 +1143,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_50
+      name: Tigel
       rect:
         serializedVersion: 2
         x: 128
@@ -19665,7 +19665,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_932
+      name: Bakery
       rect:
         serializedVersion: 2
         x: 256
@@ -19728,7 +19728,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_935
+      name: Smelte
       rect:
         serializedVersion: 2
         x: 448
@@ -47493,7 +47493,6 @@ TextureImporter:
       64x64_297: -1780300957
       64x64_298: -940372535
       64x64_299: -1319137934
-      64x64_3: 1120186946
       64x64_30: 1055956122
       64x64_300: 957790189
       64x64_301: -451702139
@@ -47516,7 +47515,6 @@ TextureImporter:
       64x64_317: -1964303977
       64x64_318: 2112968779
       64x64_319: -470524619
-      64x64_32: -31422473
       64x64_320: 286499505
       64x64_321: 1386054818
       64x64_322: -170621855
@@ -47581,7 +47579,6 @@ TextureImporter:
       64x64_377: 44695538
       64x64_378: -953553621
       64x64_379: 1495481510
-      64x64_38: -1083541393
       64x64_380: 185300040
       64x64_381: -853209896
       64x64_382: 1677926113
@@ -47705,8 +47702,6 @@ TextureImporter:
       64x64_497: 1377985057
       64x64_498: -997425342
       64x64_499: 115000389
-      64x64_5: -892250675
-      64x64_50: 3842919
       64x64_500: 454330542
       64x64_501: 742124743
       64x64_502: 1132647595
@@ -48180,10 +48175,8 @@ TextureImporter:
       64x64_93: 240856951
       64x64_930: 1309085525
       64x64_931: 299255180
-      64x64_932: 2014379013
       64x64_933: -578825574
       64x64_934: 81117138
-      64x64_935: -1331862744
       64x64_936: -913955627
       64x64_937: -775143156
       64x64_938: -1942916
@@ -48255,11 +48248,15 @@ TextureImporter:
       64x64_998: -448903090
       64x64_999: -1640345144
       Army: -1300717648
+      Bakery: 2014379013
+      Barrack: 1120186946
       Berry: 930584566
       Bread: 1246227248
       Coal: -318659269
       CookedMeat: 1826642663
+      Farm: -1246915534
       Flour: 1376993505
+      Forge: -1083541393
       Gold: 214396534
       GoldArmor: 1232353200
       GoldAxe: 1748031167
@@ -48271,7 +48268,6 @@ TextureImporter:
       GoldSpear: 449913465
       GoldSword: -2049968349
       Heart: -1510168959
-      Hous: -1246915534
       House: -587968393
       IronArmor: 296770075
       IronAxe: -1613638215
@@ -48283,6 +48279,7 @@ TextureImporter:
       IronSpear: 908904290
       IronSword: -70666053
       Legitim: 361977344
+      Mill: -31422473
       MithrilArmor: 1850641570
       MithrilAxe: 751597660
       MithrilBow: -1276740683
@@ -48302,6 +48299,7 @@ TextureImporter:
       ObsidianSword: 311085004
       Population: 1482650308
       RawMeat: -588668260
+      Smelte: -1331862744
       SteelArmor: 2032001553
       SteelAxe: -931648831
       SteelBow: 303657737
@@ -48317,6 +48315,8 @@ TextureImporter:
       StonePickaxe: 614397604
       StoneSpear: -1186349001
       StoneSword: -334130915
+      Tigel: 3842919
+      Warehouse: -892250675
       Wheat: 1117629983
       Wood: 1799755372
       WoodenAxe: -1093322246

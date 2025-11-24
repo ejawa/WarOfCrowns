@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq; // Для поиска
 
 namespace WarOfCrowns.Core
 {
@@ -20,16 +21,14 @@ namespace WarOfCrowns.Core
     [CreateAssetMenu(fileName = "AppearanceDatabase", menuName = "WarOfCrowns/Appearance Database")]
     public class AppearanceDatabase : ScriptableObject
     {
-        [Header("Генетика (Наборы)")]
+        [Header("Генетика")]
         public List<SpriteSet> bodies;
         public List<SpriteSet> maleHeads;
         public List<SpriteSet> femaleHeads;
 
-        [Header("Одежда (Списки Вариантов)")]
-        // --- ИЗМЕНЕНИЕ: ТЕПЕРЬ ЭТО СПИСКИ ---
+        [Header("Одежда")]
         public List<SpriteSet> peasantClothes;
         public List<SpriteSet> soldierClothes;
-        // ------------------------------------
 
         [Header("Экипировка")]
         [SerializeField] private List<ItemVisual> equipmentVisuals;
@@ -46,6 +45,7 @@ namespace WarOfCrowns.Core
             }
         }
 
+        // Получение визуалов предметов
         public SpriteSet GetEquipmentSprites(ResourceType type)
         {
             if (_equipmentMap == null) Initialize();
@@ -53,31 +53,47 @@ namespace WarOfCrowns.Core
             return null;
         }
 
-        public SpriteSet GetRandomBody()
-        {
-            if (bodies == null || bodies.Count == 0) return null;
-            return bodies[Random.Range(0, bodies.Count)];
-        }
+        // Рандомизаторы
+        public SpriteSet GetRandomBody() => GetRandomFrom(bodies);
+        public SpriteSet GetRandomPeasantClothes() => GetRandomFrom(peasantClothes);
+        public SpriteSet GetRandomSoldierClothes() => GetRandomFrom(soldierClothes);
 
         public SpriteSet GetRandomHead(Gender gender)
         {
-            List<SpriteSet> list = (gender == Gender.Male) ? maleHeads : femaleHeads;
+            return gender == Gender.Male ? GetRandomFrom(maleHeads) : GetRandomFrom(femaleHeads);
+        }
+
+        private SpriteSet GetRandomFrom(List<SpriteSet> list)
+        {
             if (list == null || list.Count == 0) return null;
             return list[Random.Range(0, list.Count)];
         }
 
-        // --- НОВЫЕ МЕТОДЫ ДЛЯ ОДЕЖДЫ ---
-        public SpriteSet GetRandomPeasantClothes()
+        // --- НОВЫЙ МЕТОД: Поиск по имени (для Загрузки) ---
+        public SpriteSet GetSpriteSetByName(string spriteName)
         {
-            if (peasantClothes == null || peasantClothes.Count == 0) return null;
-            return peasantClothes[Random.Range(0, peasantClothes.Count)];
+            if (string.IsNullOrEmpty(spriteName)) return null;
+
+            // Ищем везде. Медленно, но надежно для загрузки.
+            var found = FindInList(bodies, spriteName);
+            if (found != null) return found;
+
+            found = FindInList(maleHeads, spriteName);
+            if (found != null) return found;
+            found = FindInList(femaleHeads, spriteName);
+            if (found != null) return found;
+
+            found = FindInList(peasantClothes, spriteName);
+            if (found != null) return found;
+            found = FindInList(soldierClothes, spriteName);
+
+            return found;
         }
 
-        public SpriteSet GetRandomSoldierClothes()
+        private SpriteSet FindInList(List<SpriteSet> list, string name)
         {
-            if (soldierClothes == null || soldierClothes.Count == 0) return null;
-            return soldierClothes[Random.Range(0, soldierClothes.Count)];
+            // Ищем SpriteSet, у которого имя idle спрайта совпадает
+            return list?.FirstOrDefault(s => s.idle != null && s.idle.name == name);
         }
-        // -------------------------------
     }
 }

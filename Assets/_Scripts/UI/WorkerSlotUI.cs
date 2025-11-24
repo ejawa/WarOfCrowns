@@ -8,11 +8,18 @@ namespace WarOfCrowns.UI
 {
     public class WorkerSlotUI : MonoBehaviour
     {
+        [Header("Текст")]
         [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private TextMeshProUGUI roleText; // Профессия или статус
-        [SerializeField] private Image portraitImage;
+        [SerializeField] private TextMeshProUGUI roleText;
+        [SerializeField] private TextMeshProUGUI buttonText;
         [SerializeField] private Button actionButton;
-        [SerializeField] private TextMeshProUGUI buttonText; // "+" или "-"
+
+        [Header("Портрет (Слои)")]
+        [SerializeField] private Image bodyImg;
+        [SerializeField] private Image clothesImg;
+        [SerializeField] private Image headImg;
+        [SerializeField] private Image armorImg;
+        [SerializeField] private Image weaponImg; // Опционально
 
         private Unit _unit;
         private Action<Unit> _callback;
@@ -22,15 +29,59 @@ namespace WarOfCrowns.UI
             _unit = unit;
             _callback = onClickAction;
 
-            nameText.text = unit.unitName;
-            roleText.text = unit.profession.ToString();
+            // 1. Тексты
+            if (nameText != null) nameText.text = unit.unitName;
+            if (roleText != null) roleText.text = unit.profession.ToString();
+            if (buttonText != null) buttonText.text = actionLabel;
 
-            if (unit.unitPortrait != null) portraitImage.sprite = unit.unitPortrait;
+            // 2. Кнопка
+            if (actionButton != null)
+            {
+                actionButton.onClick.RemoveAllListeners();
+                actionButton.onClick.AddListener(() => _callback(_unit));
+            }
 
-            buttonText.text = actionLabel;
+            // 3. Сборка Портрета
+            // Получаем визуал с самого юнита
+            var visuals = unit.GetComponent<UnitVisuals>();
+            if (visuals != null)
+            {
+                SetLayer(bodyImg, visuals.BodySprite);
+                SetLayer(clothesImg, visuals.ClothesSprite);
+                SetLayer(headImg, visuals.HeadSprite);
+                SetLayer(armorImg, visuals.ArmorSprite);
+                SetLayer(weaponImg, visuals.WeaponSprite);
+            }
+            else
+            {
+                // Если визуалов нет (ошибка?), выключаем картинки
+                DisableAllLayers();
+            }
+        }
 
-            actionButton.onClick.RemoveAllListeners();
-            actionButton.onClick.AddListener(() => _callback(_unit));
+        private void SetLayer(Image img, Sprite sprite)
+        {
+            if (img == null) return;
+
+            if (sprite != null)
+            {
+                img.sprite = sprite;
+                img.enabled = true;
+                img.color = Color.white;
+            }
+            else
+            {
+                img.enabled = false;
+            }
+        }
+
+        private void DisableAllLayers()
+        {
+            if (bodyImg != null) bodyImg.enabled = false;
+            if (clothesImg != null) clothesImg.enabled = false;
+            if (headImg != null) headImg.enabled = false;
+            if (armorImg != null) armorImg.enabled = false;
+            if (weaponImg != null) weaponImg.enabled = false;
         }
     }
 }

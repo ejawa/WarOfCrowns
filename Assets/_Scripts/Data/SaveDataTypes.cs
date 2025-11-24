@@ -27,10 +27,20 @@ namespace WarOfCrowns.Data
         public int aiState;
         public string workplaceID;
 
-        // --- НОВЫЕ ПОЛЯ ---
-        public string targetResourceID; // ID ресурса, который мы рубим
-        public bool isMoving;           // Двигаемся ли мы?
-        public float moveTargetX, moveTargetY, moveTargetZ; // Куда мы идем?
+        // Действия
+        public string targetResourceID;
+        public bool isMoving;
+        public float moveTargetX, moveTargetY, moveTargetZ;
+
+        // --- НОВЫЕ ПОЛЯ: ВНЕШНОСТЬ (Для сохранения скинов) ---
+        public string bodySpriteName;
+        public string headSpriteName;
+        public string clothesSpriteName;
+
+        // --- НОВЫЕ ПОЛЯ: ЭКИПИРОВКА (Сохраняем enum как int) ---
+        public int weaponType;
+        public int armorType;
+        public int toolType;
     }
 
     // --- 3. ЗДАНИЯ ---
@@ -43,7 +53,11 @@ namespace WarOfCrowns.Data
         public float posX, posY, posZ;
         public bool isConstructionSite;
         public float constructionProgress;
-        public float productionProgress;
+        public float productionProgress; // Для Фермы/Мельницы
+
+        // --- НОВЫЕ ПОЛЯ ДЛЯ КУЗНИЦЫ ---
+        public int activeRecipeIndex = -1; // Какой рецепт делается (-1 = ничего)
+        public float craftingTimer = 0f;   // Сколько времени осталось
     }
 
     // --- 4. РЕСУРСЫ МИРА ---
@@ -57,7 +71,7 @@ namespace WarOfCrowns.Data
     [Serializable]
     public class ResourceNodeSaveData
     {
-        public string uniqueID; // <-- ДОБАВИЛИ ID
+        public string uniqueID;
         public string prefabName;
         public float posX, posY, posZ;
         public int hitsLeft;

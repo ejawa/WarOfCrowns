@@ -1,16 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
-using WarOfCrowns.UI; // Важно для MainUIController
+using WarOfCrowns.UI; // Здесь живут MainUIController и Proxy скрипты
 
 namespace WarOfCrowns.Buildings
 {
     public class SelectableBuilding : MonoBehaviour
     {
-        [Header("Настройки UI")]
-        [Tooltip("Если это СКЛАД, поставь эту галочку. Он откроет глобальное меню.")]
-        [SerializeField] private bool opensGlobalWarehouse = false;
+        [Header("Настройки")]
+        [Tooltip("Поставь галочку, если это СКЛАД. Он откроет общее окно склада.")]
+        [SerializeField] private bool opensGlobalWarehouse;
 
-        [Tooltip("Если это МЭРИЯ, перетащи сюда префаб её маленького меню.")]
+        [Tooltip("Префаб UI для других зданий (Ферма, Казарма, Мэрия). Для Склада оставь пустым.")]
         [SerializeField] private GameObject selectionUIPrefab;
 
         private GameObject _uiInstance;
@@ -18,65 +18,80 @@ namespace WarOfCrowns.Buildings
 
         private void Start()
         {
-            // Находим главный контроллер заранее
+            // Находим главный контроллер интерфейса
             _mainUI = FindObjectOfType<MainUIController>();
         }
 
         public void Select()
         {
-            // 1. Склад
+            // --- ЛОГИКА ДЛЯ СКЛАДА ---
             if (opensGlobalWarehouse)
             {
-                if (_mainUI != null) _mainUI.ToggleWarehousePanel();
-                return;
+                if (_mainUI != null)
+                {
+                    _mainUI.ToggleWarehousePanel();
+                }
+                else
+                {
+                    Debug.LogError("SelectableBuilding: MainUIController not found on scene!");
+                }
+                return; // Выходим, так как склад обрабатывается отдельно
             }
 
-            // 2. Мэрия (или другие здания с личным UI)
-            if (selectionUIPrefab != null)
+            // --- ЛОГИКА ДЛЯ ОСТАЛЬНЫХ ЗДАНИЙ ---
+            if (selectionUIPrefab == null) return;
+
+            if (_uiInstance == null)
             {
-                if (_uiInstance == null)
+                Canvas mainCanvas = FindObjectOfType<Canvas>();
+                if (mainCanvas == null) return;
+
+                _uiInstance = Instantiate(selectionUIPrefab, mainCanvas.transform);
+
+                // --- Инициализация Прокси (Связь UI и Логики) ---
+
+                // 1. Мэрия
+                if (TryGetComponent<TownHall>(out var townHall) && _uiInstance.TryGetComponent<TownHall_UIProxy>(out var thProxy))
                 {
-                    Canvas mainCanvas = FindObjectOfType<Canvas>();
-                    if (mainCanvas != null)
-                    {
-                        _uiInstance = Instantiate(selectionUIPrefab, mainCanvas.transform);
-
-                        // --- ВОТ НОВАЯ ЛОГИКА ---
-                        // Ищем наш новый скрипт-посредник на созданном UI
-                        var uiProxy = _uiInstance.GetComponent<TownHallUI>();
-
-                        // Ищем скрипт Мэрии на себе
-                        var myTownHall = GetComponent<TownHall>();
-
-                        // Соединяем их
-                        if (uiProxy != null && myTownHall != null)
-                        {
-                            uiProxy.Initialize(myTownHall);
-                        }
-                        // ------------------------
-                    }
+                    thProxy.LinkToTownHall(townHall);
                 }
 
-                if (_uiInstance != null) _uiInstance.SetActive(true);
+                // 2. Рабочее здание (Ферма, Мельница...)
+                if (TryGetComponent<JobBuilding>(out var jobBuilding) && _uiInstance.TryGetComponent<JobUIProxy>(out var jobProxy))
+                {
+                    jobProxy.Initialize(jobBuilding);
+                }
+
+                // 3. Казарма
+                if (TryGetComponent<Barracks>(out var barracks) && _uiInstance.TryGetComponent<BarracksUIProxy>(out var barracksProxy))
+                {
+                    barracksProxy.Initialize(barracks);
+                }
+
+                // 4. Кузница (Плавильня)
+                if (TryGetComponent<Smithy>(out var smithy) && _uiInstance.TryGetComponent<SmithyUIProxy>(out var smithyProxy))
+                {
+                    smithyProxy.Initialize(smithy);
+                }
+
             }
-            if (_uiInstance.TryGetComponent<JobUIProxy>(out var jobProxy) && TryGetComponent<JobBuilding>(out var jobBuilding))
-            {
-                jobProxy.Initialize(jobBuilding);
-            }
+
+            _uiInstance.SetActive(true);
         }
 
         public void Deselect()
         {
-            // Если это Склад - закрываем глобальную панель
+            // Если это склад - закрываем панель через контроллер
             if (opensGlobalWarehouse)
             {
-                // При деселекте склада мы можем принудительно закрыть панель, 
-                // но лучше проверить, открыта ли она
-                // Для простоты пока оставим так: деселект склада не закрывает окно автоматически, 
-                // игрок закроет его крестиком. Или можно вызвать Toggle.
-                // _mainUI.ToggleWarehousePanel(); // Раскомментируй, если хочешь авто-закрытие
+                if (_mainUI != null)
+                {
+                    // Можно принудительно закрыть, если хочешь:
+                    // _mainUI.CloseWarehousePanel(); 
+                    // Но пока оставим как есть (Toggle), или просто ничего не делаем, пусть игрок сам закрывает.
+                }
             }
-            // Если это Мэрия - скрываем её личный UI
+            // Если это обычное здание - скрываем его личный UI
             else if (_uiInstance != null)
             {
                 _uiInstance.SetActive(false);
