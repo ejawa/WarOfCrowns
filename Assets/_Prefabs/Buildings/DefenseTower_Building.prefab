@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 8300551379470664769}
   - component: {fileID: 1186468095685022225}
   - component: {fileID: 7201662863162785091}
-  - component: {fileID: 2463249386891971070}
+  - component: {fileID: 4005688435657975923}
   m_Layer: 12
-  m_Name: Forge_Building
+  m_Name: DefenseTower_Building
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,10 +29,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2434328671253964222}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.4052286, y: 1.2486959, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalPosition: {x: -2.4052286, y: 3.1386, z: 0}
+  m_LocalScale: {x: 3, y: 6.7799997, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 8692995661119022954}
+  - {fileID: 4543327827397637218}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -78,7 +80,7 @@ SpriteRenderer:
   m_SortingLayer: 5
   m_SortingOrder: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.3056603, g: 0.3056603, b: 0.3056603, a: 1}
+  m_Color: {r: 0.6603774, g: 0.25651452, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -127,7 +129,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   opensGlobalWarehouse: 0
-  selectionUIPrefab: {fileID: 2704045339344885733, guid: 1f214207667d3224cb0e3f354bc88d52, type: 3}
+  selectionUIPrefab: {fileID: 1537052768532296291, guid: af841c8a62f7a964f88290b144ce09c8, type: 3}
 --- !u!114 &7201662863162785091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,14 +142,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34152cb605c285b43a73301ec6fe9659, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingName: Forge
+  buildingName: Defense Tower
   buildingIcon: {fileID: 0}
   description: 
   costs: []
   populationBonus: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
---- !u!114 &2463249386891971070
+--- !u!114 &4005688435657975923
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -156,32 +158,75 @@ MonoBehaviour:
   m_GameObject: {fileID: 2434328671253964222}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ab96ed47308efb40b07d764d3be5302, type: 3}
+  m_Script: {fileID: 11500000, guid: 65d2a32b070d7514abddf238ccc3f622, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recipes:
-  - recipeName: Iron Sword
-    outputItem: 49
-    outputAmount: 1
-    craftTime: 10
-    inputs:
-    - resourceType: 16
-      amount: 2
-    - resourceType: 12
-      amount: 1
-  - recipeName: Gold Sword
-    outputItem: 51
-    outputAmount: 1
-    craftTime: 10
-    inputs:
-    - resourceType: 17
-      amount: 1
-    - resourceType: 12
-      amount: 1
-  - recipeName: Wooden Bow
-    outputItem: 61
-    outputAmount: 1
-    craftTime: 10
-    inputs:
-    - resourceType: 0
-      amount: 10
+  maxGarrison: 3
+  entrancePoint: {fileID: 8692995661119022954}
+  shootPoint: {fileID: 4543327827397637218}
+  range: 8
+  fireRate: 2
+  damagePerUnit: 15
+  projectilePrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}
+--- !u!1 &5762153007711521813
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4543327827397637218}
+  m_Layer: 12
+  m_Name: ShootPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4543327827397637218
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5762153007711521813}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.025, y: 0.296, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 869411662337474391}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6981173836012692732
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8692995661119022954}
+  m_Layer: 12
+  m_Name: Entrance
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8692995661119022954
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6981173836012692732}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.527, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 869411662337474391}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

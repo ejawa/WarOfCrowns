@@ -493,9 +493,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 049b265a967449040a23208bec28832e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
+  baseDamage: 10
   attackSpeed: 1
-  attackRange: 0.5
+  arrowPrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}
+  rangedRange: 6
 --- !u!114 &1566063169048990585
 MonoBehaviour:
   m_ObjectHideFlags: 0

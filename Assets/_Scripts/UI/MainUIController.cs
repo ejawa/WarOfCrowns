@@ -225,33 +225,82 @@ namespace WarOfCrowns.UI
         private void CreateWarehouseSlots()
         {
             if (warehouseSlotPrefab == null || warehouseContentParent == null) return;
+
+            // Очистка
             foreach (Transform child in warehouseContentParent) Destroy(child.gameObject);
             _warehouseSlots.Clear();
+
+            // Проходим по ВСЕМ ресурсам
             foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
             {
-                if (type == ResourceType.Food) continue;
+                // --- ФИЛЬТРЫ ---
+
+                // 1. Проверяем, гражданский ли это предмет
+                if (!IsCivilianItem(type)) continue;
+
+                // 2. Проверяем количество (скрываем нули)
+                int amount = _playerKingdom.GetResourceAmount(type);
+                if (amount <= 0) continue;
+
+                // ----------------
+
+                // --- СОЗДАНИЕ И НАСТРОЙКА (Твой "большой" код) ---
+
                 GameObject newSlot = Instantiate(warehouseSlotPrefab, warehouseContentParent);
                 newSlot.name = $"Slot_{type}";
+
+                // Сброс масштаба
                 newSlot.transform.localScale = Vector3.one;
                 newSlot.transform.localPosition = Vector3.zero;
+
+                // Иконка
                 Transform iconTr = newSlot.transform.Find("Icon");
                 if (iconTr != null)
                 {
-                    if (_iconMap.ContainsKey(type)) iconTr.GetComponent<Image>().sprite = _iconMap[type];
-                    else iconTr.GetComponent<Image>().color = Color.red;
+                    if (_iconMap.ContainsKey(type))
+                    {
+                        Image img = iconTr.GetComponent<Image>();
+                        img.sprite = _iconMap[type];
+                        img.color = Color.white; // Делаем видимым
+                    }
+                    else
+                    {
+                        iconTr.GetComponent<Image>().color = Color.red; // Красим в красный если нет иконки
+                    }
                 }
-                if (newSlot.transform.Find("ItemName_Text") != null) newSlot.transform.Find("ItemName_Text").GetComponent<TextMeshProUGUI>().text = type.ToString();
+
+                // Имя
+                Transform nameTr = newSlot.transform.Find("ItemName_Text");
+                if (nameTr != null) nameTr.GetComponent<TextMeshProUGUI>().text = type.ToString();
+
+                // Количество
                 Transform amountTr = newSlot.transform.Find("Amount_Text");
                 if (amountTr != null)
                 {
-                    TextMeshProUGUI amountText = amountTr.GetComponent<TextMeshProUGUI>();
-                    amountText.text = _playerKingdom.GetResourceAmount(type).ToString();
+                    amountTr.GetComponent<TextMeshProUGUI>().text = amount.ToString();
                 }
+
+                // Сохраняем в словарь
                 _warehouseSlots[type] = newSlot;
             }
+
             LayoutRebuilder.ForceRebuildLayoutImmediate(warehouseContentParent.GetComponent<RectTransform>());
         }
+        private bool IsCivilianItem(ResourceType type)
+        {
+            string name = type.ToString();
+            // Если это оружие или броня - скрываем
+            if (name.Contains("Sword") || name.Contains("Spear") || name.Contains("Bow") || name.Contains("Armor"))
+                return false;
 
+            // Инструменты ты просил оставить
+            // if (name.Contains("Pickaxe") || name.Contains("Axe")) return false; // Раскомментируй, если хочешь скрыть и их
+
+            // Еду (Сытость) тоже скрываем, она в топ-баре
+            if (type == ResourceType.Food) return false;
+
+            return true;
+        }
         private void GenerateBuildButtons()
         {
             if (buildManager == null) return;
@@ -279,20 +328,46 @@ namespace WarOfCrowns.UI
 
         private void UpdateWarehouseSlot(ResourceType type, int amount)
         {
-            if (type == ResourceType.Food) return;
+            // Фильтр
+            if (!IsCivilianItem(type)) return;
+
+            // Вариант 1: Плашка уже есть -> Обновляем или удаляем
             if (_warehouseSlots.ContainsKey(type))
             {
-                if (amount > 0) _warehouseSlots[type].transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = amount.ToString();
-                else { Destroy(_warehouseSlots[type]); _warehouseSlots.Remove(type); }
+                if (amount > 0)
+                {
+                    // Обновляем текст
+                    _warehouseSlots[type].transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = amount.ToString();
+                }
+                else
+                {
+                    // Стало 0 -> Удаляем
+                    Destroy(_warehouseSlots[type]);
+                    _warehouseSlots.Remove(type);
+                }
             }
+            // Вариант 2: Плашки нет, но ресурс появился (> 0) -> Создаем новую
             else if (amount > 0)
             {
                 GameObject newSlot = Instantiate(warehouseSlotPrefab, warehouseContentParent);
-                newSlot.SetActive(true);
-                Image icon = newSlot.transform.Find("Icon").GetComponent<Image>();
-                if (_iconMap.ContainsKey(type)) icon.sprite = _iconMap[type];
-                if (newSlot.transform.Find("ItemName_Text") != null) newSlot.transform.Find("ItemName_Text").GetComponent<TextMeshProUGUI>().text = type.ToString();
+                newSlot.name = $"Slot_{type}";
+                newSlot.transform.localScale = Vector3.one;
+                newSlot.transform.localPosition = Vector3.zero;
+
+                // Настройка Иконки
+                Transform iconTr = newSlot.transform.Find("Icon");
+                if (iconTr != null && _iconMap.ContainsKey(type))
+                {
+                    iconTr.GetComponent<Image>().sprite = _iconMap[type];
+                    iconTr.GetComponent<Image>().color = Color.white;
+                }
+
+                // Настройка Текста
+                if (newSlot.transform.Find("ItemName_Text") != null)
+                    newSlot.transform.Find("ItemName_Text").GetComponent<TextMeshProUGUI>().text = type.ToString();
+
                 newSlot.transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = amount.ToString();
+
                 _warehouseSlots[type] = newSlot;
             }
         }

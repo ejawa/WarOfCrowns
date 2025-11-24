@@ -7,19 +7,25 @@ namespace WarOfCrowns.Units
     [RequireComponent(typeof(UnitMotor))]
     public class Fighter : MonoBehaviour
     {
-        [SerializeField] private int damage = 10;
-        [SerializeField] private float attackSpeed = 1f;
-        [SerializeField] private float attackRange = 1.5f; // Дистанция удара
+        [Header("Параметры")]
+        [SerializeField] private int baseDamage = 10;
+        [SerializeField] private float attackSpeed = 1.5f;
+
+        [Header("Дальний бой")]
+        [SerializeField] private GameObject arrowPrefab; // Префаб стрелы
+        [SerializeField] private float rangedRange = 6.0f;
 
         private UnitMotor _motor;
         private Health _target;
         private Coroutine _attackCoroutine;
         private UnitVisuals _visuals;
+        private Unit _unit; // Чтобы знать свое оружие
 
         private void Awake()
         {
             _motor = GetComponent<UnitMotor>();
             _visuals = GetComponent<UnitVisuals>();
+            _unit = GetComponent<Unit>();
         }
 
         public void Attack(Health target)
@@ -38,51 +44,68 @@ namespace WarOfCrowns.Units
         private IEnumerator AttackRoutine()
         {
             if (attackSpeed <= 0.1f) attackSpeed = 0.5f;
-
-            // Получаем коллайдер врага, чтобы знать, где его край
             Collider2D targetCollider = _target.GetComponent<Collider2D>();
 
             while (_target != null)
             {
-                // Определяем точку, куда бить (Край или Центр)
-                Vector3 targetPoint;
-                if (targetCollider != null)
+                // 1. Определяем режим боя
+                bool isRanged = false;
+                float currentAttackRange = 0.5f; // Ближний бой (в упор)
+                int currentDamage = baseDamage;
+
+                if (_unit != null)
                 {
-                    targetPoint = targetCollider.ClosestPoint(transform.position);
+                    string weaponName = _unit.currentWeapon.ToString();
+                    if (weaponName.Contains("Bow"))
+                    {
+                        isRanged = true;
+                        currentAttackRange = rangedRange;
+                    }
+                    else if (weaponName.Contains("Sword") || weaponName.Contains("Spear"))
+                    {
+                        currentDamage += 10; // Бонус за оружие ближнего боя
+                    }
                 }
-                else
-                {
-                    targetPoint = _target.transform.position;
-                }
+
+                // 2. Движение к цели
+                Vector3 targetPoint = targetCollider != null ?
+                    targetCollider.ClosestPoint(transform.position) :
+                    _target.transform.position;
 
                 float distance = Vector3.Distance(transform.position, targetPoint);
 
-                // Если мы дальше, чем радиус атаки - идем ближе
-                if (distance > attackRange) // attackRange можно поставить маленьким, например 0.5
+                if (distance > currentAttackRange)
                 {
                     _motor.MoveTo(targetPoint);
                 }
                 else
                 {
-                    // Мы на расстоянии удара
-                    _motor.MoveTo(transform.position); // Стоп
+                    // 3. Атака
+                    _motor.StopMoving();
 
-                    // Поворот к врагу
                     if (_visuals != null)
                     {
                         _visuals.FaceTarget(_target.transform.position);
                         _visuals.TriggerAttackAnimation();
                     }
 
-                    // Урон
-                    _target.TakeDamage(damage);
+                    if (isRanged && arrowPrefab != null)
+                    {
+                        // Выстрел
+                        GameObject arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
+                        arrow.GetComponent<Projectile>().Initialize(_target.transform.position, currentDamage);
+                    }
+                    else
+                    {
+                        // Удар
+                        _target.TakeDamage(currentDamage);
+                    }
 
                     yield return new WaitForSeconds(attackSpeed);
                 }
 
                 yield return null;
             }
-
             Cancel();
         }
     }

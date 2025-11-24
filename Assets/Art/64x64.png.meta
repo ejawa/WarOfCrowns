@@ -786,7 +786,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_33
+      name: Defense Tower
       rect:
         serializedVersion: 2
         x: 64
@@ -47525,7 +47525,6 @@ TextureImporter:
       64x64_327: -1389490474
       64x64_328: 1661864722
       64x64_329: -1155019960
-      64x64_33: -1373869794
       64x64_330: 1249113093
       64x64_331: 1957180722
       64x64_332: 705741112
@@ -48254,6 +48253,7 @@ TextureImporter:
       Bread: 1246227248
       Coal: -318659269
       CookedMeat: 1826642663
+      Defense Tower: -1373869794
       Farm: -1246915534
       Flour: 1376993505
       Forge: -1083541393

@@ -203,315 +203,315 @@ MonoBehaviour:
     - {fileID: 21300000, guid: cc1c5a1b45baacb42a969e4855b42874, type: 3}
     - {fileID: 21300000, guid: 94ada6eeacae3b040a3a5eaffb1ec082, type: 3}
   equipmentVisuals:
-  - itemType: 22
+  - itemType: 23
     sprites:
       idle: {fileID: 21300000, guid: b6d8f9f3bbee1ef4e98ca835c1225e6e, type: 3}
       walk:
       - {fileID: 21300000, guid: 51e09c14b7230ae4b9dae0a7e5d28adf, type: 3}
       - {fileID: 21300000, guid: 2d40f6f0951f87b44b201b0d4852c3fc, type: 3}
       - {fileID: 21300000, guid: e2e847daa27fbd14a9421ff3d772b4cc, type: 3}
-  - itemType: 20
+  - itemType: 21
     sprites:
       idle: {fileID: 21300000, guid: 322243e5b0ca91641bcee6458bb4df3c, type: 3}
       walk:
       - {fileID: 21300000, guid: 982ca94cc35c61b4cabfd0196e49053b, type: 3}
       - {fileID: 21300000, guid: 199d381437058e849a91f4550f61243d, type: 3}
       - {fileID: 21300000, guid: 525d39526f89db94a965f9b8c07d8133, type: 3}
-  - itemType: 21
+  - itemType: 22
     sprites:
       idle: {fileID: 21300000, guid: 968f17fa84a11584eaf51ba141b6b609, type: 3}
       walk:
       - {fileID: 21300000, guid: 361286f49ec9da7488d178d11e8ed8a7, type: 3}
       - {fileID: 21300000, guid: b9d578a541753d34a9023840e3451bcd, type: 3}
       - {fileID: 21300000, guid: fee42fa09e756d743858e88ed8cbeab2, type: 3}
-  - itemType: 23
+  - itemType: 24
     sprites:
       idle: {fileID: 21300000, guid: 55c3522d266866b49980b6f4f920507e, type: 3}
       walk:
       - {fileID: 21300000, guid: 48ff45474c6419e44b80960dd23fe345, type: 3}
       - {fileID: 21300000, guid: 61df46c22702bc64d9a9a6d4dec37498, type: 3}
       - {fileID: 21300000, guid: 6ea91878e8d48004995f0050c327bcfe, type: 3}
-  - itemType: 24
+  - itemType: 25
     sprites:
       idle: {fileID: 21300000, guid: 4f0a85c6fa19ea745914a76df78c1b29, type: 3}
       walk:
       - {fileID: 21300000, guid: 9002d98f07f078f429e914cc6878ab9f, type: 3}
       - {fileID: 21300000, guid: b2fc355ee970e1c47bedc9518a16f306, type: 3}
       - {fileID: 21300000, guid: 9d6fb9ad9434d1c4cb0203af9ed6269a, type: 3}
-  - itemType: 25
+  - itemType: 26
     sprites:
       idle: {fileID: 21300000, guid: b7c5f2ad3f2c6db49b97e18fa5ed1c7b, type: 3}
       walk:
       - {fileID: 21300000, guid: 26c8f99137a83a14ba8fe2c64ed74c47, type: 3}
       - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
       - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
-  - itemType: 26
+  - itemType: 27
     sprites:
       idle: {fileID: 21300000, guid: 1c74dfd3324386746a2f75527c17f45f, type: 3}
       walk:
       - {fileID: 21300000, guid: 47f954e785778e548a1f764efd9cf2db, type: 3}
       - {fileID: 21300000, guid: 1c74dfd3324386746a2f75527c17f45f, type: 3}
       - {fileID: 21300000, guid: 1c74dfd3324386746a2f75527c17f45f, type: 3}
-  - itemType: 27
+  - itemType: 28
     sprites:
       idle: {fileID: 21300000, guid: 59a3ba1cb6ecd9b4aa709f719e5147f7, type: 3}
       walk:
       - {fileID: 21300000, guid: b4abad4ef56ada94ebc7e96e59ffe891, type: 3}
       - {fileID: 21300000, guid: 59a3ba1cb6ecd9b4aa709f719e5147f7, type: 3}
       - {fileID: 21300000, guid: 59a3ba1cb6ecd9b4aa709f719e5147f7, type: 3}
-  - itemType: 28
+  - itemType: 29
     sprites:
       idle: {fileID: 21300000, guid: dc757db4310379545b92ffcb3d3b6f66, type: 3}
       walk:
       - {fileID: 21300000, guid: 89ba4305648522540afb8881581ef763, type: 3}
       - {fileID: 21300000, guid: dc757db4310379545b92ffcb3d3b6f66, type: 3}
       - {fileID: 21300000, guid: dc757db4310379545b92ffcb3d3b6f66, type: 3}
-  - itemType: 29
+  - itemType: 30
     sprites:
       idle: {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
       walk:
       - {fileID: 21300000, guid: 26c8f99137a83a14ba8fe2c64ed74c47, type: 3}
       - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
       - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
-  - itemType: 30
+  - itemType: 31
     sprites:
       idle: {fileID: 21300000, guid: 0fd0f2b47bfdb59429405f2a5a4af287, type: 3}
       walk:
       - {fileID: 21300000, guid: 2c9d26f49d4b55d4d92547fa83fe1982, type: 3}
       - {fileID: 21300000, guid: 0fd0f2b47bfdb59429405f2a5a4af287, type: 3}
       - {fileID: 21300000, guid: 0fd0f2b47bfdb59429405f2a5a4af287, type: 3}
-  - itemType: 31
+  - itemType: 32
     sprites:
       idle: {fileID: 21300000, guid: d51c1072906944d4c9d7b7f28f2fc67b, type: 3}
       walk:
       - {fileID: 21300000, guid: 52e99588bdb461b4b865234cada332ca, type: 3}
       - {fileID: 21300000, guid: d51c1072906944d4c9d7b7f28f2fc67b, type: 3}
       - {fileID: 21300000, guid: d51c1072906944d4c9d7b7f28f2fc67b, type: 3}
-  - itemType: 32
+  - itemType: 33
     sprites:
       idle: {fileID: 21300000, guid: 7bf70a200500dfc45b7bf5b653bf2434, type: 3}
       walk:
       - {fileID: 21300000, guid: 02baf5bef14ce514eb94dc810ce0109a, type: 3}
       - {fileID: 21300000, guid: 7bf70a200500dfc45b7bf5b653bf2434, type: 3}
       - {fileID: 21300000, guid: 7bf70a200500dfc45b7bf5b653bf2434, type: 3}
-  - itemType: 33
+  - itemType: 34
     sprites:
       idle: {fileID: 21300000, guid: 35f7e3e810efbb948afec48680189a06, type: 3}
       walk:
       - {fileID: 21300000, guid: ff6a1a03e3b9ac84eaf7739660568a54, type: 3}
       - {fileID: 21300000, guid: 35f7e3e810efbb948afec48680189a06, type: 3}
       - {fileID: 21300000, guid: 35f7e3e810efbb948afec48680189a06, type: 3}
-  - itemType: 34
+  - itemType: 35
     sprites:
       idle: {fileID: 21300000, guid: d0bc51a69188e684aa23fa3ae9b22613, type: 3}
       walk:
       - {fileID: 21300000, guid: 4b9a9d07c8d46c84dbc589af1fb73a2f, type: 3}
       - {fileID: 21300000, guid: d0bc51a69188e684aa23fa3ae9b22613, type: 3}
       - {fileID: 21300000, guid: d0bc51a69188e684aa23fa3ae9b22613, type: 3}
-  - itemType: 35
+  - itemType: 36
     sprites:
       idle: {fileID: 21300000, guid: d6b914053e8bb7e41a596da910ebbda4, type: 3}
       walk:
       - {fileID: 21300000, guid: 5d2f55dd0ea5314459d6837101d39391, type: 3}
       - {fileID: 21300000, guid: d6b914053e8bb7e41a596da910ebbda4, type: 3}
       - {fileID: 21300000, guid: d6b914053e8bb7e41a596da910ebbda4, type: 3}
-  - itemType: 36
+  - itemType: 37
     sprites:
       idle: {fileID: 21300000, guid: 60f0524a017ec2c41b31fdb0dcc2a61a, type: 3}
       walk:
       - {fileID: 21300000, guid: 7d7ef96f0cd2d6c4880804eadba9c38c, type: 3}
       - {fileID: 21300000, guid: 60f0524a017ec2c41b31fdb0dcc2a61a, type: 3}
       - {fileID: 21300000, guid: 60f0524a017ec2c41b31fdb0dcc2a61a, type: 3}
-  - itemType: 37
+  - itemType: 38
     sprites:
       idle: {fileID: 21300000, guid: bebe63fa9cbf005449468e501157281e, type: 3}
       walk:
       - {fileID: 21300000, guid: 9c92b9a9d9f5756479bc4b55f64475cd, type: 3}
       - {fileID: 21300000, guid: bebe63fa9cbf005449468e501157281e, type: 3}
       - {fileID: 21300000, guid: bebe63fa9cbf005449468e501157281e, type: 3}
-  - itemType: 38
+  - itemType: 39
     sprites:
       idle: {fileID: 21300000, guid: d85b9e05884a1e141b360e433f639a32, type: 3}
       walk:
       - {fileID: 21300000, guid: ef6c97523b8303948aa58e048f9bf258, type: 3}
       - {fileID: 21300000, guid: d85b9e05884a1e141b360e433f639a32, type: 3}
       - {fileID: 21300000, guid: d85b9e05884a1e141b360e433f639a32, type: 3}
-  - itemType: 39
+  - itemType: 40
     sprites:
       idle: {fileID: 21300000, guid: 26e5190dad4f28248bf917a4dd634fda, type: 3}
       walk:
       - {fileID: 21300000, guid: 8ad9bb4da3a4c094dba5cfbf81275a97, type: 3}
       - {fileID: 21300000, guid: 26e5190dad4f28248bf917a4dd634fda, type: 3}
       - {fileID: 21300000, guid: 26e5190dad4f28248bf917a4dd634fda, type: 3}
-  - itemType: 40
+  - itemType: 41
     sprites:
       idle: {fileID: 21300000, guid: 18e83268573b59646968b79bd5fb94d1, type: 3}
       walk:
       - {fileID: 21300000, guid: ae5d4aeb09769864d900c01edd40d5bb, type: 3}
       - {fileID: 21300000, guid: 18e83268573b59646968b79bd5fb94d1, type: 3}
       - {fileID: 21300000, guid: 18e83268573b59646968b79bd5fb94d1, type: 3}
-  - itemType: 41
+  - itemType: 42
     sprites:
       idle: {fileID: 21300000, guid: 9eecacc9699681841b4188ce6e9a9156, type: 3}
       walk:
       - {fileID: 21300000, guid: 6acc72b93fbd3d244a4ad8d3b43385d6, type: 3}
       - {fileID: 21300000, guid: 9eecacc9699681841b4188ce6e9a9156, type: 3}
       - {fileID: 21300000, guid: 9eecacc9699681841b4188ce6e9a9156, type: 3}
-  - itemType: 42
+  - itemType: 43
     sprites:
       idle: {fileID: 21300000, guid: 2abc12ec5bb47464b94a8eb595de244c, type: 3}
       walk:
       - {fileID: 21300000, guid: b9f430ab3d357b34184e7d278581dc54, type: 3}
       - {fileID: 21300000, guid: 2abc12ec5bb47464b94a8eb595de244c, type: 3}
       - {fileID: 21300000, guid: 2abc12ec5bb47464b94a8eb595de244c, type: 3}
-  - itemType: 43
+  - itemType: 44
     sprites:
       idle: {fileID: 21300000, guid: 54a3031875b27194496025f5a7d93a2a, type: 3}
       walk:
       - {fileID: 21300000, guid: d5901a4a16a422b419813e1449f0be44, type: 3}
       - {fileID: 21300000, guid: 54a3031875b27194496025f5a7d93a2a, type: 3}
       - {fileID: 21300000, guid: 54a3031875b27194496025f5a7d93a2a, type: 3}
-  - itemType: 44
+  - itemType: 45
     sprites:
       idle: {fileID: 21300000, guid: 0ab31c8b734189646b9ab17cb29ff146, type: 3}
       walk:
       - {fileID: 21300000, guid: 762edabdb89fca8499ca40244aca7497, type: 3}
       - {fileID: 21300000, guid: 0ab31c8b734189646b9ab17cb29ff146, type: 3}
       - {fileID: 21300000, guid: 0ab31c8b734189646b9ab17cb29ff146, type: 3}
-  - itemType: 45
+  - itemType: 46
     sprites:
       idle: {fileID: 21300000, guid: a6d9de3de07f29645962eb5f1ab4728c, type: 3}
       walk:
       - {fileID: 21300000, guid: 9e7002e7cd163a147bb00dafe8ee9fd0, type: 3}
       - {fileID: 21300000, guid: a6d9de3de07f29645962eb5f1ab4728c, type: 3}
       - {fileID: 21300000, guid: a6d9de3de07f29645962eb5f1ab4728c, type: 3}
-  - itemType: 46
+  - itemType: 47
     sprites:
       idle: {fileID: 21300000, guid: 124ecf46e41cc4a449305dc95fa63b32, type: 3}
       walk:
       - {fileID: 21300000, guid: 9873454f250bc574bad8193af0d3eee4, type: 3}
       - {fileID: 21300000, guid: 124ecf46e41cc4a449305dc95fa63b32, type: 3}
       - {fileID: 21300000, guid: 124ecf46e41cc4a449305dc95fa63b32, type: 3}
-  - itemType: 47
+  - itemType: 48
     sprites:
       idle: {fileID: 21300000, guid: 30d0b08adcb492442a9b343a5890c2d9, type: 3}
       walk:
       - {fileID: 21300000, guid: 0089d91bf06132b4cae0fda23334a679, type: 3}
       - {fileID: 21300000, guid: 30d0b08adcb492442a9b343a5890c2d9, type: 3}
       - {fileID: 21300000, guid: 30d0b08adcb492442a9b343a5890c2d9, type: 3}
-  - itemType: 48
+  - itemType: 49
     sprites:
       idle: {fileID: 21300000, guid: c0f1588cee8729e40afc74706d479b63, type: 3}
       walk:
       - {fileID: 21300000, guid: 6b14dfda7b9834649a836da42aa43e64, type: 3}
       - {fileID: 21300000, guid: c0f1588cee8729e40afc74706d479b63, type: 3}
       - {fileID: 21300000, guid: c0f1588cee8729e40afc74706d479b63, type: 3}
-  - itemType: 49
+  - itemType: 50
     sprites:
       idle: {fileID: 21300000, guid: 1b59d0474c231734ea3dadfb4cbc8c71, type: 3}
       walk:
       - {fileID: 21300000, guid: f4d786c26377f2b4493c333fa71614cc, type: 3}
       - {fileID: 21300000, guid: 1b59d0474c231734ea3dadfb4cbc8c71, type: 3}
       - {fileID: 21300000, guid: 1b59d0474c231734ea3dadfb4cbc8c71, type: 3}
-  - itemType: 50
+  - itemType: 51
     sprites:
       idle: {fileID: 21300000, guid: 5db504ae29184924b939bc194fbfb185, type: 3}
       walk:
       - {fileID: 21300000, guid: 9ab2b83fec21a4b469d5b871f7235cdb, type: 3}
       - {fileID: 21300000, guid: 5db504ae29184924b939bc194fbfb185, type: 3}
       - {fileID: 21300000, guid: 5db504ae29184924b939bc194fbfb185, type: 3}
-  - itemType: 51
+  - itemType: 52
     sprites:
       idle: {fileID: 21300000, guid: 7047d79a42bc7624ca0d1477b1165668, type: 3}
       walk:
       - {fileID: 21300000, guid: 5b45509805d45f2439d563b4e80d4952, type: 3}
       - {fileID: 21300000, guid: 7047d79a42bc7624ca0d1477b1165668, type: 3}
       - {fileID: 21300000, guid: 7047d79a42bc7624ca0d1477b1165668, type: 3}
-  - itemType: 52
+  - itemType: 53
     sprites:
       idle: {fileID: 21300000, guid: fa0b2fe94e589654ca67598c78407ded, type: 3}
       walk:
       - {fileID: 21300000, guid: 4aa81d77b56248f4990e129937ec2f08, type: 3}
       - {fileID: 21300000, guid: fa0b2fe94e589654ca67598c78407ded, type: 3}
       - {fileID: 21300000, guid: fa0b2fe94e589654ca67598c78407ded, type: 3}
-  - itemType: 53
+  - itemType: 54
     sprites:
       idle: {fileID: 21300000, guid: 6b9a0197060395649b82faba6afce19b, type: 3}
       walk:
       - {fileID: 21300000, guid: d51f4c1e2b3ea434f993c28646f2db47, type: 3}
       - {fileID: 21300000, guid: 6b9a0197060395649b82faba6afce19b, type: 3}
       - {fileID: 21300000, guid: 6b9a0197060395649b82faba6afce19b, type: 3}
-  - itemType: 54
+  - itemType: 55
     sprites:
       idle: {fileID: 21300000, guid: 9bd4bae6bf0d90942bb7c93ce97193c0, type: 3}
       walk:
       - {fileID: 21300000, guid: 8e668023914a67441995c94e9a76e2ed, type: 3}
       - {fileID: 21300000, guid: 9bd4bae6bf0d90942bb7c93ce97193c0, type: 3}
       - {fileID: 21300000, guid: 9bd4bae6bf0d90942bb7c93ce97193c0, type: 3}
-  - itemType: 55
+  - itemType: 56
     sprites:
       idle: {fileID: 21300000, guid: 54c94e17f1ca14847a0b02dafc344c3b, type: 3}
       walk:
       - {fileID: 21300000, guid: 63eabd6962306da458b8623f0548e932, type: 3}
       - {fileID: 21300000, guid: 54c94e17f1ca14847a0b02dafc344c3b, type: 3}
       - {fileID: 21300000, guid: 54c94e17f1ca14847a0b02dafc344c3b, type: 3}
-  - itemType: 56
+  - itemType: 57
     sprites:
       idle: {fileID: 21300000, guid: a04c0b7f55b6ae64ea59d560e8a6f685, type: 3}
       walk:
       - {fileID: 21300000, guid: 42e510c6722c7114aa40f4d3cc2c82a9, type: 3}
       - {fileID: 21300000, guid: a04c0b7f55b6ae64ea59d560e8a6f685, type: 3}
       - {fileID: 21300000, guid: a04c0b7f55b6ae64ea59d560e8a6f685, type: 3}
-  - itemType: 57
+  - itemType: 58
     sprites:
       idle: {fileID: 21300000, guid: ef7fe2c031814e443bee35f2315f90a2, type: 3}
       walk:
       - {fileID: 21300000, guid: ef7fe2c031814e443bee35f2315f90a2, type: 3}
       - {fileID: 21300000, guid: 2f23a7ca5492778498a6d538373c4a35, type: 3}
       - {fileID: 21300000, guid: 2f23a7ca5492778498a6d538373c4a35, type: 3}
-  - itemType: 58
+  - itemType: 59
     sprites:
       idle: {fileID: 21300000, guid: de1d047e16acffc4abd9e43cac13c367, type: 3}
       walk:
       - {fileID: 21300000, guid: 779ddc789ca42544394cf37eed1e8775, type: 3}
       - {fileID: 21300000, guid: de1d047e16acffc4abd9e43cac13c367, type: 3}
       - {fileID: 21300000, guid: de1d047e16acffc4abd9e43cac13c367, type: 3}
-  - itemType: 59
+  - itemType: 60
     sprites:
       idle: {fileID: 21300000, guid: f7abfe00c34d7f644861baee18dced09, type: 3}
       walk:
       - {fileID: 21300000, guid: 75a53bd53fe57d94581bc43d8fcab21d, type: 3}
       - {fileID: 21300000, guid: f7abfe00c34d7f644861baee18dced09, type: 3}
       - {fileID: 21300000, guid: f7abfe00c34d7f644861baee18dced09, type: 3}
-  - itemType: 60
+  - itemType: 61
     sprites:
       idle: {fileID: 21300000, guid: a68534da363d23149a21660632838354, type: 3}
       walk:
       - {fileID: 21300000, guid: 546ea3c81907d1a4e8de8238f82f7651, type: 3}
       - {fileID: 21300000, guid: a68534da363d23149a21660632838354, type: 3}
       - {fileID: 21300000, guid: a68534da363d23149a21660632838354, type: 3}
-  - itemType: 61
+  - itemType: 62
     sprites:
       idle: {fileID: 21300000, guid: 03f2fbcdec3e79e4dbf1a0d02e097481, type: 3}
       walk:
       - {fileID: 21300000, guid: bd3d2742579a34348a459ef4293abc28, type: 3}
       - {fileID: 21300000, guid: 03f2fbcdec3e79e4dbf1a0d02e097481, type: 3}
       - {fileID: 21300000, guid: 03f2fbcdec3e79e4dbf1a0d02e097481, type: 3}
-  - itemType: 62
+  - itemType: 63
     sprites:
       idle: {fileID: 21300000, guid: 206a4aa954191074c9f9f29440c5c6bc, type: 3}
       walk:
       - {fileID: 21300000, guid: ba799fa184c8bd44cb45a2a8c484e7c7, type: 3}
       - {fileID: 21300000, guid: 206a4aa954191074c9f9f29440c5c6bc, type: 3}
       - {fileID: 21300000, guid: 206a4aa954191074c9f9f29440c5c6bc, type: 3}
-  - itemType: 63
+  - itemType: 64
     sprites:
       idle: {fileID: 21300000, guid: 5c81f283096f0184092e10d53eebbb90, type: 3}
       walk:
       - {fileID: 21300000, guid: 604459003d8f3144198483e56728e759, type: 3}
       - {fileID: 21300000, guid: 5c81f283096f0184092e10d53eebbb90, type: 3}
       - {fileID: 21300000, guid: 5c81f283096f0184092e10d53eebbb90, type: 3}
-  - itemType: 64
+  - itemType: 65
     sprites:
       idle: {fileID: 21300000, guid: 4cc20d7378f6c9e48a407030f651de4c, type: 3}
       walk:
