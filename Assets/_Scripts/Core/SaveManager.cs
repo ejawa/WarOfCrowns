@@ -49,16 +49,24 @@ namespace WarOfCrowns.Core
             SaveBuildings();
             SaveWorldResources();
             SaveUnits();
+            SaveWorldGen();
             Debug.Log("--- SAVE COMPLETE ---");
+
         }
 
         public void LoadGame()
         {
             Debug.Log("--- STARTING LOAD PROCESS ---");
+
+            // 1. Сначала восстанавливаем Ландшафт (Сид)
+            LoadWorldGen();
+
+            // 2. Потом всё остальное
             LoadKingdom();
             LoadBuildings();
-            LoadWorldResources();
+            LoadWorldResources(); // Ресурсы встанут на свои места на новой карте
             LoadUnits();
+
             Debug.Log("--- LOAD COMPLETE ---");
         }
 
@@ -84,7 +92,26 @@ namespace WarOfCrowns.Core
                 Kingdom.PlayerKingdom.LoadInventoryFromSave(data.inventory);
             }
         }
+        private void SaveWorldGen()
+        {
+            if (WorldGenerator.Instance != null)
+            {
+                WorldSaveData data = new WorldSaveData();
+                data.seed = WorldGenerator.Instance.GetCurrentSeed();
+                SaveSystem.SaveData(data, "world_data.json");
+            }
+        }
 
+        private void LoadWorldGen()
+        {
+            WorldSaveData data = SaveSystem.LoadData<WorldSaveData>("world_data.json");
+            if (data != null && WorldGenerator.Instance != null)
+            {
+                // Это критически важно сделать ДО загрузки зданий и ресурсов,
+                // чтобы земля под ними была правильной.
+                WorldGenerator.Instance.RegenerateWorldFromSave(data.seed);
+            }
+        }
         // --- 2. ЗДАНИЯ ---
         private void SaveBuildings()
         {

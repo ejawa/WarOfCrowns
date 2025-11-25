@@ -62,6 +62,11 @@ namespace WarOfCrowns.Data
 
     // --- 4. –≈—”–—€ Ã»–¿ ---
     [Serializable]
+    public class WorldSaveData
+    {
+        public string seed;
+    }
+    [Serializable]
     public class WorldResourceListWrapper
     {
         public List<ResourceNodeSaveData> activeResources = new List<ResourceNodeSaveData>();
