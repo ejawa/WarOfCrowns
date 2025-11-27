@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 4986214059639831926}
   - component: {fileID: 1526726366717327214}
   - component: {fileID: 6716821110792711960}
+  - component: {fileID: 8852475029602058756}
   m_Layer: 13
   m_Name: Enemy_Dummy
   m_TagString: Enemy
@@ -212,3 +213,24 @@ SortingGroup:
   m_SortingLayerID: 1529874477
   m_SortingLayer: 2
   m_SortingOrder: 0
+--- !u!114 &8852475029602058756
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276777165091647620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1

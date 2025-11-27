@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4743045840448822028}
   - component: {fileID: 467488863882295640}
   - component: {fileID: -5828630035096251928}
+  - component: {fileID: -8277294653877732418}
   - component: {fileID: -1527364264208979183}
   - component: {fileID: 5368330334834521530}
   m_Layer: 12
@@ -128,6 +129,27 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &-8277294653877732418
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8903364822000936487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 655353078
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &-1527364264208979183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +167,8 @@ MonoBehaviour:
   description: 
   costs: []
   populationBonus: 0
+  ownerKingdomID:
+    m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
 --- !u!114 &5368330334834521530

@@ -97,6 +97,7 @@ GameObject:
   - component: {fileID: 7815130332947459345}
   - component: {fileID: -4620396270093354535}
   - component: {fileID: 2952387989642328032}
+  - component: {fileID: -7795176724536328180}
   m_Layer: 12
   m_Name: Warehouse_Foundation
   m_TagString: Untagged
@@ -235,3 +236,24 @@ MonoBehaviour:
   buildTime: 10
   finishedBuildingPrefab: {fileID: 8903364822000936487, guid: 962883cf9b11e0840becec03733792e6, type: 3}
   iconRenderer: {fileID: 4678637182228221551}
+--- !u!114 &-7795176724536328180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8500621534846853309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1

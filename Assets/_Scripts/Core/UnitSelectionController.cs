@@ -14,7 +14,7 @@ namespace WarOfCrowns.Core
         [SerializeField] private LayerMask unitLayerMask;
         [SerializeField] private LayerMask groundLayerMask;
         [SerializeField] private LayerMask resourceLayerMask;
-        [SerializeField] private LayerMask constructionLayerMask;
+        [SerializeField] private LayerMask constructionLayerMask; // Сюда входят и здания, и стройплощадки
         [SerializeField] private LayerMask enemiesLayerMask;
 
         [Header("UI Рамки")]
@@ -23,12 +23,9 @@ namespace WarOfCrowns.Core
         private Camera _mainCamera;
         private RectTransform _canvasRect;
 
-        // Основной список текущих выделенных
+        // Списки выделения
         private List<Unit> _selectedUnits = new List<Unit>();
-
-        // Список тех, кто был выделен ДО начала перетаскивания (для Ctrl)
         private List<Unit> _unitsBeforeDrag = new List<Unit>();
-
         private SelectableBuilding _selectedBuilding;
 
         private Vector2 _startMousePos;
@@ -45,276 +42,212 @@ namespace WarOfCrowns.Core
 
         private void Update()
         {
-            if (!enabled) return;
+            // Блокировка кликов через UI (но не во время драга)
+            if (!_isDragging && EventSystem.current.IsPointerOverGameObject()) return;
+
             HandleSelectionInput();
             HandleRightClick();
         }
 
-        // --- ЛОГИКА ВВОДА ---
-
-        private bool IsAdditiveKeyHeld()
+        // --- ГЛАВНАЯ ПРОВЕРКА: МОЙ ЛИ ЭТО ЮНИТ? ---
+        private bool IsMyUnit(Unit unit)
         {
-            // Проверяем Ctrl или Shift (для удобства)
-            return Keyboard.current.ctrlKey.isPressed || Keyboard.current.shiftKey.isPressed;
+            if (Kingdom.PlayerKingdom == null) return false;
+            return unit.ownerKingdomID.Value == Kingdom.PlayerKingdom.kingdomID;
         }
 
         private void HandleSelectionInput()
         {
-            // 1. НАЖАТИЕ
             if (Mouse.current.leftButton.wasPressedThisFrame)
             {
-                if (EventSystem.current.IsPointerOverGameObject()) return;
-
                 _startMousePos = Mouse.current.position.ReadValue();
                 _isDragging = true;
-
-                // Запоминаем, кто был выделен до начала клика/драга
-                if (IsAdditiveKeyHeld())
-                {
-                    _unitsBeforeDrag = new List<Unit>(_selectedUnits); // Копируем текущий список
-                }
-                else
-                {
-                    _unitsBeforeDrag.Clear(); // Если Ctrl не зажат, начинаем с чистого листа
-
-                    // Сразу очищаем текущее выделение (визуально), чтобы начать новое
-                    DeselectAllUnits();
-                    if (_selectedBuilding != null) { _selectedBuilding.Deselect(); _selectedBuilding = null; }
-                }
+                if (IsAdditiveKeyHeld()) _unitsBeforeDrag = new List<Unit>(_selectedUnits);
+                else { _unitsBeforeDrag.Clear(); DeselectAll(); }
             }
 
-            // 2. УДЕРЖАНИЕ (Драг)
             if (_isDragging && Mouse.current.leftButton.isPressed)
             {
                 UpdateSelectionBoxVisual();
-
-                // Если мышку немного сдвинули - начинаем "Живое выделение"
-                if (Vector2.Distance(_startMousePos, Mouse.current.position.ReadValue()) > 5f)
-                {
+                if (Vector2.Distance(_startMousePos, Mouse.current.position.ReadValue()) > 10f)
                     UpdateRealtimeSelection();
-                }
             }
 
-            // 3. ОТПУСКАНИЕ
             if (_isDragging && Mouse.current.leftButton.wasReleasedThisFrame)
             {
                 _isDragging = false;
                 if (selectionBox != null) selectionBox.gameObject.SetActive(false);
-
-                // Если это был просто клик (не драг)
-                if (Vector2.Distance(_startMousePos, Mouse.current.position.ReadValue()) < 5f)
-                {
+                if (Vector2.Distance(_startMousePos, Mouse.current.position.ReadValue()) < 10f)
                     HandleSingleClick();
-                }
-                // Если был драг - мы уже выделили всех в UpdateRealtimeSelection, 
-                // просто финально обновляем UI (на всякий случай)
+
                 OnSelectionChanged?.Invoke(_selectedUnits);
             }
         }
 
-        // --- ЖИВОЕ ВЫДЕЛЕНИЕ РАМКОЙ ---
         private void UpdateRealtimeSelection()
         {
-            // 1. Вычисляем границы рамки в мире
             Vector2 currentMousePos = Mouse.current.position.ReadValue();
             Vector2 worldStart = _mainCamera.ScreenToWorldPoint(_startMousePos);
             Vector2 worldEnd = _mainCamera.ScreenToWorldPoint(currentMousePos);
 
-            float minX = Mathf.Min(worldStart.x, worldEnd.x);
-            float maxX = Mathf.Max(worldStart.x, worldEnd.x);
-            float minY = Mathf.Min(worldStart.y, worldEnd.y);
-            float maxY = Mathf.Max(worldStart.y, worldEnd.y);
-
-            // 2. Находим всех, кто сейчас под рамкой
-            Collider2D[] hits = Physics2D.OverlapAreaAll(new Vector2(minX, minY), new Vector2(maxX, maxY), unitLayerMask);
-
-            // 3. Формируем НОВЫЙ список выделения
-            // Начинаем с тех, кто был выделен ДО драга (если зажат Ctrl)
+            Collider2D[] hits = Physics2D.OverlapAreaAll(worldStart, worldEnd, unitLayerMask);
             List<Unit> newSelection = new List<Unit>(_unitsBeforeDrag);
 
             foreach (var hit in hits)
             {
                 if (hit.TryGetComponent<Unit>(out var unit))
                 {
-                    // Добавляем только если его еще нет в списке
-                    if (!newSelection.Contains(unit))
-                    {
-                        newSelection.Add(unit);
-                    }
+                    // ФИЛЬТР: Выделяем только своих!
+                    if (!IsMyUnit(unit)) continue;
+                    if (!newSelection.Contains(unit)) newSelection.Add(unit);
                 }
             }
 
-            // 4. СИНХРОНИЗАЦИЯ (Самая хитрая часть)
-            // Нам нужно визуально выделить новых и снять выделение с тех, кто выпал из рамки
-
-            // Снимаем выделение с тех, кого НЕТ в новом списке
-            foreach (var oldUnit in _selectedUnits)
-            {
-                if (!newSelection.Contains(oldUnit)) oldUnit.Deselect();
-            }
-
-            // Выделяем тех, кто ЕСТЬ в новом списке
-            foreach (var newUnit in newSelection)
-            {
-                newUnit.Select();
-            }
-
-            // Обновляем главный список
+            foreach (var oldUnit in _selectedUnits) if (!newSelection.Contains(oldUnit)) oldUnit.Deselect();
+            foreach (var newUnit in newSelection) newUnit.Select();
             _selectedUnits = newSelection;
-
-            // Обновляем UI в реальном времени
-            OnSelectionChanged?.Invoke(_selectedUnits);
         }
 
-        // --- ОДИНОЧНЫЙ КЛИК (С поддержкой Ctrl) ---
         private void HandleSingleClick()
         {
             Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
 
-            // 1. Юнит
-            RaycastHit2D hitUnit = Physics2D.Raycast(worldPoint, Vector2.zero, Mathf.Infinity, unitLayerMask);
+            // 1. Юниты
+            RaycastHit2D hitUnit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, unitLayerMask);
             if (hitUnit.collider != null && hitUnit.collider.TryGetComponent<Unit>(out var unit))
             {
+                // ФИЛЬТР: Свои юниты
+                if (!IsMyUnit(unit)) return;
+
                 if (IsAdditiveKeyHeld())
                 {
-                    // Если Ctrl зажат:
-                    if (_selectedUnits.Contains(unit))
-                    {
-                        // Если уже был выделен - снимаем (Toggle)
-                        unit.Deselect();
-                        _selectedUnits.Remove(unit);
-                    }
-                    else
-                    {
-                        // Если не был - добавляем
-                        unit.Select();
-                        _selectedUnits.Add(unit);
-                    }
+                    if (_selectedUnits.Contains(unit)) { unit.Deselect(); _selectedUnits.Remove(unit); }
+                    else { unit.Select(); _selectedUnits.Add(unit); }
                 }
                 else
                 {
-                    // Если Ctrl НЕ зажат:
-                    DeselectAll(); // Сброс всех
-                    unit.Select();
-                    _selectedUnits.Add(unit);
+                    DeselectAll(); unit.Select(); _selectedUnits.Add(unit);
                 }
-                OnSelectionChanged?.Invoke(_selectedUnits);
                 return;
             }
 
-            // 2. Здание (Здания обычно выделяются по одному, Ctrl тут редко нужен)
-            RaycastHit2D hitBuilding = Physics2D.Raycast(worldPoint, Vector2.zero, Mathf.Infinity, constructionLayerMask);
+            // 2. Здания (Здания можно выделять любые, чтобы видеть инфо, но управлять только своими)
+            // (Управление ограничивается внутри самих UI скриптов типа TownHallUI)
+            RaycastHit2D hitBuilding = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
             if (hitBuilding.collider != null && hitBuilding.collider.TryGetComponent<SelectableBuilding>(out var building))
             {
                 DeselectAll();
                 _selectedBuilding = building;
                 _selectedBuilding.Select();
-                return;
-            }
-
-            // 3. Пустота
-            if (!IsAdditiveKeyHeld())
-            {
-                DeselectAll();
             }
         }
 
-        private void DeselectAllUnits()
+        private void HandleRightClick()
         {
-            foreach (var unit in _selectedUnits) unit.Deselect();
-            _selectedUnits.Clear();
+            if (_selectedUnits.Count == 0) return;
+            if (!Mouse.current.rightButton.wasPressedThisFrame) return;
+
+            Vector3 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            worldPoint.z = 0;
+
+            // --- ПРИОРИТЕТЫ КЛИКОВ ---
+
+            // 1. Атака врага
+            RaycastHit2D enemyHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, enemiesLayerMask);
+            if (enemyHit.collider != null && enemyHit.collider.TryGetComponent<Health>(out var targetEnemy))
+            {
+                foreach (var unit in _selectedUnits)
+                {
+                    // Если есть компонент бойца - атакуем
+                    if (unit.TryGetComponent<Fighter>(out var fighter)) fighter.Attack(targetEnemy);
+                }
+                return;
+            }
+
+            // 2. Вход в БАШНЮ (Гарнизон)
+            RaycastHit2D towerHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
+            if (towerHit.collider != null && towerHit.collider.TryGetComponent<DefenseTower>(out var tower))
+            {
+                // Проверяем, наша ли это башня (через компонент Building)
+                var bLogic = tower.GetComponent<Building>();
+                if (bLogic != null && Kingdom.PlayerKingdom != null && bLogic.ownerKingdomID.Value == Kingdom.PlayerKingdom.kingdomID)
+                {
+                    foreach (var unit in _selectedUnits)
+                    {
+                        if (unit.TryGetComponent<UnitAI>(out var ai)) ai.CommandGarrison(tower);
+                    }
+                    return;
+                }
+            }
+
+            // 3. Работа / Стройка (JobBuilding или ConstructionSite)
+            RaycastHit2D jobHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
+            if (jobHit.collider != null)
+            {
+                // Если это Стройка
+                if (jobHit.collider.TryGetComponent<ConstructionSite>(out var site))
+                {
+                    // Можно добавить проверку "своя стройка", если нужно
+                    foreach (var unit in _selectedUnits)
+                        if (unit.TryGetComponent<UnitBuilder>(out var builder)) builder.SetTarget(site);
+                    return;
+                }
+                // Если это Работа (Ферма и т.д.)
+                if (jobHit.collider.TryGetComponent<JobBuilding>(out var job))
+                {
+                    foreach (var unit in _selectedUnits)
+                        if (unit.TryGetComponent<UnitWorker>(out var worker)) worker.SetTarget(job);
+                    return;
+                }
+            }
+
+            // 4. Сбор ресурсов
+            RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
+            if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out var resource))
+            {
+                foreach (var unit in _selectedUnits)
+                    if (unit.TryGetComponent<UnitGatherer>(out var gatherer)) gatherer.SetTarget(resource);
+                return;
+            }
+
+            // 5. Обычное движение
+            bool isMoveCommand = true; // Если никуда не попали - идем
+            if (isMoveCommand)
+            {
+                // Разброс юнитов, чтобы не слипались
+                for (int i = 0; i < _selectedUnits.Count; i++)
+                {
+                    Vector2 randomOffset = Random.insideUnitCircle * 0.2f * Mathf.Min(_selectedUnits.Count, 5);
+                    if (_selectedUnits[i].TryGetComponent<UnitMotor>(out var motor))
+                        motor.MoveTo(worldPoint + (Vector3)randomOffset);
+                }
+            }
         }
 
         private void DeselectAll()
         {
-            DeselectAllUnits();
-
-            if (_selectedBuilding != null) _selectedBuilding.Deselect();
-            _selectedBuilding = null;
-
+            foreach (var u in _selectedUnits) u.Deselect();
+            _selectedUnits.Clear();
+            if (_selectedBuilding != null) { _selectedBuilding.Deselect(); _selectedBuilding = null; }
             OnSelectionChanged?.Invoke(new List<Unit>());
         }
 
+        private bool IsAdditiveKeyHeld() => Keyboard.current.ctrlKey.isPressed || Keyboard.current.shiftKey.isPressed;
+
         private void UpdateSelectionBoxVisual()
         {
-            if (selectionBox == null || _canvasRect == null) return;
-            if (!selectionBox.gameObject.activeInHierarchy) selectionBox.gameObject.SetActive(true);
-
-            Vector2 currentMousePos = Mouse.current.position.ReadValue();
+            if (!selectionBox) return;
+            selectionBox.gameObject.SetActive(true);
             Vector2 localStart;
             Vector2 localCurrent;
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, _startMousePos, _mainCamera, out localStart);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, currentMousePos, _mainCamera, out localCurrent);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, Mouse.current.position.ReadValue(), _mainCamera, out localCurrent);
 
             Vector2 size = localCurrent - localStart;
             Vector2 center = localStart + (size / 2);
-
             selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
             selectionBox.anchoredPosition = center;
-        }
-
-        // --- ПРИКАЗЫ (Без изменений, только вставляем в конец класса) ---
-        private void HandleRightClick()
-        {
-            if (EventSystem.current.IsPointerOverGameObject()) return;
-            if (!Mouse.current.rightButton.wasPressedThisFrame) return;
-            if (_selectedUnits.Count == 0) return;
-
-            Vector2 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-
-            // Определение цели
-            Health targetEnemy = null;
-            ConstructionSite targetSite = null;
-            ResourceNode targetResource = null;
-            JobBuilding targetJob = null;
-            bool isMoveCommand = true;
-
-            RaycastHit2D enemyHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, enemiesLayerMask);
-            if (enemyHit.collider != null && enemyHit.collider.TryGetComponent<Health>(out targetEnemy)) isMoveCommand = false;
-            else
-            {
-                RaycastHit2D jobHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
-                if (jobHit.collider != null && jobHit.collider.TryGetComponent<JobBuilding>(out targetJob) && jobHit.collider.GetComponent<ConstructionSite>() == null) isMoveCommand = false;
-
-                if (isMoveCommand)
-                {
-                    RaycastHit2D constructionHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, constructionLayerMask);
-                    if (constructionHit.collider != null && constructionHit.collider.TryGetComponent<ConstructionSite>(out targetSite)) isMoveCommand = false;
-                }
-            }
-            if (isMoveCommand)
-            {
-                RaycastHit2D resourceHit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f, resourceLayerMask);
-                if (resourceHit.collider != null && resourceHit.collider.TryGetComponent<ResourceNode>(out targetResource)) isMoveCommand = false;
-            }
-
-            // Раздача приказов
-            foreach (Unit unit in _selectedUnits)
-            {
-                var motor = unit.GetComponent<UnitMotor>();
-                var gatherer = unit.GetComponent<UnitGatherer>();
-                var builder = unit.GetComponent<UnitBuilder>();
-                var fighter = unit.GetComponent<Fighter>();
-                var worker = unit.GetComponent<UnitWorker>();
-
-                unit.GetComponent<Unit>().SetManualCommandOverride();
-
-                gatherer?.StopGathering();
-                builder?.Cancel();
-                fighter?.Cancel();
-                worker?.StopWorking();
-
-                if (targetEnemy != null && fighter != null) fighter.Attack(targetEnemy);
-                else if (targetJob != null && worker != null) worker.SetTarget(targetJob);
-                else if (targetSite != null && builder != null) builder.SetTarget(targetSite);
-                else if (targetResource != null && gatherer != null) gatherer.SetTarget(targetResource);
-                else if (isMoveCommand && motor != null)
-                {
-                    Vector2 randomOffset = Random.insideUnitCircle * 0.5f * Mathf.Min(_selectedUnits.Count, 5);
-                    motor.MoveTo(worldPoint + randomOffset);
-                }
-            }
         }
     }
 }

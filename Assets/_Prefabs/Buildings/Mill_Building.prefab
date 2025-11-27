@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6176536511988846672}
   - component: {fileID: 2241486938583551517}
   - component: {fileID: 8961329333111806029}
+  - component: {fileID: 2795208928599879049}
   - component: {fileID: 1142601253138315039}
   - component: {fileID: -2314427875216467560}
   m_Layer: 12
@@ -128,6 +129,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   opensGlobalWarehouse: 0
   selectionUIPrefab: {fileID: 8844993809538989454, guid: 647c5668cc5efa24e8aa7694e93d1d17, type: 3}
+--- !u!114 &2795208928599879049
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5612152511871660002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 265170404
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &1142601253138315039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +167,8 @@ MonoBehaviour:
   description: 
   costs: []
   populationBonus: 0
+  ownerKingdomID:
+    m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
 --- !u!114 &-2314427875216467560

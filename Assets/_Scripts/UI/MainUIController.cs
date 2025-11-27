@@ -133,6 +133,7 @@ namespace WarOfCrowns.UI
         // ----------------------------
 
         #region UI Panel Logic
+        // 1. ЗАМЕНИ ЭТОТ МЕТОД
         public void ToggleWarehousePanel()
         {
             if (warehousePanel == null) return;
@@ -146,25 +147,20 @@ namespace WarOfCrowns.UI
                 RefreshWarehouseUI();
             }
         }
+
+        // 2. ДОБАВЬ ЭТОТ МЕТОД (если его нет)
         private void RefreshWarehouseUI()
         {
-            if (_playerKingdom == null) return;
+            // Берем наше локальное королевство
+            Kingdom myKingdom = Kingdom.PlayerKingdom;
+            if (myKingdom == null) return;
 
-            // Проходим по всем существующим слотам и ставим актуальные цифры
-            foreach (var pair in _warehouseSlots)
+            // Проходимся по ВСЕМ возможным типам ресурсов
+            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
             {
-                ResourceType type = pair.Key;
-                GameObject slot = pair.Value;
-
-                // Получаем свежие данные
-                int currentAmount = _playerKingdom.GetResourceAmount(type);
-
-                // Обновляем текст
-                Transform amountTr = slot.transform.Find("Amount_Text");
-                if (amountTr != null)
-                {
-                    amountTr.GetComponent<TextMeshProUGUI>().text = currentAmount.ToString();
-                }
+                int currentAmount = myKingdom.GetResourceAmount(type);
+                // Вызываем стандартный метод обновления слота
+                UpdateWarehouseSlot(type, currentAmount);
             }
         }
         public void ToggleBuildMenu()

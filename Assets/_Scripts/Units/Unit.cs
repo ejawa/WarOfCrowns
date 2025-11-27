@@ -1,34 +1,44 @@
 using UnityEngine;
+using Unity.Netcode;
+using Unity.Collections;
 using WarOfCrowns.Core;
 using WarOfCrowns.Data;
+using WarOfCrowns.Buildings;
 using WarOfCrowns.World;
 using System.Linq;
 
 namespace WarOfCrowns.Units
 {
     [RequireComponent(typeof(UnitAI), typeof(UnitVisuals))]
-    public class Unit : MonoBehaviour
+    public class Unit : NetworkBehaviour
     {
         [Header("Настройки")]
         [SerializeField] private GameObject selectionIndicator;
 
         [Header("Личность")]
-        public string unitName;
-        public Gender gender;
-        public ProfessionType profession = ProfessionType.Unemployed;
-        public Sprite unitPortrait; // Для UI
+        public NetworkVariable<FixedString64Bytes> unitNameNet = new NetworkVariable<FixedString64Bytes>("");
+        public NetworkVariable<int> genderNet = new NetworkVariable<int>(0);
+
+        public NetworkVariable<FixedString64Bytes> bodySpriteName = new NetworkVariable<FixedString64Bytes>("");
+        public NetworkVariable<FixedString64Bytes> headSpriteName = new NetworkVariable<FixedString64Bytes>("");
+        public NetworkVariable<FixedString64Bytes> clothesSpriteName = new NetworkVariable<FixedString64Bytes>("");
+        public NetworkVariable<int> professionNet = new NetworkVariable<int>((int)ProfessionType.Unemployed);
 
         [Header("Потребности")]
         public float satiety = 100f;
-        private const float HUNGER_RATE = 0.5f;
+        private const float HUNGER_RATE = 0.25f;
         public bool IsEating { get; set; } = false;
+        private float starvationTimer = 1f;
 
         [Header("Экипировка")]
         public ResourceType currentTool = ResourceType.Wood;
         public ResourceType currentWeapon = ResourceType.Wood;
         public ResourceType currentArmor = ResourceType.Wood;
 
-        public Kingdom OwningKingdom { get; set; }
+        // ВАЖНО: Дефолтное значение -1. Это предотвращает ложное срабатывание при спавне.
+        public NetworkVariable<int> ownerKingdomID = new NetworkVariable<int>(-1);
+
+        [HideInInspector] public Kingdom OwningKingdom;
         public string uniqueID;
 
         private UnitAI _ai;
@@ -36,11 +46,16 @@ namespace WarOfCrowns.Units
         private UnitVisuals _visuals;
         private float _manualOverrideTimer = 0f;
 
+        // Переменные сохранения
         [HideInInspector] public string savedWorkplaceID;
         [HideInInspector] public UnitState savedState;
         private string _savedResourceID;
         private bool _savedIsMoving;
         private Vector3 _savedMoveTarget;
+
+        public string unitName => unitNameNet.Value.ToString();
+        public Gender gender => (Gender)genderNet.Value;
+        public ProfessionType profession => (ProfessionType)professionNet.Value;
 
         private void Awake()
         {
@@ -50,36 +65,110 @@ namespace WarOfCrowns.Units
             if (string.IsNullOrEmpty(uniqueID)) uniqueID = System.Guid.NewGuid().ToString();
         }
 
-        private void Start()
+        public override void OnNetworkSpawn()
         {
-            if (string.IsNullOrEmpty(unitName))
-            {
-                // Генерация НОВОГО юнита
-                gender = (Random.Range(0, 2) == 0) ? Gender.Male : Gender.Female;
-                if (GameManager.Instance != null)
-                {
-                    unitName = GameManager.Instance.GetRandomFullName(gender);
-                    unitPortrait = GameManager.Instance.GetRandomPortrait(gender);
-                    // Генерация рандомной внешности
-                    if (GameManager.Instance.AppearanceDB != null)
-                        _visuals.InitAppearance(gender, GameManager.Instance.AppearanceDB);
-                }
-                else unitName = "Peasant";
+            base.OnNetworkSpawn();
 
-                gameObject.name = $"Unit_{unitName}";
+            // 1. Подписываемся на изменение владельца
+            // Это сработает, когда сервер пришлет настоящий ID (например, сменит -1 на 1)
+            ownerKingdomID.OnValueChanged += (oldVal, newVal) =>
+            {
+                UpdateKingdomReference();
+                CheckPopulationRegistration();
+            };
+
+            // 2. Обновляем ссылку сразу (вдруг ID уже пришел)
+            UpdateKingdomReference();
+
+            if (IsServer && string.IsNullOrEmpty(unitNameNet.Value.ToString()))
+            {
+                InitializeNewUnitOnServer();
+            }
+
+            bodySpriteName.OnValueChanged += (o, n) => UpdateVisuals();
+            headSpriteName.OnValueChanged += (o, n) => UpdateVisuals();
+            clothesSpriteName.OnValueChanged += (o, n) => UpdateVisuals();
+
+            UpdateVisuals();
+
+            // 3. Пробуем зарегистрироваться (если ID уже валидный)
+            CheckPopulationRegistration();
+        }
+
+        // --- УМНАЯ РЕГИСТРАЦИЯ ---
+        public void CheckPopulationRegistration()
+        {
+            // Если ID все еще -1 (данные не пришли), ждем
+            if (ownerKingdomID.Value == -1) return;
+
+            if (Kingdom.PlayerKingdom == null || PopulationManager.Instance == null) return;
+
+            int myLocalID = Kingdom.PlayerKingdom.kingdomID;
+            int unitOwnerID = ownerKingdomID.Value;
+
+            // Если этот юнит принадлежит МНЕ (Локальному игроку)
+            if (unitOwnerID == myLocalID)
+            {
+                PopulationManager.Instance.AddUnit(this);
             }
             else
             {
-                // ЗАГРУЖЕННЫЙ юнит
-                // Обновляем визуал экипировки (одежда уже загружена в LoadFromData)
-                if (GameManager.Instance != null && GameManager.Instance.AppearanceDB != null)
+                // Если это чужой юнит - убираем из моего списка (чтобы не считать чужих)
+                PopulationManager.Instance.RemoveUnit(this);
+            }
+        }
+
+        private void UpdateKingdomReference()
+        {
+            Kingdom[] kingdoms = FindObjectsOfType<Kingdom>();
+            foreach (var k in kingdoms)
+            {
+                if (k.kingdomID == ownerKingdomID.Value) { OwningKingdom = k; break; }
+            }
+        }
+
+        private void InitializeNewUnitOnServer()
+        {
+            Gender g = (Random.Range(0, 2) == 0) ? Gender.Male : Gender.Female;
+            genderNet.Value = (int)g;
+
+            if (GameManager.Instance != null)
+            {
+                unitNameNet.Value = GameManager.Instance.GetRandomFullName(g);
+                if (GameManager.Instance.AppearanceDB != null)
                 {
-                    _visuals.UpdateEquipment(currentTool, currentWeapon, currentArmor, GameManager.Instance.AppearanceDB);
+                    var db = GameManager.Instance.AppearanceDB;
+                    var body = db.GetRandomBody();
+                    var head = db.GetRandomHead(g);
+                    var cloth = db.GetRandomPeasantClothes();
+
+                    if (body != null && body.idle != null) bodySpriteName.Value = body.idle.name;
+                    if (head != null && head.idle != null) headSpriteName.Value = head.idle.name;
+                    if (cloth != null && cloth.idle != null) clothesSpriteName.Value = cloth.idle.name;
                 }
             }
+            else unitNameNet.Value = "Peasant";
+        }
 
-            if (PopulationManager.Instance != null && !gameObject.CompareTag("Enemy"))
-                PopulationManager.Instance.AddUnit(this);
+        private void UpdateVisuals()
+        {
+            if (GameManager.Instance == null || GameManager.Instance.AppearanceDB == null) return;
+            var db = GameManager.Instance.AppearanceDB;
+            _visuals.LoadAppearance(
+                db.GetSpriteSetByName(bodySpriteName.Value.ToString()),
+                db.GetSpriteSetByName(headSpriteName.Value.ToString()),
+                db.GetSpriteSetByName(clothesSpriteName.Value.ToString())
+            );
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            // Обязательно убираем из списка при уничтожении
+            if (PopulationManager.Instance != null)
+            {
+                PopulationManager.Instance.RemoveUnit(this);
+            }
         }
 
         private void Update()
@@ -87,12 +176,21 @@ namespace WarOfCrowns.Units
             if (!IsEating) satiety -= HUNGER_RATE * Time.deltaTime;
             if (_manualOverrideTimer > 0) _manualOverrideTimer -= Time.deltaTime;
 
-            if (satiety < 30f && _ai.CurrentState != UnitState.SeekingFood && _manualOverrideTimer <= 0) _ai.SeekFood();
+            if (IsOwner)
+            {
+                if (satiety < 30f && _ai.CurrentState != UnitState.SeekingFood) _ai.SeekFood();
+            }
 
-            if (satiety <= 0f)
+            if (IsServer && satiety <= 0f)
             {
                 satiety = 0;
-                if (_health != null) _health.TakeDamage(9999); else Destroy(gameObject);
+                starvationTimer -= Time.deltaTime;
+                if (starvationTimer <= 0)
+                {
+                    if (_health != null) _health.TakeDamage(1);
+                    else GetComponent<NetworkObject>().Despawn();
+                    starvationTimer = 1f;
+                }
             }
         }
 
@@ -103,119 +201,25 @@ namespace WarOfCrowns.Units
             else if (n.Contains("Sword") || n.Contains("Spear") || n.Contains("Bow")) currentWeapon = item;
             else if (n.Contains("Armor")) currentArmor = item;
 
-            if (GameManager.Instance != null)
+            if (GameManager.Instance)
                 _visuals.UpdateEquipment(currentTool, currentWeapon, currentArmor, GameManager.Instance.AppearanceDB);
         }
 
         public void SetProfession(ProfessionType newProf)
         {
-            profession = newProf;
-            // Обновляем одежду (если она зависит от профессии)
-            if (GameManager.Instance != null)
+            if (IsServer) professionNet.Value = (int)newProf;
+            if (GameManager.Instance)
                 _visuals.UpdateProfession(newProf, GameManager.Instance.AppearanceDB);
         }
 
-        public void SetManualCommandOverride() { _manualOverrideTimer = 20f; IsEating = false; if (_ai.CurrentState == UnitState.SeekingFood) _ai.CancelAction(); }
+        public void SetManualCommandOverride() { _manualOverrideTimer = 20f; IsEating = false; }
         public void Eat(int amount) { satiety += amount; if (satiety > 100f) satiety = 100f; }
-        private void OnDestroy() { if (PopulationManager.Instance != null && !gameObject.CompareTag("Enemy")) PopulationManager.Instance.RemoveUnit(this); }
+
         public void Select() { if (selectionIndicator) selectionIndicator.SetActive(true); }
         public void Deselect() { if (selectionIndicator) selectionIndicator.SetActive(false); }
 
-        // --- СОХРАНЕНИЕ ---
-        public UnitSaveData GetSaveData()
-        {
-            UnitSaveData data = new UnitSaveData();
-            data.uniqueID = this.uniqueID;
-            data.unitName = this.unitName;
-            data.gender = (int)this.gender;
-            data.prefabName = "Peasant_Prototype";
-            data.posX = transform.position.x;
-            data.posY = transform.position.y;
-            data.posZ = transform.position.z;
-            data.currentHunger = this.satiety;
-            data.profession = this.profession.ToString();
-            data.aiState = (int)_ai.CurrentState;
-            if (_health != null) data.currentHealth = _health.CurrentHealth;
-
-            // Сохраняем экипировку
-            data.weaponType = (int)this.currentWeapon;
-            data.armorType = (int)this.currentArmor;
-            data.toolType = (int)this.currentTool;
-
-            // Сохраняем внешность (Имена спрайтов)
-            data.bodySpriteName = _visuals.BodySpriteName;
-            data.headSpriteName = _visuals.HeadSpriteName;
-            data.clothesSpriteName = _visuals.ClothesSpriteName;
-
-            // Сохраняем связи
-            if (TryGetComponent<UnitWorker>(out var worker) && worker.CurrentJob != null)
-            {
-                var jobData = worker.CurrentJob.GetComponent<WarOfCrowns.Buildings.Building>();
-                if (jobData != null) data.workplaceID = jobData.uniqueID;
-            }
-            if (TryGetComponent<UnitGatherer>(out var gatherer) && gatherer.CurrentTarget != null)
-                data.targetResourceID = gatherer.CurrentTarget.uniqueID;
-            if (TryGetComponent<UnitMotor>(out var motor))
-            {
-                data.isMoving = motor.IsMoving;
-                data.moveTargetX = motor.TargetPosition.x;
-                data.moveTargetY = motor.TargetPosition.y;
-                data.moveTargetZ = motor.TargetPosition.z;
-            }
-            return data;
-        }
-
-        // --- ЗАГРУЗКА ---
-        public void LoadFromData(UnitSaveData data)
-        {
-            this.uniqueID = data.uniqueID;
-            this.unitName = data.unitName;
-            this.gender = (Gender)data.gender;
-            gameObject.name = $"Unit_{this.unitName}";
-            transform.position = new Vector3(data.posX, data.posY, data.posZ);
-            this.satiety = data.currentHunger;
-            if (_health != null) _health.SetHealth(data.currentHealth);
-            if (System.Enum.TryParse(data.profession, out ProfessionType prof)) this.profession = prof;
-
-            // Загружаем экипировку
-            this.currentWeapon = (ResourceType)data.weaponType;
-            this.currentArmor = (ResourceType)data.armorType;
-            this.currentTool = (ResourceType)data.toolType;
-
-            // Загружаем внешность
-            if (GameManager.Instance != null && GameManager.Instance.AppearanceDB != null)
-            {
-                unitPortrait = GameManager.Instance.GetRandomPortrait(gender); // Портрет рандомный
-
-                AppearanceDatabase db = GameManager.Instance.AppearanceDB;
-                SpriteSet body = db.GetSpriteSetByName(data.bodySpriteName);
-                SpriteSet head = db.GetSpriteSetByName(data.headSpriteName);
-                SpriteSet clothes = db.GetSpriteSetByName(data.clothesSpriteName);
-
-                _visuals.LoadAppearance(body, head, clothes);
-            }
-
-            _savedResourceID = data.targetResourceID;
-            _savedIsMoving = data.isMoving;
-            _savedMoveTarget = new Vector3(data.moveTargetX, data.moveTargetY, data.moveTargetZ);
-            _visuals.UpdateEquipment(currentTool, currentWeapon, currentArmor, GameManager.Instance.AppearanceDB);
-            this.savedWorkplaceID = data.workplaceID;
-            this.savedState = (UnitState)data.aiState;
-        }
-
-        public void RestoreActions()
-        {
-            if (!string.IsNullOrEmpty(_savedResourceID))
-            {
-                ResourceNode[] allResources = FindObjectsOfType<ResourceNode>();
-                ResourceNode targetNode = allResources.FirstOrDefault(r => r.uniqueID == _savedResourceID);
-                if (targetNode != null && TryGetComponent<UnitGatherer>(out var gatherer)) gatherer.SetTarget(targetNode);
-            }
-            if (_savedIsMoving)
-            {
-                if (_ai.CurrentState != UnitState.SeekingFood && _ai.CurrentState != UnitState.Working)
-                    GetComponent<UnitMotor>().MoveTo(_savedMoveTarget);
-            }
-        }
+        public UnitSaveData GetSaveData() { return new UnitSaveData(); }
+        public void LoadFromData(UnitSaveData data) { }
+        public void RestoreActions() { }
     }
 }

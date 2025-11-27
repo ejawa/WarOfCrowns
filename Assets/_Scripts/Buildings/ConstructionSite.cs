@@ -1,67 +1,45 @@
 using UnityEngine;
-using WarOfCrowns.Buildings;
+using Unity.Netcode;
 using WarOfCrowns.Core;
 using System.Collections.Generic;
 
 namespace WarOfCrowns.Buildings
 {
     [RequireComponent(typeof(Building))]
-    public class ConstructionSite : MonoBehaviour
+    public class ConstructionSite : NetworkBehaviour
     {
         [Header("Настройки Строительства")]
         [SerializeField] private float buildTime = 10f;
         [SerializeField] private GameObject finishedBuildingPrefab;
-
-        [Header("Визуал")]
-        [Tooltip("Сюда перетащи дочерний SpriteRenderer (Icon_Overlay).")]
         [SerializeField] private SpriteRenderer iconRenderer;
 
-        public Kingdom OwningKingdom { get; set; }
-
+        private NetworkVariable<float> buildProgressNet = new NetworkVariable<float>(0f);
+        public Kingdom OwningKingdom => GetComponent<Building>().OwningKingdom;
         private List<BuildingCost> _totalCosts;
-        private float _currentBuildProgress;
 
         private void Start()
         {
-            // 1. Получаем данные о стоимости
             var myBuildingData = GetComponent<Building>();
             _totalCosts = myBuildingData.costs;
 
-            if (_totalCosts == null || _totalCosts.Count == 0)
-            {
-                // Debug.LogWarning(...); 
-            }
-
-            // 2. --- ЛОГИКА ИКОНКИ (ИСПРАВЛЕНА) ---
             if (iconRenderer != null)
             {
                 Sprite iconToUse = null;
-
-                // А) Сначала ищем иконку на САМОМ ЭТОМ ФУНДАМЕНТЕ (это логичнее всего)
-                if (myBuildingData.buildingIcon != null)
-                {
-                    iconToUse = myBuildingData.buildingIcon;
-                }
-                // Б) Если нет, ищем на ФИНАЛЬНОМ здании
+                if (myBuildingData.buildingIcon != null) iconToUse = myBuildingData.buildingIcon;
                 else if (finishedBuildingPrefab != null)
                 {
-                    var finishedData = finishedBuildingPrefab.GetComponent<Building>();
-                    if (finishedData != null)
-                    {
-                        iconToUse = finishedData.buildingIcon;
-                    }
+                    var fd = finishedBuildingPrefab.GetComponent<Building>();
+                    if (fd != null) iconToUse = fd.buildingIcon;
                 }
 
-                // В) Применяем
                 if (iconToUse != null)
                 {
                     iconRenderer.sprite = iconToUse;
-                    iconRenderer.color = new Color(1f, 1f, 1f, 0.7f); // Полупрозрачный
+                    iconRenderer.color = new Color(1f, 1f, 1f, 0.7f);
                     iconRenderer.gameObject.SetActive(true);
                 }
                 else
                 {
-                    // Если иконки нет, ВЫКЛЮЧАЕМ белый квадрат, чтобы не мешал
                     iconRenderer.sprite = null;
                     iconRenderer.gameObject.SetActive(false);
                 }
@@ -70,58 +48,82 @@ namespace WarOfCrowns.Buildings
 
         public bool AddBuildProgress(float progressAmount)
         {
+            if (!IsServer)
+            {
+                AddProgressServerRpc(progressAmount);
+                return false;
+            }
+            return ApplyBuildProgress(progressAmount);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void AddProgressServerRpc(float amount)
+        {
+            ApplyBuildProgress(amount);
+        }
+
+        private bool ApplyBuildProgress(float amount)
+        {
             if (OwningKingdom == null) return false;
 
-            bool canAffordTick = true;
+            bool canAfford = true;
             if (_totalCosts != null)
             {
                 foreach (var cost in _totalCosts)
                 {
-                    int costForThisTick = Mathf.CeilToInt(((float)cost.amount / buildTime) * progressAmount);
-                    if (OwningKingdom.GetResourceAmount(cost.resourceType) < costForThisTick)
-                    {
-                        canAffordTick = false;
-                        break;
-                    }
+                    int tickCost = Mathf.CeilToInt(((float)cost.amount / buildTime) * amount);
+                    if (OwningKingdom.GetResourceAmount(cost.resourceType) < tickCost) { canAfford = false; break; }
                 }
             }
 
-            if (canAffordTick)
+            if (canAfford)
             {
                 if (_totalCosts != null)
                 {
                     foreach (var cost in _totalCosts)
                     {
-                        int costForThisTick = Mathf.CeilToInt(((float)cost.amount / buildTime) * progressAmount);
-                        if (costForThisTick > 0) OwningKingdom.AddResource(cost.resourceType, -costForThisTick);
+                        int tickCost = Mathf.CeilToInt(((float)cost.amount / buildTime) * amount);
+                        if (tickCost > 0) OwningKingdom.AddResource(cost.resourceType, -tickCost);
                     }
                 }
-                _currentBuildProgress += progressAmount;
+                buildProgressNet.Value += amount;
             }
-            else
-            {
-                return false;
-            }
+            else return false;
 
-            if (_currentBuildProgress >= buildTime)
+            if (buildProgressNet.Value >= buildTime)
             {
-                if (finishedBuildingPrefab != null)
-                {
-                    GameObject finalBuilding = Instantiate(finishedBuildingPrefab, transform.position, transform.rotation);
-
-                    if (finalBuilding.TryGetComponent<Building>(out var buildingLogic))
-                        buildingLogic.OwningKingdom = this.OwningKingdom;
-                    if (finalBuilding.TryGetComponent<TownHall>(out var townHallLogic))
-                        townHallLogic.OwningKingdom = this.OwningKingdom;
-                }
-                Destroy(gameObject);
+                FinishConstruction();
                 return true;
             }
             return false;
         }
 
-        // --- МЕТОДЫ ДЛЯ СОХРАНЕНИЯ ---
-        public float GetProgress() => _currentBuildProgress;
-        public void SetProgress(float value) => _currentBuildProgress = value;
+        private void FinishConstruction()
+        {
+            if (!IsServer) return;
+
+            if (finishedBuildingPrefab != null)
+            {
+                GameObject finalBuilding = Instantiate(finishedBuildingPrefab, transform.position, transform.rotation);
+                var netObj = finalBuilding.GetComponent<NetworkObject>();
+                if (netObj != null) netObj.Spawn();
+
+                var bLogic = finalBuilding.GetComponent<Building>();
+                var myB = GetComponent<Building>();
+                if (bLogic != null && myB != null)
+                {
+                    bLogic.SetOwnerID(myB.ownerKingdomID.Value);
+                }
+
+                if (finalBuilding.TryGetComponent<TownHall>(out var townHall))
+                {
+                    townHall.OwningKingdom = OwningKingdom;
+                }
+            }
+            GetComponent<NetworkObject>().Despawn();
+        }
+
+        public float GetProgress() => buildProgressNet.Value;
+        public void SetProgress(float value) { if (IsServer) buildProgressNet.Value = value; }
     }
 }

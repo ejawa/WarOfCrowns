@@ -39,10 +39,17 @@ namespace WarOfCrowns.Buildings
         {
             if (!CanAddWorker() || _workers.Contains(unit)) return;
 
+            // --- ИСПРАВЛЕНО: Принимаем на работу только безработных ---
+            if (unit.profession != ProfessionType.Unemployed)
+            {
+                Debug.LogWarning($"{unit.unitName} уже работает ({unit.profession}), не может быть назначен на {requiredProfession}.");
+                return;
+            }
+            // -----------------------------------------------------------
+
             _workers.Add(unit);
             unit.SetProfession(requiredProfession);
 
-            // Приказываем юниту идти работать
             if (unit.TryGetComponent<UnitWorker>(out var workerAI))
             {
                 workerAI.SetTarget(this);

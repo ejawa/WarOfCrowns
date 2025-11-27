@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 9069888487935033305}
   - component: {fileID: 2655307248176146965}
   - component: {fileID: -4432209282046421399}
+  - component: {fileID: 3643005354269765289}
   m_Layer: 12
   m_Name: Bakery_Building
   m_TagString: Untagged
@@ -166,3 +167,24 @@ MonoBehaviour:
   productionTime: 10
   requiredResource: 6
   requiredAmount: 5
+--- !u!114 &3643005354269765289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497954585348080676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1

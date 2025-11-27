@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 1186468095685022225}
   - component: {fileID: 7201662863162785091}
   - component: {fileID: 2463249386891971070}
+  - component: {fileID: -4999706662112565723}
   m_Layer: 12
   m_Name: Forge_Building
   m_TagString: Untagged
@@ -185,3 +186,24 @@ MonoBehaviour:
     inputs:
     - resourceType: 0
       amount: 10
+--- !u!114 &-4999706662112565723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2434328671253964222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1

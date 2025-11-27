@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using WarOfCrowns.Units; // Чтобы видеть класс Unit
+using WarOfCrowns.Units;
 
 namespace WarOfCrowns.Core
 {
@@ -9,10 +9,8 @@ namespace WarOfCrowns.Core
     {
         public static PopulationManager Instance { get; private set; }
 
-        // ТЕПЕРЬ ЭТО СПИСОК, А НЕ ПРОСТО ЧИСЛО
         public List<Unit> AllUnits { get; private set; } = new List<Unit>();
 
-        // Свойства для удобства (чтобы не ломать старый код)
         public int CurrentPopulation => AllUnits.Count;
         public int PopulationCap { get; private set; }
 
@@ -22,18 +20,17 @@ namespace WarOfCrowns.Core
         {
             if (Instance != null && Instance != this) { Destroy(gameObject); return; }
             Instance = this;
-
-            // При старте список пуст, юниты сами добавятся в Start()
         }
 
+        // --- ИСПРАВЛЕНО: Больше не очищаем список юнитов здесь ---
         public void SetInitialPopulation(int current, int cap)
         {
-            // current нам больше не нужен, мы считаем по головам
             PopulationCap = cap;
+            // AllUnits.Clear(); <--- УДАЛИЛИ ЭТО, ЧТОБЫ НЕ СТИРАТЬ СПАВНЯЩИХСЯ ЮНИТОВ
             OnPopulationChanged?.Invoke();
         }
+        // ---------------------------------------------------------
 
-        // Теперь мы добавляем самого Юнита в список
         public void AddUnit(Unit unit)
         {
             if (!AllUnits.Contains(unit))
@@ -42,7 +39,12 @@ namespace WarOfCrowns.Core
                 OnPopulationChanged?.Invoke();
             }
         }
-
+        public void ResetRegistry()
+        {
+            AllUnits.Clear();
+            // PopulationCap можно не сбрасывать, он пересчитается зданиями
+            OnPopulationChanged?.Invoke();
+        }
         public void RemoveUnit(Unit unit)
         {
             if (AllUnits.Contains(unit))
@@ -63,17 +65,8 @@ namespace WarOfCrowns.Core
             return CurrentPopulation >= PopulationCap;
         }
 
-        // Метод для "Геноцида" (нужен при загрузке сохранения, чтобы удалить старых юнитов)
         public void ClearAllUnits()
         {
-            // Идем с конца, чтобы безопасно удалять
-            for (int i = AllUnits.Count - 1; i >= 0; i--)
-            {
-                if (AllUnits[i] != null)
-                {
-                    Destroy(AllUnits[i].gameObject);
-                }
-            }
             AllUnits.Clear();
             OnPopulationChanged?.Invoke();
         }

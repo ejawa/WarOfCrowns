@@ -118,19 +118,19 @@ namespace WarOfCrowns.UI
             {
                 if (worker != null)
                 {
-                    // 1. Отменяем поиск еды и другие дела
-                    if (worker.TryGetComponent<UnitAI>(out var ai))
+                    if (worker.TryGetComponent<UnitAI>(out var ai) && worker.TryGetComponent<UnitWorker>(out var workerScript))
                     {
+                        // --- ИСПРАВЛЕНО: Не отправляем, если уже работает здесь ---
+                        if (workerScript.CurrentJob == _currentBuilding && ai.CurrentState == UnitState.Working)
+                        {
+                            continue; // Пропускаем, он уже в пути или на месте
+                        }
+                        // -------------------------------------------------------
+
                         ai.SetState(UnitState.Working); // Принудительно ставим состояние
+                        workerScript.SetTarget(_currentBuilding); // Отправляем работать
+                        Debug.Log($"Sent {worker.unitName} back to work!");
                     }
-
-                    // 2. Отправляем работать
-                    if (worker.TryGetComponent<UnitWorker>(out var workerScript))
-                    {
-                        workerScript.SetTarget(_currentBuilding);
-                    }
-
-                    Debug.Log($"Sent {worker.unitName} back to work!");
                 }
             }
         }

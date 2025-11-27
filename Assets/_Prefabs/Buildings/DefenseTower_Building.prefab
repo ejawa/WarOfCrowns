@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4151563240030755340}
   - component: {fileID: 8300551379470664769}
   - component: {fileID: 1186468095685022225}
+  - component: {fileID: -5293375496706494111}
   - component: {fileID: 7201662863162785091}
   - component: {fileID: 4005688435657975923}
   m_Layer: 12
@@ -129,7 +130,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   opensGlobalWarehouse: 0
-  selectionUIPrefab: {fileID: 1537052768532296291, guid: af841c8a62f7a964f88290b144ce09c8, type: 3}
+  selectionUIPrefab: {fileID: 7190260239806523498, guid: f44b7ce968bf53149a45c84a53d3aad9, type: 3}
+--- !u!114 &-5293375496706494111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2434328671253964222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1716689131
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &7201662863162785091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +169,8 @@ MonoBehaviour:
   description: 
   costs: []
   populationBonus: 0
+  ownerKingdomID:
+    m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
 --- !u!114 &4005688435657975923

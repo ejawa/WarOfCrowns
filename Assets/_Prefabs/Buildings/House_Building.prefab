@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3016066723199030018}
   - component: {fileID: 4779010533063942166}
   - component: {fileID: -7404826278332414069}
+  - component: {fileID: -6374762454423111502}
   - component: {fileID: -5938945415549471851}
   m_Layer: 12
   m_Name: House_Building
@@ -127,6 +128,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   opensGlobalWarehouse: 0
   selectionUIPrefab: {fileID: 0}
+--- !u!114 &-6374762454423111502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886570710630532225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1510347339
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &-5938945415549471851
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,5 +166,7 @@ MonoBehaviour:
   description: 
   costs: []
   populationBonus: 5
+  ownerKingdomID:
+    m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 

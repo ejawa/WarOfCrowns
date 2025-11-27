@@ -400,6 +400,7 @@ GameObject:
   - component: {fileID: 6169843283457921549}
   - component: {fileID: 1566063169048990585}
   - component: {fileID: 1929349121616886410}
+  - component: {fileID: 5120606158656931314}
   - component: {fileID: -6850484479557729173}
   - component: {fileID: 8254754645931274569}
   - component: {fileID: 7092683016177499422}
@@ -529,6 +530,27 @@ MonoBehaviour:
   weaponToolRenderer: {fileID: 6744363023543491024}
   frameRate: 0.1
   leanAngle: 25
+--- !u!114 &5120606158656931314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7276777165091647620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2372283526
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &-6850484479557729173
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -550,6 +572,9 @@ MonoBehaviour:
   currentTool: 0
   currentWeapon: 0
   currentArmor: 0
+  ownerKingdomID:
+    m_InternalValue: 0
+  OwningKingdom: {fileID: 0}
   uniqueID: 
   savedWorkplaceID: 
   savedState: 0

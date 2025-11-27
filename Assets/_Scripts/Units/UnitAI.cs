@@ -1,13 +1,12 @@
 using UnityEngine;
-using WarOfCrowns.Core;
-using System.Collections;
-using System.Collections.Generic;
 using WarOfCrowns.Buildings;
-using System.Linq; // Для сортировки дистанции
+using WarOfCrowns.Core;
+using WarOfCrowns.World;
 
 namespace WarOfCrowns.Units
 {
-    public enum UnitState { Idling, MovingToTarget, Working, SeekingFood, Fighting, Training }
+    // Добавили состояние Garrisoning
+    public enum UnitState { Idling, MovingToTarget, Working, SeekingFood, Fighting, Training, Garrisoning }
 
     [RequireComponent(typeof(Unit), typeof(UnitMotor))]
     public class UnitAI : MonoBehaviour
@@ -16,7 +15,7 @@ namespace WarOfCrowns.Units
 
         [Header("Настройки Поиска Еды")]
         [Tooltip("Список приоритетов (Сначала едим Ягоды, если нет - Хлеб)")]
-        [SerializeField] private List<ResourceType> foodPriorityList;
+        [SerializeField] private System.Collections.Generic.List<ResourceType> foodPriorityList;
 
         private Unit _unit;
         private UnitMotor _motor;
@@ -27,48 +26,13 @@ namespace WarOfCrowns.Units
         private JobBuilding _jobToReturnTo;
         private Vector3 _lastIdlePosition;
 
-        // Переменные для тренировки
+        // Для тренировки
         private Barracks _targetBarracks;
         private ResourceType _pendingWeapon;
 
-        public void CommandGoTrain(Barracks barracks, ResourceType weapon)
-        {
-            // Отменяем все текущие дела
-            GetComponent<UnitGatherer>()?.StopGathering();
-            GetComponent<UnitBuilder>()?.Cancel();
-            GetComponent<UnitWorker>()?.StopWorking();
+        // Для гарнизона (НОВОЕ)
+        private DefenseTower _targetTower;
 
-            _targetBarracks = barracks;
-            _pendingWeapon = weapon;
-
-            SetState(UnitState.Training);
-
-            if (_currentActionCoroutine != null) StopCoroutine(_currentActionCoroutine);
-            _currentActionCoroutine = StartCoroutine(GoToBarracksRoutine());
-        }
-
-        private IEnumerator GoToBarracksRoutine()
-        {
-            if (_targetBarracks == null) { SetState(UnitState.Idling); yield break; }
-
-            // Идем ко входу
-            // (Предполагаем, что Barracks это здание, берем его позицию)
-            _motor.MoveTo(_targetBarracks.transform.position);
-
-            // Ждем пока дойдем
-            while (Vector3.Distance(transform.position, _targetBarracks.transform.position) > 1.5f)
-            {
-                if (_targetBarracks == null) { SetState(UnitState.Idling); yield break; }
-                yield return null;
-            }
-
-            _motor.StopMoving();
-
-            // Мы пришли. Сообщаем казарме, чтобы она нас переодела.
-            _targetBarracks.FinalizeTraining(_unit, _pendingWeapon);
-
-            // Состояние сбросится внутри FinalizeTraining (в Idling)
-        }
         private void Awake()
         {
             _unit = GetComponent<Unit>();
@@ -78,7 +42,6 @@ namespace WarOfCrowns.Units
 
         private void Start()
         {
-            // Если загрузились в состоянии поиска еды - перезапускаем процесс
             if (CurrentState == UnitState.SeekingFood) SeekFood();
         }
 
@@ -91,11 +54,59 @@ namespace WarOfCrowns.Units
             SetState(UnitState.Idling);
         }
 
+        // --- НОВЫЙ МЕТОД: ИДТИ В ГАРНИЗОН ---
+        public void CommandGarrison(DefenseTower tower)
+        {
+            // Сбрасываем текущие дела
+            CancelAction();
+            GetComponent<UnitWorker>()?.StopWorking();
+            GetComponent<UnitGatherer>()?.StopGathering();
+            GetComponent<UnitBuilder>()?.Cancel();
+            GetComponent<Fighter>()?.Cancel();
+
+            _targetTower = tower;
+            SetState(UnitState.Garrisoning);
+
+            // Идем к башне
+            if (_motor != null) _motor.MoveTo(tower.transform.position);
+        }
+
+        // --- МЕТОД ДЛЯ КАЗАРМЫ ---
+        public void CommandGoTrain(Barracks barracks, ResourceType weapon)
+        {
+            GetComponent<UnitGatherer>()?.StopGathering();
+            GetComponent<UnitBuilder>()?.Cancel();
+            GetComponent<UnitWorker>()?.StopWorking();
+
+            _targetBarracks = barracks;
+            _pendingWeapon = weapon;
+            SetState(UnitState.Training);
+
+            if (_currentActionCoroutine != null) StopCoroutine(_currentActionCoroutine);
+            _currentActionCoroutine = StartCoroutine(GoToBarracksRoutine());
+        }
+
+        private System.Collections.IEnumerator GoToBarracksRoutine()
+        {
+            if (_targetBarracks == null) { SetState(UnitState.Idling); yield break; }
+            _motor.MoveTo(_targetBarracks.transform.position);
+
+            while (_targetBarracks != null && Vector3.Distance(transform.position, _targetBarracks.transform.position) > 1.5f)
+            {
+                yield return null;
+            }
+
+            if (_targetBarracks == null) { SetState(UnitState.Idling); yield break; }
+
+            _motor.StopMoving();
+            _targetBarracks.FinalizeTraining(_unit, _pendingWeapon);
+        }
+
+        // --- ЛОГИКА ГОЛОДА ---
         public void SeekFood()
         {
-            if (CurrentState == UnitState.SeekingFood || CurrentState == UnitState.Fighting) return;
+            if (CurrentState == UnitState.SeekingFood || CurrentState == UnitState.Fighting || CurrentState == UnitState.Garrisoning) return;
 
-            // 1. Запоминаем, куда вернуться
             if (_worker != null && _worker.CurrentJob != null)
             {
                 _jobToReturnTo = _worker.CurrentJob;
@@ -107,99 +118,64 @@ namespace WarOfCrowns.Units
                 _lastIdlePosition = transform.position;
             }
 
-            // 2. Останавливаем текущую работу
             GetComponent<UnitGatherer>()?.StopGathering();
             GetComponent<UnitBuilder>()?.Cancel();
             _worker?.StopWorking();
 
             SetState(UnitState.SeekingFood);
-
             if (_currentActionCoroutine != null) StopCoroutine(_currentActionCoroutine);
             _currentActionCoroutine = StartCoroutine(SeekFoodRoutine());
         }
 
-        private IEnumerator SeekFoodRoutine()
+        private System.Collections.IEnumerator SeekFoodRoutine()
         {
-            // --- ИСПРАВЛЕНИЕ: Если складов нет, сразу отменяем ---
             WarehouseBuilding[] warehouses = FindObjectsOfType<WarehouseBuilding>();
             if (warehouses.Length == 0)
             {
-                // Debug.LogWarning($"{gameObject.name}: No warehouses found!");
                 ReturnToWorkOrIdle();
                 yield break;
             }
 
-            // Находим ближайший склад (простая сортировка)
             WarehouseBuilding targetWarehouse = GetClosestWarehouse(warehouses);
+            if (targetWarehouse == null) { ReturnToWorkOrIdle(); yield break; }
 
-            // Движение к складу
             _motor.MoveTo(targetWarehouse.transform.position);
 
-            // Ждем пока дойдем (дистанция побольше, чтобы не толкать здание)
             while (targetWarehouse != null && Vector3.Distance(transform.position, targetWarehouse.transform.position) > 2.5f)
             {
-                // Если склад уничтожили пока мы шли - отмена
-                if (targetWarehouse == null)
-                {
-                    ReturnToWorkOrIdle();
-                    yield break;
-                }
+                if (targetWarehouse == null) { ReturnToWorkOrIdle(); yield break; }
                 yield return null;
             }
 
-            // --- ИСПРАВЛЕНИЕ: Явная остановка ---
             _motor.StopMoving();
-            // -----------------------------------
-
-            // --- НОВАЯ ЛОГИКА: МГНОВЕННОЕ ПОГЛОЩЕНИЕ ---
             _unit.IsEating = true;
-
-            // Небольшая задержка для визуализации (чтобы он не телепортировался мгновенно)
             yield return new WaitForSeconds(0.5f);
 
-            // Пробегаем по списку приоритетов
-            foreach (var foodType in foodPriorityList)
+            if (_unit.OwningKingdom != null)
             {
-                // Если мы уже наелись (больше 90%), прекращаем жрать
-                if (_unit.satiety >= 90f) break;
-
-                int amountInStock = _unit.OwningKingdom.GetResourceAmount(foodType);
-
-                if (amountInStock > 0)
+                foreach (var foodType in foodPriorityList)
                 {
-                    // Узнаем питательность 1 шт.
-                    int satietyPerItem = FoodConverter.Instance.GetSatietyValue(foodType);
-                    if (satietyPerItem <= 0) continue; // Защита от ошибок
+                    if (_unit.satiety >= 90f) break;
+                    int amountInStock = _unit.OwningKingdom.GetResourceAmount(foodType);
+                    if (amountInStock > 0)
+                    {
+                        int satietyPerItem = FoodConverter.Instance.GetSatietyValue(foodType);
+                        if (satietyPerItem <= 0) continue;
+                        int itemsNeedToEat = Mathf.CeilToInt((100f - _unit.satiety) / satietyPerItem);
+                        int itemsToTake = Mathf.Min(itemsNeedToEat, amountInStock);
 
-                    // Считаем, сколько нам не хватает до 100
-                    float missingSatiety = 100f - _unit.satiety;
-
-                    // Считаем, сколько штук нужно съесть (округляем вверх)
-                    // Например: не хватает 45, хлеб дает 50. 45/50 = 0.9 -> берем 1 хлеб.
-                    int itemsNeedToEat = Mathf.CeilToInt(missingSatiety / satietyPerItem);
-
-                    // Берем столько, сколько нужно, ИЛИ столько, сколько есть на складе
-                    int itemsToTake = Mathf.Min(itemsNeedToEat, amountInStock);
-
-                    // --- ТРАНЗАКЦИЯ ---
-                    _unit.OwningKingdom.AddResource(foodType, -itemsToTake);
-                    _unit.Eat(itemsToTake * satietyPerItem);
-
-                    // Debug.Log($"{gameObject.name} ate {itemsToTake} {foodType}.");
+                        _unit.OwningKingdom.AddResource(foodType, -itemsToTake);
+                        _unit.Eat(itemsToTake * satietyPerItem);
+                    }
                 }
             }
 
             _unit.IsEating = false;
-
-            // --- ВОЗВРАЩЕНИЕ ---
-            // Если еды не хватило или ее не было - мы все равно возвращаемся, 
-            // чтобы не стоять вечно у пустого склада.
             ReturnToWorkOrIdle();
         }
 
         private void ReturnToWorkOrIdle()
         {
-            // Проверка: если мы возвращаемся на работу, существует ли еще здание?
             if (_jobToReturnTo != null)
             {
                 _worker.SetTarget(_jobToReturnTo);
@@ -221,12 +197,15 @@ namespace WarOfCrowns.Units
             WarehouseBuilding bestTarget = null;
             float closestDistanceSqr = Mathf.Infinity;
             Vector3 currentPosition = transform.position;
-
             foreach (WarehouseBuilding w in warehouses)
             {
                 if (w == null) continue;
-                Vector3 directionToTarget = w.transform.position - currentPosition;
-                float dSqrToTarget = directionToTarget.sqrMagnitude;
+                // Проверяем владельца склада (чтобы не бежать к врагу)
+                // (Здесь предполагается, что у WarehouseBuilding есть Building компонент с ownerID)
+                var b = w.GetComponent<Building>();
+                if (b != null && Kingdom.PlayerKingdom != null && b.ownerKingdomID.Value != Kingdom.PlayerKingdom.kingdomID) continue;
+
+                float dSqrToTarget = (w.transform.position - currentPosition).sqrMagnitude;
                 if (dSqrToTarget < closestDistanceSqr)
                 {
                     closestDistanceSqr = dSqrToTarget;
@@ -234,6 +213,37 @@ namespace WarOfCrowns.Units
                 }
             }
             return bestTarget;
+        }
+
+        private void Update()
+        {
+            // --- ЛОГИКА ГАРНИЗОНА ---
+            if (CurrentState == UnitState.Garrisoning)
+            {
+                // Если башню уничтожили пока мы шли
+                if (_targetTower == null)
+                {
+                    SetState(UnitState.Idling);
+                    _motor.StopMoving();
+                    return;
+                }
+
+                // Проверяем дистанцию
+                if (Vector3.Distance(transform.position, _targetTower.transform.position) < 2.0f)
+                {
+                    if (_targetTower.CanEnter())
+                    {
+                        _motor.StopMoving();
+                        _targetTower.RequestEnter(_unit); // Стучимся в дверь
+                        // При успешном входе юнит выключится (SetActive false), так что код дальше не важен
+                    }
+                    else
+                    {
+                        // Мест нет, просто стоим рядом
+                        SetState(UnitState.Idling);
+                    }
+                }
+            }
         }
     }
 }
