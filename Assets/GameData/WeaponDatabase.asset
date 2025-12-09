@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0353f27e3ef6f1745a6f6916ce56f534, type: 3}
+  m_Name: WeaponDatabase
+  m_EditorClassIdentifier: 
+  weapons:
+  - weaponType: 47
+    damage: 15
+    attackSpeed: 1
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 48
+    damage: 17
+    attackSpeed: 1.2
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 49
+    damage: 20
+    attackSpeed: 1.3
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 50
+    damage: 22
+    attackSpeed: 1.4
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 51
+    damage: 25
+    attackSpeed: 1.5
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 52
+    damage: 20
+    attackSpeed: 0.8
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 53
+    damage: 35
+    attackSpeed: 1
+    range: 1.2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 54
+    damage: 12
+    attackSpeed: 2
+    range: 2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 55
+    damage: 15
+    attackSpeed: 3
+    range: 2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 56
+    damage: 20
+    attackSpeed: 2.5
+    range: 2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 57
+    damage: 22
+    attackSpeed: 2.5
+    range: 2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 58
+    damage: 25
+    attackSpeed: 3
+    range: 3
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 59
+    damage: 22
+    attackSpeed: 0.9
+    range: 2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 60
+    damage: 30
+    attackSpeed: 1
+    range: 2
+    isRanged: 0
+    projectilePrefab: {fileID: 0}
+  - weaponType: 61
+    damage: 12
+    attackSpeed: 2
+    range: 6
+    isRanged: 1
+    projectilePrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}
+  - weaponType: 62
+    damage: 15
+    attackSpeed: 2
+    range: 7
+    isRanged: 1
+    projectilePrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}
+  - weaponType: 63
+    damage: 20
+    attackSpeed: 2
+    range: 8
+    isRanged: 1
+    projectilePrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}
+  - weaponType: 64
+    damage: 22
+    attackSpeed: 1.5
+    range: 9
+    isRanged: 1
+    projectilePrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}
+  - weaponType: 65
+    damage: 25
+    attackSpeed: 1.2
+    range: 6
+    isRanged: 1
+    projectilePrefab: {fileID: 577795959288784436, guid: 95de692ae9ecc5d45aad38958e1e0635, type: 3}

@@ -18,34 +18,62 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 6290b88d5a701d94ab7631a3f2531b36, type: 3}
     - {fileID: 21300000, guid: a11db2116bc36174c82f78dc0c320936, type: 3}
     - {fileID: 21300000, guid: f564936ba2b286f4390547b33e648982, type: 3}
+    swim:
+    - {fileID: 21300000, guid: a5306f5d9dbd0be4aa07a936527e69ef, type: 3}
+    - {fileID: 21300000, guid: 5ea2e89dd3484ab4e81d195068aa6703, type: 3}
+    - {fileID: 21300000, guid: 0d3040ee4bbb74349a721d445b17fed0, type: 3}
   - idle: {fileID: 21300000, guid: f44c4dc035bb31342bd97b57d041f332, type: 3}
     walk:
     - {fileID: 21300000, guid: 99e3f66ea91f6944da85a882fc9597e6, type: 3}
     - {fileID: 21300000, guid: 96fdb0b6fd69a43468ffe62cce0b12bd, type: 3}
     - {fileID: 21300000, guid: e456f5bec077b3a4fb7f9a4b4fc29cb2, type: 3}
+    swim:
+    - {fileID: 21300000, guid: caecb2536f666754a9704d1f6b8ef4a8, type: 3}
+    - {fileID: 21300000, guid: 844218cc63d94e24cab4035e2c29b7b7, type: 3}
+    - {fileID: 21300000, guid: 5e14975aace6dd94587bb25dc4c22c44, type: 3}
   - idle: {fileID: 21300000, guid: 0dc11887b5be0de4c9db50d6661e3d59, type: 3}
     walk:
     - {fileID: 21300000, guid: e7671969864cd6745b6de953f48176c6, type: 3}
     - {fileID: 21300000, guid: 5cb9942d39a0a784991dfca937998dae, type: 3}
     - {fileID: 21300000, guid: 5777577964b6aa94197e6804ca0b7e38, type: 3}
+    swim:
+    - {fileID: 21300000, guid: af8a19072cb3ae448aa520225ea1d915, type: 3}
+    - {fileID: 21300000, guid: c1163f02bf42fb84ea66c95ef0cc68f8, type: 3}
+    - {fileID: 21300000, guid: 7044b6654dc122646803323511b80d18, type: 3}
   - idle: {fileID: 21300000, guid: c07857a4a84ff5a45a28775e79be0f3b, type: 3}
     walk:
     - {fileID: 21300000, guid: e7f404e5761986c4b975ca85e14544b3, type: 3}
     - {fileID: 21300000, guid: d7cfbc4e71f13e94abbee2f11c8bc158, type: 3}
     - {fileID: 21300000, guid: 60a2d5a38406bda4fb3a512f3d6a113c, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 9e2360eed56547845a62560795c1533e, type: 3}
+    - {fileID: 21300000, guid: f608b40abb128b34c847443b48f01f45, type: 3}
+    - {fileID: 21300000, guid: ff5abe96a2f5c9748944c01e0e4d8add, type: 3}
   - idle: {fileID: 21300000, guid: e56a34ab6b8f8b340a97f7f606eefa77, type: 3}
     walk:
     - {fileID: 21300000, guid: dfe4f2994de10504fb8090ce33dcc234, type: 3}
     - {fileID: 21300000, guid: 5a71ea7f1ee43904ea2ee4c59291e256, type: 3}
     - {fileID: 21300000, guid: ae059981137ffd244a829af79d26c183, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 7c51d51d5c3692a4aa74cc54f11f3cc8, type: 3}
+    - {fileID: 21300000, guid: 0e923f70177c6f94e8563e121d0fed47, type: 3}
+    - {fileID: 21300000, guid: 45c19615b699c5b4f9286c717767ae83, type: 3}
   - idle: {fileID: 21300000, guid: 63f22c4caab7d4e48b6944ad8ce4d361, type: 3}
     walk:
     - {fileID: 21300000, guid: fd6b4f3e18a48374ea1ec121d162d9bc, type: 3}
     - {fileID: 21300000, guid: 01e327929a7ff364f88aa05cf0526ac4, type: 3}
     - {fileID: 21300000, guid: 98b09e1ad48b33f4b9c4995c26357d50, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 1ece65ff011971c4791d283286f1ba18, type: 3}
+    - {fileID: 21300000, guid: 692f157e90d739e448df200a8e3d831d, type: 3}
+    - {fileID: 21300000, guid: 9c6ebadb6e31b3f4abe6146dae5c87f5, type: 3}
   maleHeads:
   - idle: {fileID: 21300000, guid: 81bacfd1068efae4593b9d5e03582098, type: 3}
     walk:
+    - {fileID: 21300000, guid: 93206a125b68f0e45b3208073813fc0f, type: 3}
+    - {fileID: 21300000, guid: bf8408e057a916040a6d718a79f99bd9, type: 3}
+    - {fileID: 21300000, guid: 89f01499f0ba2a544a058fc1973b5815, type: 3}
+    swim:
     - {fileID: 21300000, guid: 93206a125b68f0e45b3208073813fc0f, type: 3}
     - {fileID: 21300000, guid: bf8408e057a916040a6d718a79f99bd9, type: 3}
     - {fileID: 21300000, guid: 89f01499f0ba2a544a058fc1973b5815, type: 3}
@@ -54,8 +82,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 2da3a862d26aa874b9ee481a19acb894, type: 3}
     - {fileID: 21300000, guid: 3886c019ff1e98f41ab43465e0f44135, type: 3}
     - {fileID: 21300000, guid: 3382beaaf1c29b14cb2bc979b4fbeaae, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 2da3a862d26aa874b9ee481a19acb894, type: 3}
+    - {fileID: 21300000, guid: 3886c019ff1e98f41ab43465e0f44135, type: 3}
+    - {fileID: 21300000, guid: 3382beaaf1c29b14cb2bc979b4fbeaae, type: 3}
   - idle: {fileID: 21300000, guid: 6e0472c418149164498395302ca428ee, type: 3}
     walk:
+    - {fileID: 21300000, guid: 6065c96f608e0b7438ed7dffa29522e2, type: 3}
+    - {fileID: 21300000, guid: 454d2b50f191c2c42abd4deeaa1284bc, type: 3}
+    - {fileID: 21300000, guid: 3b16f2fca10f4fc448af7f6b7576bee6, type: 3}
+    swim:
     - {fileID: 21300000, guid: 6065c96f608e0b7438ed7dffa29522e2, type: 3}
     - {fileID: 21300000, guid: 454d2b50f191c2c42abd4deeaa1284bc, type: 3}
     - {fileID: 21300000, guid: 3b16f2fca10f4fc448af7f6b7576bee6, type: 3}
@@ -64,13 +100,25 @@ MonoBehaviour:
     - {fileID: 21300000, guid: fe0c06bf64365ed40b93996553a8f040, type: 3}
     - {fileID: 21300000, guid: 5c8bc45ea3e9ca147addaacd25f7b982, type: 3}
     - {fileID: 21300000, guid: f0e0f9e8162165a4a8875b9a8617562f, type: 3}
+    swim:
+    - {fileID: 21300000, guid: fe0c06bf64365ed40b93996553a8f040, type: 3}
+    - {fileID: 21300000, guid: 5c8bc45ea3e9ca147addaacd25f7b982, type: 3}
+    - {fileID: 21300000, guid: f0e0f9e8162165a4a8875b9a8617562f, type: 3}
   - idle: {fileID: 21300000, guid: 62d8a9abbcab2584aafe8bbf4413ab72, type: 3}
     walk:
     - {fileID: 21300000, guid: d87bdf2693bd73c4cae2baf1ac105def, type: 3}
     - {fileID: 21300000, guid: 8a7d54f242c8da1469972daafb2ab05e, type: 3}
     - {fileID: 21300000, guid: 9332932fe0254b549b8cf29468a2a0a6, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 8a5c006bbcf8e5e42a6a9fc1621d62e0, type: 3}
+    - {fileID: 21300000, guid: 7711fef8daa444a47b8b6111ce994745, type: 3}
+    - {fileID: 21300000, guid: a70f17e03aeb0c14e84cdc3be28f070a, type: 3}
   - idle: {fileID: 21300000, guid: 83fbd35016e5b1c4ebd48a212fc9a1e6, type: 3}
     walk:
+    - {fileID: 21300000, guid: 8a5c006bbcf8e5e42a6a9fc1621d62e0, type: 3}
+    - {fileID: 21300000, guid: 7711fef8daa444a47b8b6111ce994745, type: 3}
+    - {fileID: 21300000, guid: a70f17e03aeb0c14e84cdc3be28f070a, type: 3}
+    swim:
     - {fileID: 21300000, guid: 8a5c006bbcf8e5e42a6a9fc1621d62e0, type: 3}
     - {fileID: 21300000, guid: 7711fef8daa444a47b8b6111ce994745, type: 3}
     - {fileID: 21300000, guid: a70f17e03aeb0c14e84cdc3be28f070a, type: 3}
@@ -79,8 +127,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: b8c2c84f230db97458d340d96867a3d6, type: 3}
     - {fileID: 21300000, guid: 9bf4d65029cffec429d3cec58826e1bb, type: 3}
     - {fileID: 21300000, guid: 101b93312e7d75f44895d205ad1b42f2, type: 3}
+    swim:
+    - {fileID: 21300000, guid: b8c2c84f230db97458d340d96867a3d6, type: 3}
+    - {fileID: 21300000, guid: 9bf4d65029cffec429d3cec58826e1bb, type: 3}
+    - {fileID: 21300000, guid: 101b93312e7d75f44895d205ad1b42f2, type: 3}
   - idle: {fileID: 21300000, guid: 3cd40212fa130dd4eb4b1c5c40dedaf9, type: 3}
     walk:
+    - {fileID: 21300000, guid: 8800ac29625c6b047b1ab6711a0479aa, type: 3}
+    - {fileID: 21300000, guid: 2b6fb4b25ea89bb408a8ae3817394f44, type: 3}
+    - {fileID: 21300000, guid: 7bc531a65f6767d44bdb168e4131bf8c, type: 3}
+    swim:
     - {fileID: 21300000, guid: 8800ac29625c6b047b1ab6711a0479aa, type: 3}
     - {fileID: 21300000, guid: 2b6fb4b25ea89bb408a8ae3817394f44, type: 3}
     - {fileID: 21300000, guid: 7bc531a65f6767d44bdb168e4131bf8c, type: 3}
@@ -89,8 +145,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 5bb1d6606fe064f4095d962a23c71c62, type: 3}
     - {fileID: 21300000, guid: b431c3874f1cd4e40aafe1ed453845c5, type: 3}
     - {fileID: 21300000, guid: ea55b3813b97f1546959a397fa351ad3, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 5bb1d6606fe064f4095d962a23c71c62, type: 3}
+    - {fileID: 21300000, guid: b431c3874f1cd4e40aafe1ed453845c5, type: 3}
+    - {fileID: 21300000, guid: ea55b3813b97f1546959a397fa351ad3, type: 3}
   - idle: {fileID: 21300000, guid: 9e5d64095e962894e8ad3df2a3ba8fad, type: 3}
     walk:
+    - {fileID: 21300000, guid: 2e7838bfda8fecc49853a3746aaccaad, type: 3}
+    - {fileID: 21300000, guid: 1a8b2b80d6100d646b9b0b52c4387057, type: 3}
+    - {fileID: 21300000, guid: 0ae3b7505c28b2b49b424377a2c535a0, type: 3}
+    swim:
     - {fileID: 21300000, guid: 2e7838bfda8fecc49853a3746aaccaad, type: 3}
     - {fileID: 21300000, guid: 1a8b2b80d6100d646b9b0b52c4387057, type: 3}
     - {fileID: 21300000, guid: 0ae3b7505c28b2b49b424377a2c535a0, type: 3}
@@ -100,8 +164,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 1ca545dd3678c664c8961b8a1116f87d, type: 3}
     - {fileID: 21300000, guid: 1b85321e9f2588345a23e7311252730e, type: 3}
     - {fileID: 21300000, guid: e1540124b2e42c44db5e4a8db54252b9, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 1ca545dd3678c664c8961b8a1116f87d, type: 3}
+    - {fileID: 21300000, guid: 1b85321e9f2588345a23e7311252730e, type: 3}
+    - {fileID: 21300000, guid: e1540124b2e42c44db5e4a8db54252b9, type: 3}
   - idle: {fileID: 21300000, guid: 2629f2c2b9e3a9240ba05ef4373bf54a, type: 3}
     walk:
+    - {fileID: 21300000, guid: aef3b3d1075f78747929f78f1ef437da, type: 3}
+    - {fileID: 21300000, guid: 81cda3f1f38fbaa4489b41c6e6eb49d6, type: 3}
+    - {fileID: 21300000, guid: 5a1e7e1230f2c9b4596bff2486eccdf3, type: 3}
+    swim:
     - {fileID: 21300000, guid: aef3b3d1075f78747929f78f1ef437da, type: 3}
     - {fileID: 21300000, guid: 81cda3f1f38fbaa4489b41c6e6eb49d6, type: 3}
     - {fileID: 21300000, guid: 5a1e7e1230f2c9b4596bff2486eccdf3, type: 3}
@@ -110,8 +182,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 466e3f62f077b8741b22340863c62d7d, type: 3}
     - {fileID: 21300000, guid: 2dd6e45f81774b1438fc58989340ab2f, type: 3}
     - {fileID: 21300000, guid: 02efac3eb32034a4bb5dc49451518a7b, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 466e3f62f077b8741b22340863c62d7d, type: 3}
+    - {fileID: 21300000, guid: 2dd6e45f81774b1438fc58989340ab2f, type: 3}
+    - {fileID: 21300000, guid: 02efac3eb32034a4bb5dc49451518a7b, type: 3}
   - idle: {fileID: 21300000, guid: 5d94153756fc599468e8a00f6d6bbfbc, type: 3}
     walk:
+    - {fileID: 21300000, guid: 9546d7927d924794fa208ec35b486a19, type: 3}
+    - {fileID: 21300000, guid: a4b87413cda37494cb059a82a8485e56, type: 3}
+    - {fileID: 21300000, guid: 8a9b19b4d394f874daf01d3f2f584ff8, type: 3}
+    swim:
     - {fileID: 21300000, guid: 9546d7927d924794fa208ec35b486a19, type: 3}
     - {fileID: 21300000, guid: a4b87413cda37494cb059a82a8485e56, type: 3}
     - {fileID: 21300000, guid: 8a9b19b4d394f874daf01d3f2f584ff8, type: 3}
@@ -120,8 +200,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 58284c5ae225c644bb7aaea929d0c895, type: 3}
     - {fileID: 21300000, guid: 5eb4728806df0cc43a3e657345e477f0, type: 3}
     - {fileID: 21300000, guid: 641875cdba8b5e649832b6dc694e2d48, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 58284c5ae225c644bb7aaea929d0c895, type: 3}
+    - {fileID: 21300000, guid: 5eb4728806df0cc43a3e657345e477f0, type: 3}
+    - {fileID: 21300000, guid: 641875cdba8b5e649832b6dc694e2d48, type: 3}
   - idle: {fileID: 21300000, guid: 7add53c0f043401459a5d7e972769a89, type: 3}
     walk:
+    - {fileID: 21300000, guid: 55abc3324ba36444ea28801a6cd39b27, type: 3}
+    - {fileID: 21300000, guid: e25b41a5685fe9d4baf94306b7ba81d5, type: 3}
+    - {fileID: 21300000, guid: 4999dca14029cf743a4b4850111b5ef7, type: 3}
+    swim:
     - {fileID: 21300000, guid: 55abc3324ba36444ea28801a6cd39b27, type: 3}
     - {fileID: 21300000, guid: e25b41a5685fe9d4baf94306b7ba81d5, type: 3}
     - {fileID: 21300000, guid: 4999dca14029cf743a4b4850111b5ef7, type: 3}
@@ -130,8 +218,16 @@ MonoBehaviour:
     - {fileID: 21300000, guid: b8abd17ce14fee34f8b590114131c15d, type: 3}
     - {fileID: 21300000, guid: a6aedf83753df8643971063076f08db9, type: 3}
     - {fileID: 21300000, guid: 74ba2ccbed1216142806fb00ffd7c60b, type: 3}
+    swim:
+    - {fileID: 21300000, guid: b8abd17ce14fee34f8b590114131c15d, type: 3}
+    - {fileID: 21300000, guid: a6aedf83753df8643971063076f08db9, type: 3}
+    - {fileID: 21300000, guid: 74ba2ccbed1216142806fb00ffd7c60b, type: 3}
   - idle: {fileID: 21300000, guid: cb27730a307bca044967c2826dcaabc4, type: 3}
     walk:
+    - {fileID: 21300000, guid: 03cc7de1761fea04dab2f64afbd82c3d, type: 3}
+    - {fileID: 21300000, guid: 2dc5e2299da36e445b2e9fd1a408a276, type: 3}
+    - {fileID: 21300000, guid: 3d7684bbde5630b4c8f11ab2bdc2f2c2, type: 3}
+    swim:
     - {fileID: 21300000, guid: 03cc7de1761fea04dab2f64afbd82c3d, type: 3}
     - {fileID: 21300000, guid: 2dc5e2299da36e445b2e9fd1a408a276, type: 3}
     - {fileID: 21300000, guid: 3d7684bbde5630b4c8f11ab2bdc2f2c2, type: 3}
@@ -140,68 +236,46 @@ MonoBehaviour:
     - {fileID: 21300000, guid: 27db9cc1b521a274496883218a4a5d93, type: 3}
     - {fileID: 21300000, guid: 8a19d4f14fba70847b6ec32c4cae78a3, type: 3}
     - {fileID: 21300000, guid: 35a0f06758eecf64e96c6726819c8a51, type: 3}
+    swim:
+    - {fileID: 21300000, guid: 27db9cc1b521a274496883218a4a5d93, type: 3}
+    - {fileID: 21300000, guid: 8a19d4f14fba70847b6ec32c4cae78a3, type: 3}
+    - {fileID: 21300000, guid: 35a0f06758eecf64e96c6726819c8a51, type: 3}
   - idle: {fileID: 21300000, guid: 5dd7bae65bc3695419a95a65d57df378, type: 3}
     walk:
     - {fileID: 21300000, guid: f6b39f81c5da1124bade8fae485d6985, type: 3}
     - {fileID: 21300000, guid: 82d274a1ba7157541bc07b9e17c7b0c1, type: 3}
     - {fileID: 21300000, guid: fe7a107d75016dc4c873059856eaf999, type: 3}
+    swim:
+    - {fileID: 21300000, guid: f6b39f81c5da1124bade8fae485d6985, type: 3}
+    - {fileID: 21300000, guid: 82d274a1ba7157541bc07b9e17c7b0c1, type: 3}
+    - {fileID: 21300000, guid: fe7a107d75016dc4c873059856eaf999, type: 3}
+  soldierPlumes:
+  - idle: {fileID: 21300000, guid: 33045dfb68d5cbe4da702c9e13bafa69, type: 3}
+    walk:
+    - {fileID: 21300000, guid: 7079e2d2ec6f23541a3c58c7f4953ef8, type: 3}
+    - {fileID: 21300000, guid: b453d6e18a0110243989afd8a8ab02ae, type: 3}
+    - {fileID: 21300000, guid: df28274401749bd429326f2a490cf209, type: 3}
+    swim: []
   peasantClothes:
   - idle: {fileID: 21300000, guid: 6688f61c46d784f4db0fe063114b2d02, type: 3}
     walk:
     - {fileID: 21300000, guid: 7b0ce6abe50cb4e429ab19fcf0972148, type: 3}
     - {fileID: 21300000, guid: 2ce36676fb067a14a926ec29797917ff, type: 3}
     - {fileID: 21300000, guid: d0ceeb329d46ad84fb19cd825a41232b, type: 3}
-  - idle: {fileID: 21300000, guid: 281f8c3d6c6bddd48a1a4ed48153d315, type: 3}
-    walk:
-    - {fileID: 21300000, guid: 2f8b2492314f45441b394aa3181874f6, type: 3}
-    - {fileID: 21300000, guid: 831673417b03d6443b6b0690f4353e27, type: 3}
-    - {fileID: 21300000, guid: 4ac075a0c00d82a49ae92e7655db8113, type: 3}
-  - idle: {fileID: 21300000, guid: b9702f63ef5038744a77ff1493d057bd, type: 3}
-    walk:
-    - {fileID: 21300000, guid: c279b6f88c5783945bfcf1db00fd9b87, type: 3}
-    - {fileID: 21300000, guid: ff0818bf740e27a4db1304082402c85c, type: 3}
-    - {fileID: 21300000, guid: 3ad627633e9ad374e8e4957acb6d6107, type: 3}
-  - idle: {fileID: 21300000, guid: 893294688a87c4946886109e200f39b0, type: 3}
-    walk:
-    - {fileID: 21300000, guid: 3452afd144afd3146bcd9a99fc98328f, type: 3}
-    - {fileID: 21300000, guid: 74bf1a130306c7f488e0a455bf60ae65, type: 3}
-    - {fileID: 21300000, guid: 3e8c32b15a5b0a747ac971fbe2c167d4, type: 3}
-  - idle: {fileID: 21300000, guid: 02daf11d3b5c1624fb3807b0d73d724a, type: 3}
-    walk:
-    - {fileID: 21300000, guid: 2f08c763baa5b194681cff073b3f6f61, type: 3}
-    - {fileID: 21300000, guid: 93d818c85daf92041840df298165c7ae, type: 3}
-    - {fileID: 21300000, guid: e3e1dc8e97b238843b42f1e85d854d9b, type: 3}
-  - idle: {fileID: 21300000, guid: 322c4f9569fb31d4f9f2e374671ffef5, type: 3}
-    walk:
-    - {fileID: 21300000, guid: 5ef1c86d99664a14d887dde38fcedfa3, type: 3}
-    - {fileID: 21300000, guid: cdb006c77bb7a7f45a8a09f2717f6f50, type: 3}
-    - {fileID: 21300000, guid: fd2d169731fb57a40873ad47a86d214d, type: 3}
-  - idle: {fileID: 21300000, guid: 4695458d128851e4c880d5f46071d9fe, type: 3}
-    walk:
-    - {fileID: 21300000, guid: 14c1bfa8fa5f82645bd0d1a2b6a96aed, type: 3}
-    - {fileID: 21300000, guid: 4147674eb5a32c24083a3636df030e1d, type: 3}
-    - {fileID: 21300000, guid: 5c6c8dbf346bc0d4398d4d62c29e75c3, type: 3}
-  - idle: {fileID: 21300000, guid: 2fbad5af525c652479bbf1302a901de1, type: 3}
-    walk:
-    - {fileID: 21300000, guid: e4a4a65e631141f448e63680680dac46, type: 3}
-    - {fileID: 21300000, guid: 023b761f3cb545946a0df231732245be, type: 3}
-    - {fileID: 21300000, guid: 0e9b2e3a6db03d44faa47cdf795e1eef, type: 3}
-  - idle: {fileID: 21300000, guid: 68aac8480a86f494db313a4e9b5565da, type: 3}
-    walk:
-    - {fileID: 21300000, guid: ee252ecc0feeb674dbde8e3f84175020, type: 3}
-    - {fileID: 21300000, guid: af316748862bdf14cb4292872be7b6ed, type: 3}
-    - {fileID: 21300000, guid: d70f95a98d79e7d40837ea0c58f4f662, type: 3}
-  - idle: {fileID: 21300000, guid: ace5c00ccdc49f84a92a6face9551bb3, type: 3}
-    walk:
-    - {fileID: 21300000, guid: 570bfa8d3fcb3a34ba791e9897172f46, type: 3}
-    - {fileID: 21300000, guid: 58de527853d3d614685fdbf23ed7b368, type: 3}
-    - {fileID: 21300000, guid: ed3d67ecadb521c47af8257c69eb334a, type: 3}
+    swim:
+    - {fileID: 21300000, guid: cbd7fb886e55f024591498d5c5d1bf25, type: 3}
+    - {fileID: 21300000, guid: da24119cc85a14b46ae8344e6b3cb400, type: 3}
+    - {fileID: 21300000, guid: 147b0f80b4590d04691b499874ed8927, type: 3}
   soldierClothes:
   - idle: {fileID: 21300000, guid: 5e8ff79bfa8c0ce409b8f9788ed2bc27, type: 3}
     walk:
     - {fileID: 21300000, guid: 677234791730eaa499a7dedc0b5c4a12, type: 3}
     - {fileID: 21300000, guid: cc1c5a1b45baacb42a969e4855b42874, type: 3}
     - {fileID: 21300000, guid: 94ada6eeacae3b040a3a5eaffb1ec082, type: 3}
+    swim:
+    - {fileID: 21300000, guid: f50f554360ca6f740ac00d3b5fda858a, type: 3}
+    - {fileID: 21300000, guid: 187a4093c7a068f4eae6fd994ccf51d2, type: 3}
+    - {fileID: 21300000, guid: 11ed9f94cf77dfd4b96c2d0bc27c43f2, type: 3}
   equipmentVisuals:
   - itemType: 23
     sprites:
@@ -210,6 +284,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 51e09c14b7230ae4b9dae0a7e5d28adf, type: 3}
       - {fileID: 21300000, guid: 2d40f6f0951f87b44b201b0d4852c3fc, type: 3}
       - {fileID: 21300000, guid: e2e847daa27fbd14a9421ff3d772b4cc, type: 3}
+      swim: []
   - itemType: 21
     sprites:
       idle: {fileID: 21300000, guid: 322243e5b0ca91641bcee6458bb4df3c, type: 3}
@@ -217,6 +292,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 982ca94cc35c61b4cabfd0196e49053b, type: 3}
       - {fileID: 21300000, guid: 199d381437058e849a91f4550f61243d, type: 3}
       - {fileID: 21300000, guid: 525d39526f89db94a965f9b8c07d8133, type: 3}
+      swim: []
   - itemType: 22
     sprites:
       idle: {fileID: 21300000, guid: 968f17fa84a11584eaf51ba141b6b609, type: 3}
@@ -224,6 +300,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 361286f49ec9da7488d178d11e8ed8a7, type: 3}
       - {fileID: 21300000, guid: b9d578a541753d34a9023840e3451bcd, type: 3}
       - {fileID: 21300000, guid: fee42fa09e756d743858e88ed8cbeab2, type: 3}
+      swim: []
   - itemType: 24
     sprites:
       idle: {fileID: 21300000, guid: 55c3522d266866b49980b6f4f920507e, type: 3}
@@ -231,6 +308,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 48ff45474c6419e44b80960dd23fe345, type: 3}
       - {fileID: 21300000, guid: 61df46c22702bc64d9a9a6d4dec37498, type: 3}
       - {fileID: 21300000, guid: 6ea91878e8d48004995f0050c327bcfe, type: 3}
+      swim: []
   - itemType: 25
     sprites:
       idle: {fileID: 21300000, guid: 4f0a85c6fa19ea745914a76df78c1b29, type: 3}
@@ -238,13 +316,15 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 9002d98f07f078f429e914cc6878ab9f, type: 3}
       - {fileID: 21300000, guid: b2fc355ee970e1c47bedc9518a16f306, type: 3}
       - {fileID: 21300000, guid: 9d6fb9ad9434d1c4cb0203af9ed6269a, type: 3}
+      swim: []
   - itemType: 26
     sprites:
       idle: {fileID: 21300000, guid: b7c5f2ad3f2c6db49b97e18fa5ed1c7b, type: 3}
       walk:
-      - {fileID: 21300000, guid: 26c8f99137a83a14ba8fe2c64ed74c47, type: 3}
-      - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
-      - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
+      - {fileID: 21300000, guid: 2f737bbe521252a4b9bcb5aa6badd8a1, type: 3}
+      - {fileID: 21300000, guid: b7c5f2ad3f2c6db49b97e18fa5ed1c7b, type: 3}
+      - {fileID: 21300000, guid: b7c5f2ad3f2c6db49b97e18fa5ed1c7b, type: 3}
+      swim: []
   - itemType: 27
     sprites:
       idle: {fileID: 21300000, guid: 1c74dfd3324386746a2f75527c17f45f, type: 3}
@@ -252,6 +332,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 47f954e785778e548a1f764efd9cf2db, type: 3}
       - {fileID: 21300000, guid: 1c74dfd3324386746a2f75527c17f45f, type: 3}
       - {fileID: 21300000, guid: 1c74dfd3324386746a2f75527c17f45f, type: 3}
+      swim: []
   - itemType: 28
     sprites:
       idle: {fileID: 21300000, guid: 59a3ba1cb6ecd9b4aa709f719e5147f7, type: 3}
@@ -259,6 +340,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: b4abad4ef56ada94ebc7e96e59ffe891, type: 3}
       - {fileID: 21300000, guid: 59a3ba1cb6ecd9b4aa709f719e5147f7, type: 3}
       - {fileID: 21300000, guid: 59a3ba1cb6ecd9b4aa709f719e5147f7, type: 3}
+      swim: []
   - itemType: 29
     sprites:
       idle: {fileID: 21300000, guid: dc757db4310379545b92ffcb3d3b6f66, type: 3}
@@ -266,6 +348,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 89ba4305648522540afb8881581ef763, type: 3}
       - {fileID: 21300000, guid: dc757db4310379545b92ffcb3d3b6f66, type: 3}
       - {fileID: 21300000, guid: dc757db4310379545b92ffcb3d3b6f66, type: 3}
+      swim: []
   - itemType: 30
     sprites:
       idle: {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
@@ -273,6 +356,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 26c8f99137a83a14ba8fe2c64ed74c47, type: 3}
       - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
       - {fileID: 21300000, guid: 1a43e3faff05d4541a8c421cf3718072, type: 3}
+      swim: []
   - itemType: 31
     sprites:
       idle: {fileID: 21300000, guid: 0fd0f2b47bfdb59429405f2a5a4af287, type: 3}
@@ -280,6 +364,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 2c9d26f49d4b55d4d92547fa83fe1982, type: 3}
       - {fileID: 21300000, guid: 0fd0f2b47bfdb59429405f2a5a4af287, type: 3}
       - {fileID: 21300000, guid: 0fd0f2b47bfdb59429405f2a5a4af287, type: 3}
+      swim: []
   - itemType: 32
     sprites:
       idle: {fileID: 21300000, guid: d51c1072906944d4c9d7b7f28f2fc67b, type: 3}
@@ -287,6 +372,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 52e99588bdb461b4b865234cada332ca, type: 3}
       - {fileID: 21300000, guid: d51c1072906944d4c9d7b7f28f2fc67b, type: 3}
       - {fileID: 21300000, guid: d51c1072906944d4c9d7b7f28f2fc67b, type: 3}
+      swim: []
   - itemType: 33
     sprites:
       idle: {fileID: 21300000, guid: 7bf70a200500dfc45b7bf5b653bf2434, type: 3}
@@ -294,6 +380,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 02baf5bef14ce514eb94dc810ce0109a, type: 3}
       - {fileID: 21300000, guid: 7bf70a200500dfc45b7bf5b653bf2434, type: 3}
       - {fileID: 21300000, guid: 7bf70a200500dfc45b7bf5b653bf2434, type: 3}
+      swim: []
   - itemType: 34
     sprites:
       idle: {fileID: 21300000, guid: 35f7e3e810efbb948afec48680189a06, type: 3}
@@ -301,6 +388,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: ff6a1a03e3b9ac84eaf7739660568a54, type: 3}
       - {fileID: 21300000, guid: 35f7e3e810efbb948afec48680189a06, type: 3}
       - {fileID: 21300000, guid: 35f7e3e810efbb948afec48680189a06, type: 3}
+      swim: []
   - itemType: 35
     sprites:
       idle: {fileID: 21300000, guid: d0bc51a69188e684aa23fa3ae9b22613, type: 3}
@@ -308,6 +396,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 4b9a9d07c8d46c84dbc589af1fb73a2f, type: 3}
       - {fileID: 21300000, guid: d0bc51a69188e684aa23fa3ae9b22613, type: 3}
       - {fileID: 21300000, guid: d0bc51a69188e684aa23fa3ae9b22613, type: 3}
+      swim: []
   - itemType: 36
     sprites:
       idle: {fileID: 21300000, guid: d6b914053e8bb7e41a596da910ebbda4, type: 3}
@@ -315,6 +404,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 5d2f55dd0ea5314459d6837101d39391, type: 3}
       - {fileID: 21300000, guid: d6b914053e8bb7e41a596da910ebbda4, type: 3}
       - {fileID: 21300000, guid: d6b914053e8bb7e41a596da910ebbda4, type: 3}
+      swim: []
   - itemType: 37
     sprites:
       idle: {fileID: 21300000, guid: 60f0524a017ec2c41b31fdb0dcc2a61a, type: 3}
@@ -322,6 +412,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 7d7ef96f0cd2d6c4880804eadba9c38c, type: 3}
       - {fileID: 21300000, guid: 60f0524a017ec2c41b31fdb0dcc2a61a, type: 3}
       - {fileID: 21300000, guid: 60f0524a017ec2c41b31fdb0dcc2a61a, type: 3}
+      swim: []
   - itemType: 38
     sprites:
       idle: {fileID: 21300000, guid: bebe63fa9cbf005449468e501157281e, type: 3}
@@ -329,6 +420,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 9c92b9a9d9f5756479bc4b55f64475cd, type: 3}
       - {fileID: 21300000, guid: bebe63fa9cbf005449468e501157281e, type: 3}
       - {fileID: 21300000, guid: bebe63fa9cbf005449468e501157281e, type: 3}
+      swim: []
   - itemType: 39
     sprites:
       idle: {fileID: 21300000, guid: d85b9e05884a1e141b360e433f639a32, type: 3}
@@ -336,6 +428,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: ef6c97523b8303948aa58e048f9bf258, type: 3}
       - {fileID: 21300000, guid: d85b9e05884a1e141b360e433f639a32, type: 3}
       - {fileID: 21300000, guid: d85b9e05884a1e141b360e433f639a32, type: 3}
+      swim: []
   - itemType: 40
     sprites:
       idle: {fileID: 21300000, guid: 26e5190dad4f28248bf917a4dd634fda, type: 3}
@@ -343,6 +436,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 8ad9bb4da3a4c094dba5cfbf81275a97, type: 3}
       - {fileID: 21300000, guid: 26e5190dad4f28248bf917a4dd634fda, type: 3}
       - {fileID: 21300000, guid: 26e5190dad4f28248bf917a4dd634fda, type: 3}
+      swim: []
   - itemType: 41
     sprites:
       idle: {fileID: 21300000, guid: 18e83268573b59646968b79bd5fb94d1, type: 3}
@@ -350,6 +444,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: ae5d4aeb09769864d900c01edd40d5bb, type: 3}
       - {fileID: 21300000, guid: 18e83268573b59646968b79bd5fb94d1, type: 3}
       - {fileID: 21300000, guid: 18e83268573b59646968b79bd5fb94d1, type: 3}
+      swim: []
   - itemType: 42
     sprites:
       idle: {fileID: 21300000, guid: 9eecacc9699681841b4188ce6e9a9156, type: 3}
@@ -357,6 +452,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 6acc72b93fbd3d244a4ad8d3b43385d6, type: 3}
       - {fileID: 21300000, guid: 9eecacc9699681841b4188ce6e9a9156, type: 3}
       - {fileID: 21300000, guid: 9eecacc9699681841b4188ce6e9a9156, type: 3}
+      swim: []
   - itemType: 43
     sprites:
       idle: {fileID: 21300000, guid: 2abc12ec5bb47464b94a8eb595de244c, type: 3}
@@ -364,6 +460,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: b9f430ab3d357b34184e7d278581dc54, type: 3}
       - {fileID: 21300000, guid: 2abc12ec5bb47464b94a8eb595de244c, type: 3}
       - {fileID: 21300000, guid: 2abc12ec5bb47464b94a8eb595de244c, type: 3}
+      swim: []
   - itemType: 44
     sprites:
       idle: {fileID: 21300000, guid: 54a3031875b27194496025f5a7d93a2a, type: 3}
@@ -371,6 +468,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: d5901a4a16a422b419813e1449f0be44, type: 3}
       - {fileID: 21300000, guid: 54a3031875b27194496025f5a7d93a2a, type: 3}
       - {fileID: 21300000, guid: 54a3031875b27194496025f5a7d93a2a, type: 3}
+      swim: []
   - itemType: 45
     sprites:
       idle: {fileID: 21300000, guid: 0ab31c8b734189646b9ab17cb29ff146, type: 3}
@@ -378,6 +476,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 762edabdb89fca8499ca40244aca7497, type: 3}
       - {fileID: 21300000, guid: 0ab31c8b734189646b9ab17cb29ff146, type: 3}
       - {fileID: 21300000, guid: 0ab31c8b734189646b9ab17cb29ff146, type: 3}
+      swim: []
   - itemType: 46
     sprites:
       idle: {fileID: 21300000, guid: a6d9de3de07f29645962eb5f1ab4728c, type: 3}
@@ -385,6 +484,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 9e7002e7cd163a147bb00dafe8ee9fd0, type: 3}
       - {fileID: 21300000, guid: a6d9de3de07f29645962eb5f1ab4728c, type: 3}
       - {fileID: 21300000, guid: a6d9de3de07f29645962eb5f1ab4728c, type: 3}
+      swim: []
   - itemType: 47
     sprites:
       idle: {fileID: 21300000, guid: 124ecf46e41cc4a449305dc95fa63b32, type: 3}
@@ -392,6 +492,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 9873454f250bc574bad8193af0d3eee4, type: 3}
       - {fileID: 21300000, guid: 124ecf46e41cc4a449305dc95fa63b32, type: 3}
       - {fileID: 21300000, guid: 124ecf46e41cc4a449305dc95fa63b32, type: 3}
+      swim: []
   - itemType: 48
     sprites:
       idle: {fileID: 21300000, guid: 30d0b08adcb492442a9b343a5890c2d9, type: 3}
@@ -399,6 +500,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 0089d91bf06132b4cae0fda23334a679, type: 3}
       - {fileID: 21300000, guid: 30d0b08adcb492442a9b343a5890c2d9, type: 3}
       - {fileID: 21300000, guid: 30d0b08adcb492442a9b343a5890c2d9, type: 3}
+      swim: []
   - itemType: 49
     sprites:
       idle: {fileID: 21300000, guid: c0f1588cee8729e40afc74706d479b63, type: 3}
@@ -406,6 +508,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 6b14dfda7b9834649a836da42aa43e64, type: 3}
       - {fileID: 21300000, guid: c0f1588cee8729e40afc74706d479b63, type: 3}
       - {fileID: 21300000, guid: c0f1588cee8729e40afc74706d479b63, type: 3}
+      swim: []
   - itemType: 50
     sprites:
       idle: {fileID: 21300000, guid: 1b59d0474c231734ea3dadfb4cbc8c71, type: 3}
@@ -413,6 +516,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: f4d786c26377f2b4493c333fa71614cc, type: 3}
       - {fileID: 21300000, guid: 1b59d0474c231734ea3dadfb4cbc8c71, type: 3}
       - {fileID: 21300000, guid: 1b59d0474c231734ea3dadfb4cbc8c71, type: 3}
+      swim: []
   - itemType: 51
     sprites:
       idle: {fileID: 21300000, guid: 5db504ae29184924b939bc194fbfb185, type: 3}
@@ -420,6 +524,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 9ab2b83fec21a4b469d5b871f7235cdb, type: 3}
       - {fileID: 21300000, guid: 5db504ae29184924b939bc194fbfb185, type: 3}
       - {fileID: 21300000, guid: 5db504ae29184924b939bc194fbfb185, type: 3}
+      swim: []
   - itemType: 52
     sprites:
       idle: {fileID: 21300000, guid: 7047d79a42bc7624ca0d1477b1165668, type: 3}
@@ -427,6 +532,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 5b45509805d45f2439d563b4e80d4952, type: 3}
       - {fileID: 21300000, guid: 7047d79a42bc7624ca0d1477b1165668, type: 3}
       - {fileID: 21300000, guid: 7047d79a42bc7624ca0d1477b1165668, type: 3}
+      swim: []
   - itemType: 53
     sprites:
       idle: {fileID: 21300000, guid: fa0b2fe94e589654ca67598c78407ded, type: 3}
@@ -434,6 +540,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 4aa81d77b56248f4990e129937ec2f08, type: 3}
       - {fileID: 21300000, guid: fa0b2fe94e589654ca67598c78407ded, type: 3}
       - {fileID: 21300000, guid: fa0b2fe94e589654ca67598c78407ded, type: 3}
+      swim: []
   - itemType: 54
     sprites:
       idle: {fileID: 21300000, guid: 6b9a0197060395649b82faba6afce19b, type: 3}
@@ -441,6 +548,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: d51f4c1e2b3ea434f993c28646f2db47, type: 3}
       - {fileID: 21300000, guid: 6b9a0197060395649b82faba6afce19b, type: 3}
       - {fileID: 21300000, guid: 6b9a0197060395649b82faba6afce19b, type: 3}
+      swim: []
   - itemType: 55
     sprites:
       idle: {fileID: 21300000, guid: 9bd4bae6bf0d90942bb7c93ce97193c0, type: 3}
@@ -448,6 +556,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 8e668023914a67441995c94e9a76e2ed, type: 3}
       - {fileID: 21300000, guid: 9bd4bae6bf0d90942bb7c93ce97193c0, type: 3}
       - {fileID: 21300000, guid: 9bd4bae6bf0d90942bb7c93ce97193c0, type: 3}
+      swim: []
   - itemType: 56
     sprites:
       idle: {fileID: 21300000, guid: 54c94e17f1ca14847a0b02dafc344c3b, type: 3}
@@ -455,6 +564,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 63eabd6962306da458b8623f0548e932, type: 3}
       - {fileID: 21300000, guid: 54c94e17f1ca14847a0b02dafc344c3b, type: 3}
       - {fileID: 21300000, guid: 54c94e17f1ca14847a0b02dafc344c3b, type: 3}
+      swim: []
   - itemType: 57
     sprites:
       idle: {fileID: 21300000, guid: a04c0b7f55b6ae64ea59d560e8a6f685, type: 3}
@@ -462,6 +572,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 42e510c6722c7114aa40f4d3cc2c82a9, type: 3}
       - {fileID: 21300000, guid: a04c0b7f55b6ae64ea59d560e8a6f685, type: 3}
       - {fileID: 21300000, guid: a04c0b7f55b6ae64ea59d560e8a6f685, type: 3}
+      swim: []
   - itemType: 58
     sprites:
       idle: {fileID: 21300000, guid: ef7fe2c031814e443bee35f2315f90a2, type: 3}
@@ -469,6 +580,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: ef7fe2c031814e443bee35f2315f90a2, type: 3}
       - {fileID: 21300000, guid: 2f23a7ca5492778498a6d538373c4a35, type: 3}
       - {fileID: 21300000, guid: 2f23a7ca5492778498a6d538373c4a35, type: 3}
+      swim: []
   - itemType: 59
     sprites:
       idle: {fileID: 21300000, guid: de1d047e16acffc4abd9e43cac13c367, type: 3}
@@ -476,6 +588,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 779ddc789ca42544394cf37eed1e8775, type: 3}
       - {fileID: 21300000, guid: de1d047e16acffc4abd9e43cac13c367, type: 3}
       - {fileID: 21300000, guid: de1d047e16acffc4abd9e43cac13c367, type: 3}
+      swim: []
   - itemType: 60
     sprites:
       idle: {fileID: 21300000, guid: f7abfe00c34d7f644861baee18dced09, type: 3}
@@ -483,6 +596,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 75a53bd53fe57d94581bc43d8fcab21d, type: 3}
       - {fileID: 21300000, guid: f7abfe00c34d7f644861baee18dced09, type: 3}
       - {fileID: 21300000, guid: f7abfe00c34d7f644861baee18dced09, type: 3}
+      swim: []
   - itemType: 61
     sprites:
       idle: {fileID: 21300000, guid: a68534da363d23149a21660632838354, type: 3}
@@ -490,6 +604,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 546ea3c81907d1a4e8de8238f82f7651, type: 3}
       - {fileID: 21300000, guid: a68534da363d23149a21660632838354, type: 3}
       - {fileID: 21300000, guid: a68534da363d23149a21660632838354, type: 3}
+      swim: []
   - itemType: 62
     sprites:
       idle: {fileID: 21300000, guid: 03f2fbcdec3e79e4dbf1a0d02e097481, type: 3}
@@ -497,6 +612,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: bd3d2742579a34348a459ef4293abc28, type: 3}
       - {fileID: 21300000, guid: 03f2fbcdec3e79e4dbf1a0d02e097481, type: 3}
       - {fileID: 21300000, guid: 03f2fbcdec3e79e4dbf1a0d02e097481, type: 3}
+      swim: []
   - itemType: 63
     sprites:
       idle: {fileID: 21300000, guid: 206a4aa954191074c9f9f29440c5c6bc, type: 3}
@@ -504,6 +620,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: ba799fa184c8bd44cb45a2a8c484e7c7, type: 3}
       - {fileID: 21300000, guid: 206a4aa954191074c9f9f29440c5c6bc, type: 3}
       - {fileID: 21300000, guid: 206a4aa954191074c9f9f29440c5c6bc, type: 3}
+      swim: []
   - itemType: 64
     sprites:
       idle: {fileID: 21300000, guid: 5c81f283096f0184092e10d53eebbb90, type: 3}
@@ -511,6 +628,7 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 604459003d8f3144198483e56728e759, type: 3}
       - {fileID: 21300000, guid: 5c81f283096f0184092e10d53eebbb90, type: 3}
       - {fileID: 21300000, guid: 5c81f283096f0184092e10d53eebbb90, type: 3}
+      swim: []
   - itemType: 65
     sprites:
       idle: {fileID: 21300000, guid: 4cc20d7378f6c9e48a407030f651de4c, type: 3}
@@ -518,3 +636,4 @@ MonoBehaviour:
       - {fileID: 21300000, guid: 9166bfd30195d8443925f289978bd89c, type: 3}
       - {fileID: 21300000, guid: 4cc20d7378f6c9e48a407030f651de4c, type: 3}
       - {fileID: 21300000, guid: 4cc20d7378f6c9e48a407030f651de4c, type: 3}
+      swim: []

@@ -20,7 +20,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-  isReadable: 0
+  isReadable: 1
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -2718,7 +2718,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: items_sheet_125
+      name: Dodge
       rect:
         serializedVersion: 2
         x: 272
@@ -14322,6 +14322,7 @@ TextureImporter:
     nameFileIdTable:
       Coal: -1354672895
       CoalOre: 1010135235
+      Dodge: -2029683586
       Gold: -1846180335
       GoldIngot: 726307676
       GoldPickaxe: 1597315230
@@ -14372,7 +14373,6 @@ TextureImporter:
       items_sheet_122: -1587432665
       items_sheet_123: 1525706330
       items_sheet_124: 2049236121
-      items_sheet_125: -2029683586
       items_sheet_126: 1017765546
       items_sheet_127: 361361937
       items_sheet_128: -1926094608

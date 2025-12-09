@@ -21,7 +21,7 @@ ScriptedImporter:
     convertToNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-    isReadable: 0
+    isReadable: 1
     streamingMipmaps: 0
     streamingMipmapsPriority: 0
     vTOnly: 0
@@ -95,7 +95,7 @@ ScriptedImporter:
     addSortingGroup: 1
     addShadowCasters: 0
   importFileNodeState: 1
-  platformSettingsDirtyTick: 0
+  platformSettingsDirtyTick: 639008953386218266
   textureAssetName: 
   singleSpriteImportData:
   - name: 
@@ -121,15 +121,15 @@ ScriptedImporter:
   animatedSpriteImportData:
   - name: BerryBrush_Empty
     originalName: 
-    pivot: {x: 0.5, y: 1}
-    alignment: 2
+    pivot: {x: 0.5186687, y: 0.3190895}
+    alignment: 9
     border: {x: 0, y: 0, z: 0, w: 0}
     rect:
       serializedVersion: 2
       x: 4
       y: 4
-      width: 14
-      height: 11
+      width: 28
+      height: 30
     spriteID: 1623e722f29e30646b9161ffcf03452d
     spriteBone: []
     spriteOutline: []
@@ -152,10 +152,10 @@ ScriptedImporter:
       frameIndex: 0
       additiveSortOrder: 0
       cellRect:
-        x: 1
-        y: 0
-        width: 14
-        height: 11
+        x: 5
+        y: 2
+        width: 28
+        height: 30
       spriteId: 1623e722f29e30646b9161ffcf03452d
     linkedCells: []
     parentIndex: -1
@@ -171,7 +171,29 @@ ScriptedImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     androidETC2FallbackOverride: 0
+  - name: DefaultTexturePlatform
+    overridden: 0
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    androidETC2FallbackOverride: 0
+  - name: Standalone
+    overridden: 1
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: 4
+    textureCompression: 1
+    compressionQuality: 50
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    androidETC2FallbackOverride: 0
   generatePhysicsShape: 0
   secondarySpriteTextures: []
   spritePackingTag: 
-  canvasSize: {x: 16, y: 16}
+  canvasSize: {x: 36, y: 36}

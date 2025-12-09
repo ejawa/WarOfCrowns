@@ -54,8 +54,14 @@ TagManager:
   - name: Buildings
     uniqueID: 448897709
     locked: 0
+  - name: Border
+    uniqueID: 389750407
+    locked: 0
   - name: Object
     uniqueID: 2113555077
+    locked: 0
+  - name: FOG
+    uniqueID: 3643085295
     locked: 0
   - name: UI
     uniqueID: 1791207277

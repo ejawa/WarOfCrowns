@@ -1,249 +1,341 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.Netcode;
 using WarOfCrowns.Buildings;
 using WarOfCrowns.Core;
 using WarOfCrowns.World;
 
 namespace WarOfCrowns.Units
 {
-    // Добавили состояние Garrisoning
-    public enum UnitState { Idling, MovingToTarget, Working, SeekingFood, Fighting, Training, Garrisoning }
-
+    public enum UnitState { Idling, MovingToTarget, Working, Building, SeekingFood, Fighting, Training, Garrisoning, Foraging, Fleeing, ReturningToPost }
     [RequireComponent(typeof(Unit), typeof(UnitMotor))]
-    public class UnitAI : MonoBehaviour
+    public class UnitAI : NetworkBehaviour
     {
         public UnitState CurrentState { get; private set; }
 
-        [Header("Настройки Поиска Еды")]
-        [Tooltip("Список приоритетов (Сначала едим Ягоды, если нет - Хлеб)")]
-        [SerializeField] private System.Collections.Generic.List<ResourceType> foodPriorityList;
+        [Header("Настройки ИИ")]
+        [SerializeField] private List<ResourceType> foodPriorityList;
+
+        [Header("Зрение и Бой")]
+        public float viewRadius = 7f;
+        [Range(0, 360)] public float viewAngle = 140f;
+        public LayerMask enemyLayer;
+        [Tooltip("Дистанция, на которой юнит чувствует врага спиной")]
+        [SerializeField] private float proximitySenseRange = 3.0f;
+        [SerializeField] private float fleeThreshold = 30f;
+
+        // Дистанция преследования для Defensive стойки
+        [SerializeField] private float defensiveChaseLimit = 10f;
 
         private Unit _unit;
         private UnitMotor _motor;
         private UnitWorker _worker;
+        private Fighter _fighter;
+        private Health _health;
         private Coroutine _currentActionCoroutine;
 
         // Память
         private JobBuilding _jobToReturnTo;
-        private Vector3 _lastIdlePosition;
+        private Vector2 _facingDirection = Vector2.right;
+        private Vector3 _guardPosition; // Точка, которую мы охраняем (для Defensive)
 
-        // Для тренировки
+        // Цели
+        private DefenseTower _targetTower;
         private Barracks _targetBarracks;
         private ResourceType _pendingWeapon;
+        private ResourceNode _reservedResource;
 
-        // Для гарнизона (НОВОЕ)
-        private DefenseTower _targetTower;
-
+        // Логика бегства
+        private float _fleeTimer = 0f;
+        private Vector3 _fleeDirection;
+        private UnitBuilder _builder;
         private void Awake()
         {
             _unit = GetComponent<Unit>();
             _motor = GetComponent<UnitMotor>();
             _worker = GetComponent<UnitWorker>();
+            _fighter = GetComponent<Fighter>();
+            _health = GetComponent<Health>();
+            _builder = GetComponent<UnitBuilder>();
         }
 
         private void Start()
         {
             if (CurrentState == UnitState.SeekingFood) SeekFood();
+            if (_health != null) _health.OnHealthChanged += OnTakeDamage;
+            _guardPosition = transform.position; // Изначально охраняем спавн
         }
 
-        public void SetState(UnitState newState) => CurrentState = newState;
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (_health != null) _health.OnHealthChanged -= OnTakeDamage;
+        }
 
+        public void CommandMoveTo(Vector3 position)
+        {
+            CancelAction();
+            SetState(UnitState.MovingToTarget);
+            _motor.MoveTo(position);
+            // Запоминаем новую точку охраны
+            _guardPosition = position;
+        }
+
+        public void SetState(UnitState newState)
+        {
+            CurrentState = newState;
+        }
+        public void CommandBuild(ConstructionSite site)
+        {
+            CancelAction(); // Сбрасываем всё
+            SetState(UnitState.Building); // Ставим состояние
+            if (_builder != null) _builder.SetTarget(site);
+        }
         public void CancelAction()
         {
-            if (_currentActionCoroutine != null) StopCoroutine(_currentActionCoroutine);
+            if (_builder != null) _builder.Cancel();
+            if (_currentActionCoroutine != null)
+                StopCoroutine(_currentActionCoroutine);
+
             _unit.IsEating = false;
+
+            if (_reservedResource != null)
+            {
+                _reservedResource.Unreserve();
+                _reservedResource = null;
+            }
+
+            // Останавливаем все подсистемы
+            GetComponent<UnitGatherer>()?.StopGathering();
+
+            // ВАЖНО: Принудительная отмена стройки
+            var builder = GetComponent<UnitBuilder>();
+            if (builder != null) builder.Cancel();
+
+            if (_fighter != null) _fighter.Cancel();
+
+            var worker = GetComponent<UnitWorker>();
+            if (worker != null) worker.StopWorking();
+
+            if (_motor) _motor.StopMoving();
+
             SetState(UnitState.Idling);
         }
 
-        // --- НОВЫЙ МЕТОД: ИДТИ В ГАРНИЗОН ---
-        public void CommandGarrison(DefenseTower tower)
+        private void OnTakeDamage(int current, int max)
         {
-            // Сбрасываем текущие дела
+            if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+
+            float hpPercent = (float)current / max * 100f;
+            if (hpPercent < fleeThreshold && CurrentState != UnitState.Garrisoning)
+            {
+                if (CurrentState == UnitState.Fighting && _fighter != null && _fighter.HasTarget()) return;
+
+                if (CurrentState == UnitState.Fleeing)
+                {
+                    _fleeTimer = 3.0f;
+                    return;
+                }
+                StartFleeingLogic();
+                return;
+            }
+
+            if (CurrentState == UnitState.Fighting && _fighter != null)
+            {
+                if (_fighter.HasTarget()) return;
+            }
+
+            if (CurrentState == UnitState.Garrisoning || CurrentState == UnitState.Fleeing) return;
+
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 10f, enemyLayer);
+            foreach (var hit in hits)
+            {
+                Unit other = hit.GetComponent<Unit>();
+                if (other != null && other.ownerKingdomID.Value != _unit.ownerKingdomID.Value)
+                {
+                    CancelAction();
+                    SetState(UnitState.Fighting);
+                    if (_fighter) _fighter.Attack(hit.GetComponent<Health>());
+                    return;
+                }
+            }
+        }
+
+        private void StartFleeingLogic()
+        {
+            Collider2D enemy = Physics2D.OverlapCircle(transform.position, 10f, enemyLayer);
+            Vector3 dir = Vector3.right;
+            if (enemy != null) dir = (transform.position - enemy.transform.position).normalized;
+            else dir = -_facingDirection;
+
             CancelAction();
-            GetComponent<UnitWorker>()?.StopWorking();
-            GetComponent<UnitGatherer>()?.StopGathering();
-            GetComponent<UnitBuilder>()?.Cancel();
-            GetComponent<Fighter>()?.Cancel();
-
-            _targetTower = tower;
-            SetState(UnitState.Garrisoning);
-
-            // Идем к башне
-            if (_motor != null) _motor.MoveTo(tower.transform.position);
+            SetState(UnitState.Fleeing);
+            StartFleeingClientRpc(dir);
         }
 
-        // --- МЕТОД ДЛЯ КАЗАРМЫ ---
-        public void CommandGoTrain(Barracks barracks, ResourceType weapon)
+        [ClientRpc]
+        private void StartFleeingClientRpc(Vector3 direction)
         {
-            GetComponent<UnitGatherer>()?.StopGathering();
-            GetComponent<UnitBuilder>()?.Cancel();
-            GetComponent<UnitWorker>()?.StopWorking();
-
-            _targetBarracks = barracks;
-            _pendingWeapon = weapon;
-            SetState(UnitState.Training);
-
-            if (_currentActionCoroutine != null) StopCoroutine(_currentActionCoroutine);
-            _currentActionCoroutine = StartCoroutine(GoToBarracksRoutine());
-        }
-
-        private System.Collections.IEnumerator GoToBarracksRoutine()
-        {
-            if (_targetBarracks == null) { SetState(UnitState.Idling); yield break; }
-            _motor.MoveTo(_targetBarracks.transform.position);
-
-            while (_targetBarracks != null && Vector3.Distance(transform.position, _targetBarracks.transform.position) > 1.5f)
-            {
-                yield return null;
-            }
-
-            if (_targetBarracks == null) { SetState(UnitState.Idling); yield break; }
-
-            _motor.StopMoving();
-            _targetBarracks.FinalizeTraining(_unit, _pendingWeapon);
-        }
-
-        // --- ЛОГИКА ГОЛОДА ---
-        public void SeekFood()
-        {
-            if (CurrentState == UnitState.SeekingFood || CurrentState == UnitState.Fighting || CurrentState == UnitState.Garrisoning) return;
-
-            if (_worker != null && _worker.CurrentJob != null)
-            {
-                _jobToReturnTo = _worker.CurrentJob;
-                _lastIdlePosition = Vector3.zero;
-            }
-            else
-            {
-                _jobToReturnTo = null;
-                _lastIdlePosition = transform.position;
-            }
-
-            GetComponent<UnitGatherer>()?.StopGathering();
-            GetComponent<UnitBuilder>()?.Cancel();
-            _worker?.StopWorking();
-
-            SetState(UnitState.SeekingFood);
-            if (_currentActionCoroutine != null) StopCoroutine(_currentActionCoroutine);
-            _currentActionCoroutine = StartCoroutine(SeekFoodRoutine());
-        }
-
-        private System.Collections.IEnumerator SeekFoodRoutine()
-        {
-            WarehouseBuilding[] warehouses = FindObjectsOfType<WarehouseBuilding>();
-            if (warehouses.Length == 0)
-            {
-                ReturnToWorkOrIdle();
-                yield break;
-            }
-
-            WarehouseBuilding targetWarehouse = GetClosestWarehouse(warehouses);
-            if (targetWarehouse == null) { ReturnToWorkOrIdle(); yield break; }
-
-            _motor.MoveTo(targetWarehouse.transform.position);
-
-            while (targetWarehouse != null && Vector3.Distance(transform.position, targetWarehouse.transform.position) > 2.5f)
-            {
-                if (targetWarehouse == null) { ReturnToWorkOrIdle(); yield break; }
-                yield return null;
-            }
-
-            _motor.StopMoving();
-            _unit.IsEating = true;
-            yield return new WaitForSeconds(0.5f);
-
-            if (_unit.OwningKingdom != null)
-            {
-                foreach (var foodType in foodPriorityList)
-                {
-                    if (_unit.satiety >= 90f) break;
-                    int amountInStock = _unit.OwningKingdom.GetResourceAmount(foodType);
-                    if (amountInStock > 0)
-                    {
-                        int satietyPerItem = FoodConverter.Instance.GetSatietyValue(foodType);
-                        if (satietyPerItem <= 0) continue;
-                        int itemsNeedToEat = Mathf.CeilToInt((100f - _unit.satiety) / satietyPerItem);
-                        int itemsToTake = Mathf.Min(itemsNeedToEat, amountInStock);
-
-                        _unit.OwningKingdom.AddResource(foodType, -itemsToTake);
-                        _unit.Eat(itemsToTake * satietyPerItem);
-                    }
-                }
-            }
-
-            _unit.IsEating = false;
-            ReturnToWorkOrIdle();
-        }
-
-        private void ReturnToWorkOrIdle()
-        {
-            if (_jobToReturnTo != null)
-            {
-                _worker.SetTarget(_jobToReturnTo);
-                SetState(UnitState.Working);
-            }
-            else if (_lastIdlePosition != Vector3.zero)
-            {
-                _motor.MoveTo(_lastIdlePosition);
-                SetState(UnitState.Idling);
-            }
-            else
-            {
-                SetState(UnitState.Idling);
-            }
-        }
-
-        private WarehouseBuilding GetClosestWarehouse(WarehouseBuilding[] warehouses)
-        {
-            WarehouseBuilding bestTarget = null;
-            float closestDistanceSqr = Mathf.Infinity;
-            Vector3 currentPosition = transform.position;
-            foreach (WarehouseBuilding w in warehouses)
-            {
-                if (w == null) continue;
-                // Проверяем владельца склада (чтобы не бежать к врагу)
-                // (Здесь предполагается, что у WarehouseBuilding есть Building компонент с ownerID)
-                var b = w.GetComponent<Building>();
-                if (b != null && Kingdom.PlayerKingdom != null && b.ownerKingdomID.Value != Kingdom.PlayerKingdom.kingdomID) continue;
-
-                float dSqrToTarget = (w.transform.position - currentPosition).sqrMagnitude;
-                if (dSqrToTarget < closestDistanceSqr)
-                {
-                    closestDistanceSqr = dSqrToTarget;
-                    bestTarget = w;
-                }
-            }
-            return bestTarget;
+            CancelAction();
+            SetState(UnitState.Fleeing);
+            _fleeDirection = direction;
+            _fleeTimer = 4.0f;
         }
 
         private void Update()
         {
-            // --- ЛОГИКА ГАРНИЗОНА ---
-            if (CurrentState == UnitState.Garrisoning)
+            if (_motor.IsMoving)
             {
-                // Если башню уничтожили пока мы шли
-                if (_targetTower == null)
+                Vector3 dir = (_motor.TargetPosition - transform.position).normalized;
+                if (dir != Vector3.zero) _facingDirection = dir;
+            }
+
+            if (CurrentState == UnitState.MovingToTarget)
+            {
+                if (!_motor.IsMoving) SetState(UnitState.Idling);
+            }
+
+            // --- ЛОГИКА DEFENSIVE: ВОЗВРАТ НА ПОСТ ---
+            if (CurrentState == UnitState.Fighting && _unit.Stance == UnitStance.Defensive)
+            {
+                // Если мы отошли слишком далеко от поста в пылу битвы
+                if (Vector3.Distance(transform.position, _guardPosition) > defensiveChaseLimit)
+                {
+                    // Бросаем врага и возвращаемся
+                    CancelAction();
+                    _motor.MoveTo(_guardPosition);
+                    SetState(UnitState.ReturningToPost);
+                }
+            }
+
+            if (CurrentState == UnitState.ReturningToPost)
+            {
+                if (!_motor.IsMoving || Vector3.Distance(transform.position, _guardPosition) < 0.5f)
                 {
                     SetState(UnitState.Idling);
-                    _motor.StopMoving();
-                    return;
                 }
+            }
+            // -----------------------------------------
 
-                // Проверяем дистанцию
-                if (Vector3.Distance(transform.position, _targetTower.transform.position) < 2.0f)
+            if (CurrentState == UnitState.Fleeing)
+            {
+                if (IsOwner)
                 {
-                    if (_targetTower.CanEnter())
+                    _fleeTimer -= Time.deltaTime;
+                    if (_fleeTimer > 0)
                     {
-                        _motor.StopMoving();
-                        _targetTower.RequestEnter(_unit); // Стучимся в дверь
-                        // При успешном входе юнит выключится (SetActive false), так что код дальше не важен
+                        Vector3 runPoint = transform.position + _fleeDirection * 3f;
+                        _motor.MoveTo(runPoint);
                     }
                     else
                     {
-                        // Мест нет, просто стоим рядом
                         SetState(UnitState.Idling);
+                        _motor.StopMoving();
                     }
                 }
             }
+
+            if (CurrentState == UnitState.Garrisoning)
+            {
+                if (!_targetTower) { SetState(UnitState.Idling); return; }
+                if (Vector3.Distance(transform.position, _targetTower.transform.position) < 2.0f)
+                {
+                    if (_targetTower.CanEnter()) { _motor.StopMoving(); _targetTower.RequestEnter(_unit); }
+                    else SetState(UnitState.Idling);
+                }
+            }
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                // Сканируем врагов, только если свободны
+                if (CurrentState != UnitState.SeekingFood &&
+                    CurrentState != UnitState.Garrisoning &&
+                    CurrentState != UnitState.Training &&
+                    CurrentState != UnitState.Fighting &&
+                    CurrentState != UnitState.Fleeing &&
+                    CurrentState != UnitState.MovingToTarget &&
+                    CurrentState != UnitState.ReturningToPost) // Не отвлекаемся, если бежим домой
+                {
+                    ScanForEnemies();
+                }
+            }
+        }
+
+        private void ScanForEnemies()
+        {
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, viewRadius, enemyLayer);
+            foreach (var hit in hits)
+            {
+                if (hit.gameObject == gameObject) continue;
+                Unit other = hit.GetComponent<Unit>();
+                if (other != null)
+                {
+                    if (other.ownerKingdomID.Value == _unit.ownerKingdomID.Value) continue;
+
+                    float dist = Vector3.Distance(transform.position, hit.transform.position);
+                    Vector2 dirToEnemy = (hit.transform.position - transform.position).normalized;
+                    float angle = Vector2.Angle(_facingDirection, dirToEnemy);
+
+                    // Если видим или слышим
+                    if (angle < viewAngle / 2f || dist < proximitySenseRange)
+                    {
+                        var hp = hit.GetComponent<Health>();
+                        if (hp != null && hp.CurrentHealth > 0)
+                        {
+                            // --- ПРОВЕРКА СТОЙКИ ПЕРЕД АТАКОЙ ---
+                            if (_unit.Stance == UnitStance.Hold)
+                            {
+                                // В режиме Hold атакуем ТОЛЬКО если враг уже в радиусе оружия
+                                // Для этого нужно знать дальность оружия. Пока берем условно 1.5м или 6м для лука.
+                                // Лучше проверять через базу данных, но упростим:
+                                // Если дальний бой (лук) - стреляем. Если ближний - ждем упора.
+                                bool isRanged = _unit.Weapon.ToString().Contains("Bow");
+                                float engageDist = isRanged ? 6f : 1.5f;
+                                if (dist > engageDist) continue; // Игнорируем далеких врагов
+                            }
+                            // ------------------------------------
+
+                            CancelAction();
+                            SetState(UnitState.Fighting);
+                            if (_fighter) _fighter.Attack(hp);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public void CommandGarrison(DefenseTower tower)
+        {
+            CancelAction(); _targetTower = tower; SetState(UnitState.Garrisoning); _motor.MoveTo(tower.transform.position);
+        }
+
+        public void CommandGoTrain(Barracks barracks, ResourceType weapon)
+        {
+            CancelAction(); _targetBarracks = barracks; _pendingWeapon = weapon; SetState(UnitState.Training); _currentActionCoroutine = StartCoroutine(GoToBarracksRoutine());
+        }
+
+        private IEnumerator GoToBarracksRoutine()
+        {
+            if (!_targetBarracks) yield break;
+            _motor.MoveTo(_targetBarracks.transform.position);
+            while (_targetBarracks && Vector3.Distance(transform.position, _targetBarracks.transform.position) > 1.5f) yield return null;
+            _motor.StopMoving();
+            if (_targetBarracks) _targetBarracks.TrainUnitServerRpc(_unit.NetworkObjectId, _pendingWeapon);
+        }
+
+        public void SeekFood()
+        {
+            if (CurrentState == UnitState.SeekingFood || CurrentState == UnitState.Fighting || CurrentState == UnitState.Garrisoning) return;
+            if (_worker && _worker.CurrentJob) _jobToReturnTo = _worker.CurrentJob; else _jobToReturnTo = null;
+            CancelAction(); SetState(UnitState.SeekingFood); _currentActionCoroutine = StartCoroutine(SeekFoodRoutine());
+        }
+
+        private IEnumerator SeekFoodRoutine()
+        {
+            // Здесь должна быть логика еды (без изменений)
+            yield break;
         }
     }
 }

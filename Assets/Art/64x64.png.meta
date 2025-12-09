@@ -20,7 +20,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-  isReadable: 0
+  isReadable: 1
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
@@ -975,7 +975,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_42
+      name: Borders
       rect:
         serializedVersion: 2
         x: 640
@@ -15171,7 +15171,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_718
+      name: Hold
       rect:
         serializedVersion: 2
         x: 896
@@ -15213,7 +15213,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_720
+      name: Aggressive
       rect:
         serializedVersion: 2
         x: 0
@@ -17985,7 +17985,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_852
+      name: Defensive
       rect:
         serializedVersion: 2
         x: 256
@@ -18930,7 +18930,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_897
+      name: Build
       rect:
         serializedVersion: 2
         x: 64
@@ -18972,7 +18972,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_899
+      name: Demolish
       rect:
         serializedVersion: 2
         x: 192
@@ -19224,7 +19224,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_911
+      name: Demolish2
       rect:
         serializedVersion: 2
         x: 960
@@ -44361,7 +44361,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: 64x64_2108
+      name: King
       rect:
         serializedVersion: 2
         x: 768
@@ -47313,7 +47313,6 @@ TextureImporter:
       64x64_2105: -580092764
       64x64_2106: 1174964664
       64x64_2107: -1007187874
-      64x64_2108: -830985619
       64x64_2109: -1838348837
       64x64_2110: 769754944
       64x64_2111: 1413381414
@@ -47618,7 +47617,6 @@ TextureImporter:
       64x64_417: -534366098
       64x64_418: -476955815
       64x64_419: 1109388077
-      64x64_42: -640690664
       64x64_420: -211529563
       64x64_421: -1012696645
       64x64_422: -1602590672
@@ -47938,10 +47936,8 @@ TextureImporter:
       64x64_715: 2024739068
       64x64_716: -1156664034
       64x64_717: 1452232027
-      64x64_718: -663802412
       64x64_719: -733909933
       64x64_72: 314161810
-      64x64_720: 2122928354
       64x64_721: -1634470224
       64x64_722: -859381869
       64x64_723: -1200904109
@@ -48085,7 +48081,6 @@ TextureImporter:
       64x64_85: -1263457494
       64x64_850: -164759111
       64x64_851: 1764737435
-      64x64_852: -425927293
       64x64_853: 1671330927
       64x64_854: 836448609
       64x64_855: -1512616323
@@ -48134,9 +48129,7 @@ TextureImporter:
       64x64_894: 1503369376
       64x64_895: 1251862303
       64x64_896: 40534724
-      64x64_897: -1013665191
       64x64_898: 1780271224
-      64x64_899: 1313367321
       64x64_9: 1229158287
       64x64_90: -1465912890
       64x64_900: -89172159
@@ -48151,7 +48144,6 @@ TextureImporter:
       64x64_909: -1694778095
       64x64_91: -1867648628
       64x64_910: -2137453146
-      64x64_911: -172674873
       64x64_912: -1225321529
       64x64_913: 1076166557
       64x64_914: 1719957689
@@ -48246,14 +48238,20 @@ TextureImporter:
       64x64_997: -1325765954
       64x64_998: -448903090
       64x64_999: -1640345144
+      Aggressive: 2122928354
       Army: -1300717648
       Bakery: 2014379013
       Barrack: 1120186946
       Berry: 930584566
+      Borders: -640690664
       Bread: 1246227248
+      Build: -1013665191
       Coal: -318659269
       CookedMeat: 1826642663
       Defense Tower: -1373869794
+      Defensive: -425927293
+      Demolish: 1313367321
+      Demolish2: -172674873
       Farm: -1246915534
       Flour: 1376993505
       Forge: -1083541393
@@ -48268,6 +48266,7 @@ TextureImporter:
       GoldSpear: 449913465
       GoldSword: -2049968349
       Heart: -1510168959
+      Hold: -663802412
       House: -587968393
       IronArmor: 296770075
       IronAxe: -1613638215
@@ -48278,6 +48277,7 @@ TextureImporter:
       IronPickaxe: -1033748986
       IronSpear: 908904290
       IronSword: -70666053
+      King: -830985619
       Legitim: 361977344
       Mill: -31422473
       MithrilArmor: 1850641570

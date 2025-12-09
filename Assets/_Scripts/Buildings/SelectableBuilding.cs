@@ -25,8 +25,7 @@ namespace WarOfCrowns.Buildings
             // Ћогика —клада (без изменений)
             if (opensGlobalWarehouse)
             {
-                if (_mainUI != null) _mainUI.ToggleWarehousePanel();
-                else Debug.LogError("SelectableBuilding: MainUIController не найден!");
+                if (_mainUI != null) _mainUI.OpenWarehousePanel(); // я¬Ќќ ќ“ –џ¬ј≈ћ
                 return;
             }
 
@@ -52,8 +51,7 @@ namespace WarOfCrowns.Buildings
         {
             if (opensGlobalWarehouse)
             {
-                // ƒл€ склада можно оставить toggle-логику или принудительно закрывать
-                if (_mainUI != null) _mainUI.ToggleWarehousePanel();
+                if (_mainUI != null) _mainUI.CloseWarehousePanel(); // я¬Ќќ «ј –џ¬ј≈ћ
                 return;
             }
 

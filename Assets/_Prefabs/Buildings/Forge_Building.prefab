@@ -1,5 +1,120 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &857100966517570332
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8833739042354653126}
+  - component: {fileID: 4146837855117651896}
+  m_Layer: 12
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8833739042354653126
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 857100966517570332}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.135, y: 0.09900001, z: 0}
+  m_LocalScale: {x: 1.7, y: 1.7, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 869411662337474391}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &4146837855117651896
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 857100966517570332}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 2113555077
+  m_SortingLayer: 6
+  m_SortingOrder: 2
+  m_Sprite: {fileID: 21300000, guid: 7271b22999d7f8440b7540c31747bf2f, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.72, y: 0.72}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 1
+--- !u!1 &861754151738846107
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8852359438732800884}
+  m_Layer: 0
+  m_Name: EntrancePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8852359438732800884
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 861754151738846107}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.084, y: 0.001, z: -0.027378961}
+  m_LocalScale: {x: 0.125, y: 0.125, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 869411662337474391}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2434328671253964222
 GameObject:
   m_ObjectHideFlags: 0
@@ -12,9 +127,10 @@ GameObject:
   - component: {fileID: 4151563240030755340}
   - component: {fileID: 8300551379470664769}
   - component: {fileID: 1186468095685022225}
+  - component: {fileID: -4999706662112565723}
   - component: {fileID: 7201662863162785091}
   - component: {fileID: 2463249386891971070}
-  - component: {fileID: -4999706662112565723}
+  - component: {fileID: 1983060261534752041}
   m_Layer: 12
   m_Name: Forge_Building
   m_TagString: Untagged
@@ -30,10 +146,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2434328671253964222}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.4052286, y: 1.2486959, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 8, y: 8, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5645567005050966555}
+  - {fileID: 8833739042354653126}
+  - {fileID: 8852359438732800884}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -76,10 +195,10 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 2113555077
-  m_SortingLayer: 5
+  m_SortingLayer: 6
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.3056603, g: 0.3056603, b: 0.3056603, a: 1}
+  m_Sprite: {fileID: 7482667652216324306, guid: 5890b507be7f15b4a942f7764936eeaf, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -88,7 +207,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!61 &8300551379470664769
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -102,10 +221,10 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: -0.14842433, y: 0.18886243}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.5, y: 0}
     oldSize: {x: 1, y: 1}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
@@ -113,7 +232,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.0842406, y: 0.38315454}
   m_EdgeRadius: 0
 --- !u!114 &1186468095685022225
 MonoBehaviour:
@@ -129,6 +248,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   opensGlobalWarehouse: 0
   selectionUIPrefab: {fileID: 2704045339344885733, guid: 1f214207667d3224cb0e3f354bc88d52, type: 3}
+--- !u!114 &-4999706662112565723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2434328671253964222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 928250954
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!114 &7201662863162785091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,10 +284,16 @@ MonoBehaviour:
   buildingName: Forge
   buildingIcon: {fileID: 0}
   description: 
-  costs: []
+  costs:
+  - resourceType: 0
+    amount: 50
   populationBonus: 0
+  entrancePoint: {fileID: 8852359438732800884}
+  ownerKingdomID:
+    m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
+  roofRenderer: {fileID: 4146837855117651896}
 --- !u!114 &2463249386891971070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,6 +311,8 @@ MonoBehaviour:
     outputItem: 49
     outputAmount: 1
     craftTime: 10
+    icon: {fileID: -70666053, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
     inputs:
     - resourceType: 16
       amount: 2
@@ -174,6 +322,8 @@ MonoBehaviour:
     outputItem: 51
     outputAmount: 1
     craftTime: 10
+    icon: {fileID: -2049968349, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
     inputs:
     - resourceType: 17
       amount: 1
@@ -183,10 +333,436 @@ MonoBehaviour:
     outputItem: 61
     outputAmount: 1
     craftTime: 10
+    icon: {fileID: -540560126, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 1
     inputs:
     - resourceType: 0
       amount: 10
---- !u!114 &-4999706662112565723
+  - recipeName: Wooden Sword
+    outputItem: 47
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -2119004919, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
+    inputs:
+    - resourceType: 0
+      amount: 10
+  - recipeName: Stone Sword
+    outputItem: 48
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -334130915, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
+    inputs:
+    - resourceType: 1
+      amount: 10
+  - recipeName: Steel Sword
+    outputItem: 48
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -707360121, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
+    inputs:
+    - resourceType: 18
+      amount: 2
+    - resourceType: 12
+      amount: 1
+  - recipeName: Mithril Sword
+    outputItem: 52
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1150255909, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
+    inputs:
+    - resourceType: 19
+      amount: 2
+    - resourceType: 12
+      amount: 1
+  - recipeName: Obsidian Sword
+    outputItem: 52
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 311085004, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 0
+    inputs:
+    - resourceType: 20
+      amount: 3
+    - resourceType: 18
+      amount: 2
+  - recipeName: Iron Bow
+    outputItem: 62
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 31782384, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 1
+    inputs:
+    - resourceType: 16
+      amount: 3
+  - recipeName: Steel Bow
+    outputItem: 63
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 303657737, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 1
+    inputs:
+    - resourceType: 18
+      amount: 3
+  - recipeName: Gold Bow
+    outputItem: 64
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 320518372, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 1
+    inputs:
+    - resourceType: 17
+      amount: 3
+  - recipeName: Mithril Bow
+    outputItem: 65
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1276740683, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 1
+    inputs:
+    - resourceType: 19
+      amount: 3
+  - recipeName: Wooden Spear
+    outputItem: 54
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 2007784005, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 0
+      amount: 2
+  - recipeName: Stone Spear
+    outputItem: 55
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1186349001, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 1
+      amount: 2
+  - recipeName: Iron Spear
+    outputItem: 56
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 908904290, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 16
+      amount: 2
+  - recipeName: Steel Spear
+    outputItem: 57
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1285355313, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 18
+      amount: 2
+  - recipeName: Gold Spear
+    outputItem: 58
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 449913465, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 17
+      amount: 2
+  - recipeName: Mithril Spear
+    outputItem: 59
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 452510540, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 19
+      amount: 2
+  - recipeName: Obsidian Spear
+    outputItem: 60
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1204016110, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 2
+    inputs:
+    - resourceType: 20
+      amount: 2
+    - resourceType: 16
+      amount: 2
+  - recipeName: Iron Armor
+    outputItem: 21
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 296770075, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 6
+    inputs:
+    - resourceType: 16
+      amount: 20
+  - recipeName: Steel Armor
+    outputItem: 22
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 2032001553, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 6
+    inputs:
+    - resourceType: 18
+      amount: 20
+  - recipeName: Gold Armor
+    outputItem: 23
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1232353200, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 6
+    inputs:
+    - resourceType: 17
+      amount: 20
+  - recipeName: Mithril Armor
+    outputItem: 24
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1850641570, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 6
+    inputs:
+    - resourceType: 19
+      amount: 20
+  - recipeName: Obsidian Armor
+    outputItem: 25
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -685099939, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 6
+    inputs:
+    - resourceType: 20
+      amount: 20
+    - resourceType: 16
+      amount: 10
+  - recipeName: Wooden Pickaxe
+    outputItem: 26
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1172162186, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 0
+      amount: 4
+  - recipeName: Stone Pickaxe
+    outputItem: 27
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1716955223, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 1
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Iron Pickaxe
+    outputItem: 28
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1423464204, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 16
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Steel Pickaxe
+    outputItem: 29
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -691609406, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 18
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Gold Pickaxe
+    outputItem: 30
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1597315230, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 17
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Mithril Pickaxe
+    outputItem: 31
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1684852604, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 19
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Obsidian Pickaxe
+    outputItem: 32
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1635406222, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 3
+    inputs:
+    - resourceType: 20
+      amount: 3
+    - resourceType: 16
+      amount: 2
+  - recipeName: Wooden Axe
+    outputItem: 33
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 2001578152, guid: cd0755f6a7f77a44685441a49960fce1, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 0
+      amount: 4
+  - recipeName: Stone Axe
+    outputItem: 34
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1252473942, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 1
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Iron Axe
+    outputItem: 35
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1613638215, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 16
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Steel Axe
+    outputItem: 36
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -931648831, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 18
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Gold Axe
+    outputItem: 37
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1748031167, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 17
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Mithril Axe
+    outputItem: 38
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 751597660, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 19
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Obsidian Axe
+    outputItem: 39
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -64560005, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 4
+    inputs:
+    - resourceType: 20
+      amount: 3
+    - resourceType: 0
+      amount: 1
+  - recipeName: Wooden Hammer
+    outputItem: 40
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1341746427, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 0
+      amount: 5
+  - recipeName: Stone Hammer
+    outputItem: 41
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -1520509625, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 1
+      amount: 4
+    - resourceType: 0
+      amount: 1
+  - recipeName: Steel Hammer
+    outputItem: 43
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -296786141, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 43
+      amount: 4
+    - resourceType: 0
+      amount: 1
+  - recipeName: Iron Hammer
+    outputItem: 42
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 129497914, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 42
+      amount: 4
+    - resourceType: 0
+      amount: 1
+  - recipeName: Gold Hammer
+    outputItem: 44
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: -2014663129, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 44
+      amount: 4
+    - resourceType: 0
+      amount: 1
+  - recipeName: Mithril Hammer
+    outputItem: 45
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 1811099176, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 45
+      amount: 4
+    - resourceType: 0
+      amount: 1
+  - recipeName: Obsidian Hammer
+    outputItem: 46
+    outputAmount: 1
+    craftTime: 10
+    icon: {fileID: 527198223, guid: 5cfd0ff869e669f498e1dcae95091d21, type: 3}
+    category: 5
+    inputs:
+    - resourceType: 46
+      amount: 4
+    - resourceType: 16
+      amount: 2
+--- !u!114 &1983060261534752041
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -195,15 +771,93 @@ MonoBehaviour:
   m_GameObject: {fileID: 2434328671253964222}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Script: {fileID: 11500000, guid: 021ebe6fa198cdb4b8f73f4464c2404a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
+  maxHealth: 300
+  currentHealth:
+    m_InternalValue: 100
+--- !u!1 &9080674257282529194
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5645567005050966555}
+  - component: {fileID: 2009348220560343629}
+  m_Layer: 12
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5645567005050966555
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9080674257282529194}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.135, y: 0.099, z: 0}
+  m_LocalScale: {x: 1.7, y: 1.7, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 869411662337474391}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &2009348220560343629
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9080674257282529194}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 2113555077
+  m_SortingLayer: 6
+  m_SortingOrder: 0
+  m_Sprite: {fileID: 21300000, guid: 4731800ff4b4ea04199a4fbd5cc556b4, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.72, y: 0.72}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 1

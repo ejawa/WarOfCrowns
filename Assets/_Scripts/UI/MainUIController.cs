@@ -5,30 +5,55 @@ using UnityEngine.UI;
 using TMPro;
 using WarOfCrowns.Core;
 using WarOfCrowns.Buildings;
-using WarOfCrowns.Units; // <-- ВАЖНО: Добавили это
-using System.Text;
+using WarOfCrowns.Units;
 using System;
+
+// Указываем, какой Unit мы используем
+using Unit = WarOfCrowns.Units.Unit;
+using System.Text;
 
 namespace WarOfCrowns.UI
 {
-    [System.Serializable]
+    [Serializable]
     public class IconMapping
     {
         public ResourceType resourceType;
         public Sprite icon;
     }
 
+    [Serializable]
+    public class UIBottomTab
+    {
+        public string name;
+        public Button tabButton;
+        public GameObject panelObject;
+    }
+
     public class MainUIController : MonoBehaviour
     {
-        #region Inspector Fields
+        public static MainUIController Instance { get; private set; }
+
         [Header("Главное")]
         private Kingdom _playerKingdom;
         [SerializeField] private List<ResourceType> allFoodTypesInGame;
+        [SerializeField] private BorderVisualizer borderVisualizer;
 
-        // --- ВОТ ЭТО БЫЛО ПРОПУЩЕНО ---
-        [Header("Инфо-Панель Юнита")]
+        [Header("Вкладки (Нижняя панель)")]
+        [SerializeField] private List<UIBottomTab> bottomTabs;
+        [SerializeField] private Color activeTabColor = Color.white;
+        [SerializeField] private Color inactiveTabColor = Color.gray;
+
+        [Header("Кнопки Действий")]
+        [SerializeField] private Button infoToolButton;
+        [SerializeField] private Button actionBarDemolishButton;
+        [SerializeField] private Button actionBarBordersButton;
+        [SerializeField] private Button toggleIconsButton;
+        [SerializeField] private Button diplomacyButton;
+
+        [Header("Окна")]
+        [SerializeField] private GameObject diplomacyPanel;
         [SerializeField] private UnitInfoUI unitInfoPanel;
-        // ------------------------------
+        [SerializeField] private BuildingDetailUI buildingInfoPanel;
 
         [Header("Верхний Стат-бар")]
         [SerializeField] private GameObject topBarSlotPrefab;
@@ -42,37 +67,41 @@ namespace WarOfCrowns.UI
         [SerializeField] private GameObject warehouseSlotPrefab;
         [SerializeField] private Transform warehouseContentParent;
         [SerializeField] private Button warehouseCloseButton;
-        [SerializeField] private Button warehouseTabAllButton;
-        [SerializeField] private Button warehouseTabFoodButton;
-        [SerializeField] private Button warehouseTabMaterialsButton;
 
         [Header("Меню Строительства")]
         [SerializeField] private BuildManager buildManager;
-        [SerializeField] private GameObject buildMenuPanel;
-        [SerializeField] private Button openBuildMenuButton;
         [SerializeField] private GameObject buildSlotPrefab;
         [SerializeField] private Transform buildGridParent;
 
         [Header("База Иконок")]
         [SerializeField] private List<IconMapping> iconMappings;
-        #endregion
 
+        // Приватные
         private Dictionary<ResourceType, TextMeshProUGUI> _topBarTexts = new Dictionary<ResourceType, TextMeshProUGUI>();
         private TextMeshProUGUI _populationText;
         private TextMeshProUGUI _totalFoodText;
         private Dictionary<ResourceType, GameObject> _warehouseSlots = new Dictionary<ResourceType, GameObject>();
         private Dictionary<ResourceType, Sprite> _iconMap = new Dictionary<ResourceType, Sprite>();
         private bool _isInitialized = false;
+        private int _currentTabIndex = -1;
 
-        #region Initialization
-        IEnumerator Start()
+        private void Awake()
         {
-            while (Kingdom.PlayerKingdom == null || PopulationManager.Instance == null || buildManager == null)
+            Instance = this;
+        }
+
+        private IEnumerator Start()
+        {
+            while (Kingdom.PlayerKingdom == null || PopulationManager.Instance == null)
             {
+                if (buildManager == null) buildManager = FindObjectOfType<BuildManager>();
                 yield return null;
             }
+
             _playerKingdom = Kingdom.PlayerKingdom;
             Initialize();
+
+            InvokeRepeating(nameof(RefreshResourcesForce), 0.1f, 0.5f);
         }
 
         private void Initialize()
@@ -80,309 +109,268 @@ namespace WarOfCrowns.UI
             if (_isInitialized) return;
             _isInitialized = true;
 
-            foreach (var mapping in iconMappings) _iconMap[mapping.resourceType] = mapping.icon;
+            foreach (var mapping in iconMappings)
+                if (!_iconMap.ContainsKey(mapping.resourceType)) _iconMap.Add(mapping.resourceType, mapping.icon);
 
-            if (warehouseCloseButton != null) warehouseCloseButton.onClick.AddListener(ToggleWarehousePanel);
-            if (openBuildMenuButton != null) openBuildMenuButton.onClick.AddListener(ToggleBuildMenu);
+            // Вкладки
+            for (int i = 0; i < bottomTabs.Count; i++)
+            {
+                int index = i;
+                if (bottomTabs[i].tabButton != null)
+                {
+                    bottomTabs[i].tabButton.onClick.AddListener(() => SelectTab(index));
+                }
+                if (bottomTabs[i].panelObject) bottomTabs[i].panelObject.SetActive(false);
+            }
 
-            if (warehouseTabAllButton != null) warehouseTabAllButton.onClick.AddListener(() => FilterWarehouse("All"));
-            if (warehouseTabFoodButton != null) warehouseTabFoodButton.onClick.AddListener(() => FilterWarehouse("Food"));
-            if (warehouseTabMaterialsButton != null) warehouseTabMaterialsButton.onClick.AddListener(() => FilterWarehouse("Materials"));
+            // Кнопки
+            if (infoToolButton)
+            {
+                infoToolButton.onClick.AddListener(() => {
+                    if (InfoToolManager.Instance) InfoToolManager.Instance.ToggleInfoMode();
+                });
+            }
 
+            if (actionBarDemolishButton) actionBarDemolishButton.onClick.AddListener(() => DemolishManager.Instance.ToggleDemolishMode());
+
+            if (actionBarBordersButton)
+            {
+                actionBarBordersButton.onClick.AddListener(() => {
+                    if (borderVisualizer) borderVisualizer.ToggleVisibility();
+                });
+                if (borderVisualizer == null) borderVisualizer = FindObjectOfType<BorderVisualizer>();
+            }
+
+            if (toggleIconsButton)
+            {
+                toggleIconsButton.onClick.AddListener(() => {
+                    UnitVisuals.ShowStanceIcons = !UnitVisuals.ShowStanceIcons;
+                    foreach (var u in FindObjectsOfType<Unit>()) u.GetComponent<UnitVisuals>().UpdateStanceVisual(u.Stance);
+                });
+            }
+
+            if (diplomacyButton) diplomacyButton.onClick.AddListener(() => {
+                if (diplomacyPanel)
+                {
+                    bool active = !diplomacyPanel.activeSelf;
+                    diplomacyPanel.SetActive(active);
+                    // Дипломатия перекрывает всё
+                    if (active)
+                    {
+                        CloseAllTabs();
+                        if (unitInfoPanel) unitInfoPanel.Close();
+                    }
+                }
+            });
+
+            // Склад
+            if (warehouseCloseButton) warehouseCloseButton.onClick.AddListener(CloseWarehousePanel);
+
+            // Генерация
             CreateTopBar();
             CreateWarehouseSlots();
             GenerateBuildButtons();
 
-            if (warehousePanel != null) warehousePanel.SetActive(false);
-            if (buildMenuPanel != null) buildMenuPanel.SetActive(false);
-            // UnitInfoPanel управляет своей видимостью сама, ее скрывать не обязательно, но можно
-            if (unitInfoPanel != null) unitInfoPanel.gameObject.SetActive(false);
+            // Скрытие
+            if (warehousePanel) warehousePanel.SetActive(false);
+            if (unitInfoPanel) unitInfoPanel.gameObject.SetActive(false);
+            if (diplomacyPanel) diplomacyPanel.SetActive(false);
 
             SubscribeToEvents();
+
+            // Открываем первую вкладку по умолчанию
+            SelectTab(0);
         }
 
-        private void OnDestroy() { if (_isInitialized) UnsubscribeFromEvents(); }
+        // --- ИСПРАВЛЕННАЯ РЕАКЦИЯ НА ВЫДЕЛЕНИЕ ---
+        private void OnUnitSelectionChanged(List<Unit> selectedUnits)
+        {
+            if (selectedUnits == null || selectedUnits.Count == 0)
+            {
+                // Если сняли выделение - закрываем инфо
+                if (unitInfoPanel) unitInfoPanel.Close();
+                return;
+            }
+
+            // Если выделили юнитов:
+            if (unitInfoPanel)
+            {
+                // 1. Открываем панель юнита
+                unitInfoPanel.SetTarget(selectedUnits);
+
+                // 2. Закрываем конфликтующие окна (Здания, Дипломатия)
+                // НО НЕ ЗАКРЫВАЕМ НИЖНИЕ ВКЛАДКИ (CloseAllTabs убрано)
+                if (buildingInfoPanel) buildingInfoPanel.Close();
+                if (diplomacyPanel) diplomacyPanel.SetActive(false);
+            }
+        }
+
+        // --- УПРАВЛЕНИЕ ВКЛАДКАМИ ---
+        public void SelectTab(int index)
+        {
+            if (_currentTabIndex == index)
+            {
+                CloseAllTabs();
+                return;
+            }
+
+            _currentTabIndex = index;
+
+            for (int i = 0; i < bottomTabs.Count; i++)
+            {
+                bool isActive = (i == index);
+                var tab = bottomTabs[i];
+
+                var btnImage = tab.tabButton.GetComponent<Image>();
+                if (btnImage) btnImage.color = isActive ? activeTabColor : inactiveTabColor;
+
+                if (tab.panelObject != null)
+                {
+                    tab.panelObject.SetActive(isActive);
+                }
+            }
+        }
+
+        public void CloseAllTabs()
+        {
+            _currentTabIndex = -1;
+            foreach (var tab in bottomTabs)
+            {
+                if (tab.panelObject) tab.panelObject.SetActive(false);
+                if (tab.tabButton.GetComponent<Image>())
+                    tab.tabButton.GetComponent<Image>().color = inactiveTabColor;
+            }
+        }
+
+        // Метод, вызываемый при открытии Здания
+        public void CloseEverythingForBuildingView()
+        {
+            // Здание перекрывает юнитов, но вкладки можно оставить? 
+            // Обычно окно здания большое, лучше закрыть вкладки, чтобы не мешали.
+            // Если хочешь оставить вкладки - закомментируй CloseAllTabs()
+            CloseAllTabs();
+
+            if (unitInfoPanel) unitInfoPanel.Close();
+            if (diplomacyPanel) diplomacyPanel.SetActive(false);
+        }
+
+        // Метод, вызываемый при открытии Юнита (через Лупу или Выделение)
+        public void CloseEverythingForUnitView()
+        {
+            // При открытии юнита МЫ НЕ ЗАКРЫВАЕМ ВКЛАДКИ
+            // CloseAllTabs(); <--- УБРАНО
+
+            if (buildingInfoPanel) buildingInfoPanel.Close();
+            if (diplomacyPanel) diplomacyPanel.SetActive(false);
+        }
+
+        // --- СКЛАД И РЕСУРСЫ (Без изменений) ---
+        public void OpenWarehousePanel()
+        {
+            if (warehousePanel)
+            {
+                CloseAllTabs(); // Склад обычно большой, закрываем вкладки
+                warehousePanel.SetActive(true);
+                RefreshResourcesForce();
+            }
+        }
+
+        public void CloseWarehousePanel() { if (warehousePanel) warehousePanel.SetActive(false); }
+        public void ToggleWarehousePanel() { if (warehousePanel.activeSelf) CloseWarehousePanel(); else OpenWarehousePanel(); }
+
+        public void RefreshResourcesForce()
+        {
+            if (_playerKingdom == null) return;
+            foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
+            {
+                int amount = _playerKingdom.GetResourceAmount(type);
+                if (_topBarTexts.ContainsKey(type)) _topBarTexts[type].text = amount.ToString();
+                UpdateWarehouseSlot(type, amount);
+            }
+            UpdatePopulationUI();
+            UpdateTotalFoodDisplay();
+        }
 
         private void SubscribeToEvents()
         {
-            if (_playerKingdom != null) _playerKingdom.OnResourceChanged += UpdateResourceUI;
             if (PopulationManager.Instance != null) PopulationManager.OnPopulationChanged += UpdatePopulationUI;
-
-            // --- ВАЖНО: ПОДПИСКА НА ВЫДЕЛЕНИЕ ---
             UnitSelectionController.OnSelectionChanged += OnUnitSelectionChanged;
-            // ------------------------------------
         }
 
-        private void UnsubscribeFromEvents()
+        private void OnDestroy()
         {
-            if (_playerKingdom != null) _playerKingdom.OnResourceChanged -= UpdateResourceUI;
             if (PopulationManager.Instance != null) PopulationManager.OnPopulationChanged -= UpdatePopulationUI;
-
             UnitSelectionController.OnSelectionChanged -= OnUnitSelectionChanged;
-        }
-        #endregion
-
-        // --- ОБРАБОТЧИК ВЫДЕЛЕНИЯ ---
-        private void OnUnitSelectionChanged(List<Unit> selectedUnits)
-        {
-            if (unitInfoPanel != null)
-            {
-                unitInfoPanel.SetTarget(selectedUnits);
-            }
-        }
-        // ----------------------------
-
-        #region UI Panel Logic
-        // 1. ЗАМЕНИ ЭТОТ МЕТОД
-        public void ToggleWarehousePanel()
-        {
-            if (warehousePanel == null) return;
-
-            bool isActive = !warehousePanel.activeSelf;
-            warehousePanel.SetActive(isActive);
-
-            // --- ИСПРАВЛЕНИЕ: Принудительное обновление при открытии ---
-            if (isActive)
-            {
-                RefreshWarehouseUI();
-            }
+            CancelInvoke(nameof(RefreshResourcesForce));
         }
 
-        // 2. ДОБАВЬ ЭТОТ МЕТОД (если его нет)
-        private void RefreshWarehouseUI()
-        {
-            // Берем наше локальное королевство
-            Kingdom myKingdom = Kingdom.PlayerKingdom;
-            if (myKingdom == null) return;
+        // --- ГЕНЕРАЦИЯ UI ---
+        private void UpdatePopulationUI() { if (_populationText && PopulationManager.Instance) _populationText.text = $"{PopulationManager.Instance.CurrentPopulation}/{PopulationManager.Instance.PopulationCap}"; }
+        private void UpdateTotalFoodDisplay() { if (_playerKingdom == null || _totalFoodText == null) return; int total = 0; foreach (var food in allFoodTypesInGame) total += _playerKingdom.GetResourceAmount(food); _totalFoodText.text = total.ToString(); }
 
-            // Проходимся по ВСЕМ возможным типам ресурсов
-            foreach (ResourceType type in System.Enum.GetValues(typeof(ResourceType)))
-            {
-                int currentAmount = myKingdom.GetResourceAmount(type);
-                // Вызываем стандартный метод обновления слота
-                UpdateWarehouseSlot(type, currentAmount);
-            }
-        }
-        public void ToggleBuildMenu()
-        {
-            if (buildMenuPanel != null) buildMenuPanel.SetActive(!buildMenuPanel.activeSelf);
-        }
-        #endregion
-
-        #region Updates
-        private void UpdateResourceUI(ResourceType type, int amount)
-        {
-            if (_topBarTexts.ContainsKey(type)) _topBarTexts[type].text = amount.ToString();
-            bool isFood = false;
-            foreach (var food in allFoodTypesInGame) { if (food == type) { isFood = true; break; } }
-            if (isFood) UpdateTotalFoodDisplay();
-            if (warehousePanel != null && warehousePanel.activeSelf) UpdateWarehouseSlot(type, amount);
-        }
-
-        private void UpdatePopulationUI()
-        {
-            if (_populationText != null && PopulationManager.Instance != null)
-                _populationText.text = $"{PopulationManager.Instance.CurrentPopulation}/{PopulationManager.Instance.PopulationCap}";
-        }
-
-        private void UpdateTotalFoodDisplay()
-        {
-            int total = 0;
-            if (_playerKingdom != null) { foreach (var food in allFoodTypesInGame) total += _playerKingdom.GetResourceAmount(food); }
-            if (_totalFoodText != null) _totalFoodText.text = total.ToString();
-        }
-        #endregion
-
-        #region Drawing (Warehouse & TopBar & Build)
         private void CreateTopBar()
-        { /* ... код без изменений, скопируй из прошлого или оставь как есть, если ты не менял структуру ... */
-            foreach (var resourceType in topBarResources)
-            {
-                GameObject newSlot = Instantiate(topBarSlotPrefab, topBarParent);
-                newSlot.transform.localScale = Vector3.one;
-                Image icon = newSlot.transform.Find("Icon").GetComponent<Image>();
-                if (_iconMap.ContainsKey(resourceType)) icon.sprite = _iconMap[resourceType];
-                TextMeshProUGUI text = newSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
-                text.text = _playerKingdom.GetResourceAmount(resourceType).ToString();
-                _topBarTexts[resourceType] = text;
-            }
-            GameObject foodSlot = Instantiate(topBarSlotPrefab, topBarParent);
-            foodSlot.transform.localScale = Vector3.one;
-            foodSlot.transform.Find("Icon").GetComponent<Image>().sprite = totalFoodIcon;
-            _totalFoodText = foodSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
-            UpdateTotalFoodDisplay();
-            GameObject popSlot = Instantiate(topBarSlotPrefab, topBarParent);
-            popSlot.transform.localScale = Vector3.one;
-            popSlot.transform.Find("Icon").GetComponent<Image>().sprite = populationIcon;
-            _populationText = popSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>();
-            UpdatePopulationUI();
+        {
+            foreach (var res in topBarResources) { var slot = Instantiate(topBarSlotPrefab, topBarParent); slot.transform.localScale = Vector3.one; if (_iconMap.ContainsKey(res)) slot.transform.Find("Icon").GetComponent<Image>().sprite = _iconMap[res]; var txt = slot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>(); txt.text = "0"; _topBarTexts[res] = txt; }
+            var foodSlot = Instantiate(topBarSlotPrefab, topBarParent); foodSlot.transform.localScale = Vector3.one; foodSlot.transform.Find("Icon").GetComponent<Image>().sprite = totalFoodIcon; _totalFoodText = foodSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>(); _totalFoodText.text = "0";
+            var popSlot = Instantiate(topBarSlotPrefab, topBarParent); popSlot.transform.localScale = Vector3.one; popSlot.transform.Find("Icon").GetComponent<Image>().sprite = populationIcon; _populationText = popSlot.transform.Find("Value_Text").GetComponent<TextMeshProUGUI>(); _populationText.text = "0/0";
         }
 
         private void CreateWarehouseSlots()
         {
-            if (warehouseSlotPrefab == null || warehouseContentParent == null) return;
-
-            // Очистка
+            if (!warehouseSlotPrefab || !warehouseContentParent) return;
             foreach (Transform child in warehouseContentParent) Destroy(child.gameObject);
             _warehouseSlots.Clear();
-
-            // Проходим по ВСЕМ ресурсам
             foreach (ResourceType type in Enum.GetValues(typeof(ResourceType)))
             {
-                // --- ФИЛЬТРЫ ---
-
-                // 1. Проверяем, гражданский ли это предмет
                 if (!IsCivilianItem(type)) continue;
-
-                // 2. Проверяем количество (скрываем нули)
-                int amount = _playerKingdom.GetResourceAmount(type);
-                if (amount <= 0) continue;
-
-                // ----------------
-
-                // --- СОЗДАНИЕ И НАСТРОЙКА (Твой "большой" код) ---
-
-                GameObject newSlot = Instantiate(warehouseSlotPrefab, warehouseContentParent);
-                newSlot.name = $"Slot_{type}";
-
-                // Сброс масштаба
-                newSlot.transform.localScale = Vector3.one;
-                newSlot.transform.localPosition = Vector3.zero;
-
-                // Иконка
-                Transform iconTr = newSlot.transform.Find("Icon");
-                if (iconTr != null)
-                {
-                    if (_iconMap.ContainsKey(type))
-                    {
-                        Image img = iconTr.GetComponent<Image>();
-                        img.sprite = _iconMap[type];
-                        img.color = Color.white; // Делаем видимым
-                    }
-                    else
-                    {
-                        iconTr.GetComponent<Image>().color = Color.red; // Красим в красный если нет иконки
-                    }
-                }
-
-                // Имя
-                Transform nameTr = newSlot.transform.Find("ItemName_Text");
-                if (nameTr != null) nameTr.GetComponent<TextMeshProUGUI>().text = type.ToString();
-
-                // Количество
-                Transform amountTr = newSlot.transform.Find("Amount_Text");
-                if (amountTr != null)
-                {
-                    amountTr.GetComponent<TextMeshProUGUI>().text = amount.ToString();
-                }
-
-                // Сохраняем в словарь
-                _warehouseSlots[type] = newSlot;
-            }
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate(warehouseContentParent.GetComponent<RectTransform>());
-        }
-        private bool IsCivilianItem(ResourceType type)
-        {
-            string name = type.ToString();
-            // Если это оружие или броня - скрываем
-            if (name.Contains("Sword") || name.Contains("Spear") || name.Contains("Bow") || name.Contains("Armor"))
-                return false;
-
-            // Инструменты ты просил оставить
-            // if (name.Contains("Pickaxe") || name.Contains("Axe")) return false; // Раскомментируй, если хочешь скрыть и их
-
-            // Еду (Сытость) тоже скрываем, она в топ-баре
-            if (type == ResourceType.Food) return false;
-
-            return true;
-        }
-        private void GenerateBuildButtons()
-        {
-            if (buildManager == null) return;
-            foreach (Transform child in buildGridParent) Destroy(child.gameObject);
-            foreach (var foundationPrefab in buildManager.buildableFoundations)
-            {
-                if (foundationPrefab == null) continue;
-                GameObject newSlot = Instantiate(buildSlotPrefab, buildGridParent);
-                newSlot.transform.localScale = Vector3.one;
-                Building buildableData = foundationPrefab.GetComponent<Building>();
-                if (buildableData == null) { newSlot.SetActive(false); continue; }
-                newSlot.transform.Find("Icon").GetComponent<Image>().sprite = buildableData.buildingIcon;
-                newSlot.transform.Find("Name_Text").GetComponent<TextMeshProUGUI>().text = buildableData.buildingName;
-                StringBuilder costText = new StringBuilder();
-                foreach (var cost in buildableData.costs) costText.Append($"{cost.resourceType}: {cost.amount} ");
-                newSlot.transform.Find("Cost_Text").GetComponent<TextMeshProUGUI>().text = costText.ToString();
-                if (newSlot.transform.Find("Description_Text") != null) newSlot.transform.Find("Description_Text").GetComponent<TextMeshProUGUI>().text = buildableData.description;
-                Button button = newSlot.GetComponent<Button>();
-                button.onClick.AddListener(() => {
-                    buildManager.EnterBuildMode(foundationPrefab);
-                    if (buildMenuPanel != null) buildMenuPanel.SetActive(false);
-                });
+                var slot = Instantiate(warehouseSlotPrefab, warehouseContentParent);
+                slot.name = $"Slot_{type}";
+                slot.transform.localScale = Vector3.one;
+                var icon = slot.transform.Find("Icon");
+                if (icon && _iconMap.ContainsKey(type)) icon.GetComponent<Image>().sprite = _iconMap[type];
+                if (slot.transform.Find("ItemName_Text")) slot.transform.Find("ItemName_Text").GetComponent<TextMeshProUGUI>().text = type.ToString();
+                slot.transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = "0";
+                slot.SetActive(false);
+                _warehouseSlots[type] = slot;
             }
         }
 
         private void UpdateWarehouseSlot(ResourceType type, int amount)
         {
-            // Фильтр
-            if (!IsCivilianItem(type)) return;
-
-            // Вариант 1: Плашка уже есть -> Обновляем или удаляем
-            if (_warehouseSlots.ContainsKey(type))
-            {
-                if (amount > 0)
-                {
-                    // Обновляем текст
-                    _warehouseSlots[type].transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = amount.ToString();
-                }
-                else
-                {
-                    // Стало 0 -> Удаляем
-                    Destroy(_warehouseSlots[type]);
-                    _warehouseSlots.Remove(type);
-                }
-            }
-            // Вариант 2: Плашки нет, но ресурс появился (> 0) -> Создаем новую
-            else if (amount > 0)
-            {
-                GameObject newSlot = Instantiate(warehouseSlotPrefab, warehouseContentParent);
-                newSlot.name = $"Slot_{type}";
-                newSlot.transform.localScale = Vector3.one;
-                newSlot.transform.localPosition = Vector3.zero;
-
-                // Настройка Иконки
-                Transform iconTr = newSlot.transform.Find("Icon");
-                if (iconTr != null && _iconMap.ContainsKey(type))
-                {
-                    iconTr.GetComponent<Image>().sprite = _iconMap[type];
-                    iconTr.GetComponent<Image>().color = Color.white;
-                }
-
-                // Настройка Текста
-                if (newSlot.transform.Find("ItemName_Text") != null)
-                    newSlot.transform.Find("ItemName_Text").GetComponent<TextMeshProUGUI>().text = type.ToString();
-
-                newSlot.transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = amount.ToString();
-
-                _warehouseSlots[type] = newSlot;
-            }
+            if (!_warehouseSlots.ContainsKey(type)) return;
+            GameObject slot = _warehouseSlots[type];
+            if (amount > 0) { slot.SetActive(true); slot.transform.Find("Amount_Text").GetComponent<TextMeshProUGUI>().text = amount.ToString(); }
+            else { slot.SetActive(false); }
         }
 
-        private void FilterWarehouse(string category)
+        private void GenerateBuildButtons()
         {
-            foreach (var slotPair in _warehouseSlots)
+            if (!buildManager || !buildGridParent || !buildSlotPrefab) return;
+            foreach (Transform child in buildGridParent) Destroy(child.gameObject);
+            foreach (var foundation in buildManager.buildableFoundations)
             {
-                ResourceType type = slotPair.Key;
-                GameObject slotObject = slotPair.Value;
-                bool isFoodType = false;
-                foreach (var food in allFoodTypesInGame) { if (food == type) { isFoodType = true; break; } }
-                bool shouldBeActive = false;
-                if (category == "All") shouldBeActive = true;
-                else if (category == "Food" && isFoodType) shouldBeActive = true;
-                else if (category == "Materials" && !isFoodType && type != ResourceType.Food) shouldBeActive = true;
-                slotObject.SetActive(shouldBeActive);
+                if (!foundation) continue;
+                var bData = foundation.GetComponent<Building>();
+                if (!bData) continue;
+                var slot = Instantiate(buildSlotPrefab, buildGridParent);
+                slot.transform.localScale = Vector3.one;
+                slot.transform.Find("Icon").GetComponent<Image>().sprite = bData.buildingIcon;
+                slot.transform.Find("Name_Text").GetComponent<TextMeshProUGUI>().text = bData.buildingName;
+                StringBuilder costText = new StringBuilder();
+                foreach (var c in bData.costs) costText.Append($"{c.resourceType}: {c.amount}  ");
+                slot.transform.Find("Cost_Text").GetComponent<TextMeshProUGUI>().text = costText.ToString();
+                slot.GetComponent<Button>().onClick.AddListener(() => {
+                    buildManager.EnterBuildMode(foundation);
+                });
             }
         }
-        #endregion
+
+        private bool IsCivilianItem(ResourceType type)
+        {
+            string n = type.ToString();
+            if (type == ResourceType.Food) return false;
+            if (n.Contains("Sword") || n.Contains("Spear") || n.Contains("Bow") || n.Contains("Armor")) return false;
+            return true;
+        }
     }
 }

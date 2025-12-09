@@ -8,6 +8,7 @@ using WarOfCrowns.Units;
 using WarOfCrowns.World;
 using WarOfCrowns.Data;
 using System.Linq;
+using WarOfCrowns.UI;
 
 namespace WarOfCrowns.Core
 {
@@ -181,7 +182,7 @@ namespace WarOfCrowns.Core
             {
                 // Не удаляем сам NetworkManager и системные объекты
                 if (netObj.GetComponent<NetworkManager>() != null) continue;
-                if (netObj.GetComponent<LobbyController>() != null) continue;
+                if (netObj.GetComponent<ConnectionUI>() != null) continue;
                 if (netObj.GetComponent<BuildManager>() != null) continue;
 
                 if (netObj.IsSpawned) netObj.Despawn();

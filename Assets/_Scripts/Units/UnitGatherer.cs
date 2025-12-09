@@ -2,23 +2,22 @@ using System.Collections;
 using UnityEngine;
 using WarOfCrowns.Core;
 using WarOfCrowns.World;
-
+using WarOfCrowns.Buildings;
+using Unity.Netcode;
+using Unit = WarOfCrowns.Units.Unit;
 namespace WarOfCrowns.Units
 {
     [RequireComponent(typeof(UnitMotor), typeof(Unit))]
-    public class UnitGatherer : MonoBehaviour
+    public class UnitGatherer : NetworkBehaviour
     {
         private Unit _unit;
         private UnitMotor _motor;
-        private UnitVisuals _visuals; // Ссылка на визуал
+        private UnitVisuals _visuals;
         private ResourceNode _currentTarget;
         private Coroutine _gatherCoroutine;
 
-        [SerializeField] private float gatherDistance = 0.5f; // Дистанция от края коллайдера
+        [SerializeField] private float gatherDistance = 1.2f;
         [SerializeField] private float gatherRate = 1f;
-
-        // Свойство для сохранения
-        public ResourceNode CurrentTarget => _currentTarget;
 
         private void Awake()
         {
@@ -29,8 +28,40 @@ namespace WarOfCrowns.Units
 
         public void SetTarget(ResourceNode resourceNode)
         {
+            if (!IsServer)
+            {
+                SetTargetServerRpc(resourceNode.transform.position);
+                return;
+            }
+            StartGatheringLogic(resourceNode);
+        }
+
+        [ServerRpc]
+        private void SetTargetServerRpc(Vector3 resourcePos)
+        {
+            Collider2D[] hits = Physics2D.OverlapCircleAll(resourcePos, 2.0f);
+            ResourceNode targetNode = null;
+            float minDst = float.MaxValue;
+
+            foreach (var hit in hits)
+            {
+                ResourceNode node = hit.GetComponent<ResourceNode>();
+                if (node == null) node = hit.GetComponentInParent<ResourceNode>();
+
+                if (node != null)
+                {
+                    float d = Vector3.Distance(resourcePos, node.transform.position);
+                    if (d < minDst) { minDst = d; targetNode = node; }
+                }
+            }
+
+            if (targetNode != null) StartGatheringLogic(targetNode);
+        }
+
+        private void StartGatheringLogic(ResourceNode node)
+        {
             StopGathering();
-            _currentTarget = resourceNode;
+            _currentTarget = node;
             _gatherCoroutine = StartCoroutine(GatherRoutine());
         }
 
@@ -43,71 +74,69 @@ namespace WarOfCrowns.Units
 
         private IEnumerator GatherRoutine()
         {
-            if (_currentTarget == null || _unit.OwningKingdom == null) yield break;
+            if (_currentTarget == null) yield break;
 
-            // Получаем коллайдер ресурса
             Collider2D targetCollider = _currentTarget.GetComponent<Collider2D>();
 
-            // --- 1. ДВИЖЕНИЕ К КРАЮ РЕСУРСА ---
+            // 1. Движение
             while (true)
             {
                 if (_currentTarget == null) yield break;
 
-                Vector3 targetPoint;
-                if (targetCollider != null)
-                {
-                    // Идем к ближайшей точке на краю коллайдера
-                    targetPoint = targetCollider.ClosestPoint(transform.position);
-                }
-                else
-                {
-                    // Если коллайдера нет (редкость), идем в центр
-                    targetPoint = _currentTarget.transform.position;
-                }
+                Vector3 targetPoint = targetCollider
+                    ? targetCollider.ClosestPoint(transform.position)
+                    : _currentTarget.transform.position;
 
-                // Проверяем дистанцию
-                float distance = Vector3.Distance(transform.position, targetPoint);
-                if (distance <= gatherDistance)
+                if (Vector3.Distance(transform.position, targetPoint) <= gatherDistance)
                 {
-                    break; // Пришли!
+                    _motor.StopMoving();
+                    break;
                 }
-
                 _motor.MoveTo(targetPoint);
                 yield return null;
             }
 
-            _motor.MoveTo(transform.position); // Стоп
-
-            // --- 2. ПРОЦЕСС СБОРА ---
+            // 2. Добыча
             while (_currentTarget != null)
             {
-                // Поворачиваемся к ресурсу перед ударом
-                if (_visuals != null)
-                {
-                    _visuals.FaceTarget(_currentTarget.transform.position);
-                    _visuals.TriggerAttackAnimation();
-                }
+                // --- ПРОВЕРКА ДИСТАНЦИИ ---
+                Vector3 targetPoint = targetCollider
+                    ? targetCollider.ClosestPoint(transform.position)
+                    : _currentTarget.transform.position;
 
-                yield return new WaitForSeconds(gatherRate); // Замах / Время добычи
+                if (Vector3.Distance(transform.position, targetPoint) > gatherDistance + 0.5f)
+                {
+                    _currentTarget = null;
+                    yield break;
+                }
+                // ---------------------------
+
+                _unit.PlayAttackVisualsClientRpc(_currentTarget.transform.position);
+
+                float speedMult = _unit.GetToolSpeedMultiplier(_currentTarget.resourceType.ToString());
+                yield return new WaitForSeconds(gatherRate / speedMult);
 
                 if (_currentTarget == null) yield break;
 
-                // Наносим удар
-                int gatheredAmount = _currentTarget.TakeHit();
-
-                if (gatheredAmount > 0)
+                if (NetworkManager.Singleton.IsServer)
                 {
-                    ResourceType gatheredType = _currentTarget.resourceType;
+                    _unit.ReduceDurability(true, 1);
+                    int amount = _currentTarget.TakeHit();
 
-                    // Кладем на склад
-                    _unit.OwningKingdom.AddResource(gatheredType, gatheredAmount);
+                    if (amount > 0)
+                    {
+                        if (_unit.OwningKingdom == null || _unit.OwningKingdom.kingdomID.Value != _unit.ownerKingdomID.Value)
+                        {
+                            _unit.OwningKingdom = Kingdom.GetKingdomByID(_unit.ownerKingdomID.Value);
+                        }
 
-                    // Если это еда (Ягоды), FoodConverter сам это увидит через события Kingdom
-                    Debug.Log($"Gathered {gatheredAmount} {gatheredType}");
+                        if (_unit.OwningKingdom != null)
+                        {
+                            _unit.OwningKingdom.AddResource(_currentTarget.resourceType, amount);
+                        }
+                    }
                 }
             }
-
-            _currentTarget = null;
         }
     }
 }

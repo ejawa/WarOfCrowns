@@ -47,7 +47,7 @@ namespace WarOfCrowns.Buildings
             Kingdom myKingdom = null;
             foreach (var k in FindObjectsOfType<Kingdom>())
             {
-                if (k.kingdomID == buildingComp.ownerKingdomID.Value)
+                if (k.kingdomID.Value == buildingComp.ownerKingdomID.Value)
                 {
                     myKingdom = k;
                     break;

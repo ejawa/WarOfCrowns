@@ -96,7 +96,20 @@ namespace WarOfCrowns.World
             data.givenOut = this.resourcesGivenOut;
             return data;
         }
+        public bool IsReserved { get; private set; } = false;
+        public void Reserve()
+        {
+            IsReserved = true;
+        }
 
+        public void Unreserve()
+        {
+            IsReserved = false;
+        }
+        private void OnDestroy()
+        {
+            IsReserved = false;
+        }
         public void LoadFromData(ResourceNodeSaveData data)
         {
             this.uniqueID = data.uniqueID; // <-- ÇÀÃÐÓÆÀÅÌ ID

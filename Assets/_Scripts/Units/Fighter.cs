@@ -1,112 +1,153 @@
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode;
 using WarOfCrowns.Core;
+using WarOfCrowns.Data;
 
 namespace WarOfCrowns.Units
 {
-    [RequireComponent(typeof(UnitMotor))]
-    public class Fighter : MonoBehaviour
+    [RequireComponent(typeof(UnitMotor), typeof(Unit))]
+    public class Fighter : NetworkBehaviour
     {
-        [Header("Параметры")]
-        [SerializeField] private int baseDamage = 10;
-        [SerializeField] private float attackSpeed = 1.5f;
-
         [Header("Дальний бой")]
-        [SerializeField] private GameObject arrowPrefab; // Префаб стрелы
-        [SerializeField] private float rangedRange = 6.0f;
+        [SerializeField] private GameObject arrowPrefab;
+
+        [Header("Боевые параметры")]
+        [SerializeField] private float baseParryChance = 0.3f; // 30% шанс блока
 
         private UnitMotor _motor;
-        private Health _target;
-        private Coroutine _attackCoroutine;
+        private Health _targetHealth;
+        private Unit _unit;
         private UnitVisuals _visuals;
-        private Unit _unit; // Чтобы знать свое оружие
+        private UnitAI _ai;
+        private Coroutine _attackCoroutine;
+
+        public Health CurrentTarget => _targetHealth;
 
         private void Awake()
         {
             _motor = GetComponent<UnitMotor>();
             _visuals = GetComponent<UnitVisuals>();
             _unit = GetComponent<Unit>();
+            _ai = GetComponent<UnitAI>();
         }
+
+        public void SetTarget(Health target) => Attack(target);
+        public bool HasTarget() => _targetHealth != null && _targetHealth.CurrentHealth > 0;
 
         public void Attack(Health target)
         {
+            if (_targetHealth == target && _attackCoroutine != null) return;
             Cancel();
-            _target = target;
+            _targetHealth = target;
             _attackCoroutine = StartCoroutine(AttackRoutine());
         }
 
         public void Cancel()
         {
             if (_attackCoroutine != null) StopCoroutine(_attackCoroutine);
-            _target = null;
+            _attackCoroutine = null;
+            _targetHealth = null;
+            if (_motor) _motor.StopMoving();
+        }
+
+        public void TryTakeHit(int damage, Unit attacker)
+        {
+            if (!IsServer) return;
+            if (Random.value < baseParryChance)
+            {
+                ShowParryEffectClientRpc();
+                return;
+            }
+            var h = GetComponent<Health>();
+            if (h != null) h.TakeDamage(damage);
+        }
+
+        [ClientRpc]
+        private void ShowParryEffectClientRpc()
+        {
+            if (_visuals) _visuals.TriggerParryEffect();
+        }
+
+        public void PerformAttackVisuals(Vector3 targetPos)
+        {
+            if (_visuals != null)
+            {
+                _visuals.FaceTarget(targetPos);
+                _visuals.TriggerAttackAnimation();
+            }
         }
 
         private IEnumerator AttackRoutine()
         {
-            if (attackSpeed <= 0.1f) attackSpeed = 0.5f;
-            Collider2D targetCollider = _target.GetComponent<Collider2D>();
+            // Получаем коллайдер цели, чтобы не бежать в центр здания
+            Collider2D targetCollider = _targetHealth.GetComponent<Collider2D>();
 
-            while (_target != null)
+            while (_targetHealth != null && _targetHealth.CurrentHealth > 0)
             {
-                // 1. Определяем режим боя
-                bool isRanged = false;
-                float currentAttackRange = 0.5f; // Ближний бой (в упор)
-                int currentDamage = baseDamage;
+                ResourceType currentWeapon = _unit.Weapon;
+                WeaponData stats = new WeaponData { damage = 5, attackSpeed = 1.5f, range = 1f };
+                if (WorldState.Instance != null && WorldState.Instance.WeaponDB != null)
+                    stats = WorldState.Instance.WeaponDB.GetWeaponStats(currentWeapon);
 
-                if (_unit != null)
+                Vector3 myPos = transform.position;
+
+                // --- ВАЖНОЕ ИЗМЕНЕНИЕ: Куда бежать? ---
+                // Если у цели есть коллайдер (Здание), бежим к краю. Если нет - к центру.
+                Vector3 targetPoint = targetCollider != null
+                    ? (Vector3)targetCollider.ClosestPoint(myPos)
+                    : _targetHealth.transform.position;
+                // -------------------------------------
+
+                float dist = Vector3.Distance(myPos, targetPoint);
+
+                // Дистанция атаки + небольшой запас (0.1f), чтобы не дергался
+                if (dist > stats.range + 0.1f)
                 {
-                    string weaponName = _unit.currentWeapon.ToString();
-                    if (weaponName.Contains("Bow"))
+                    if (_unit.Stance == UnitStance.Hold)
                     {
-                        isRanged = true;
-                        currentAttackRange = rangedRange;
-                    }
-                    else if (weaponName.Contains("Sword") || weaponName.Contains("Spear"))
-                    {
-                        currentDamage += 10; // Бонус за оружие ближнего боя
-                    }
-                }
-
-                // 2. Движение к цели
-                Vector3 targetPoint = targetCollider != null ?
-                    targetCollider.ClosestPoint(transform.position) :
-                    _target.transform.position;
-
-                float distance = Vector3.Distance(transform.position, targetPoint);
-
-                if (distance > currentAttackRange)
-                {
-                    _motor.MoveTo(targetPoint);
-                }
-                else
-                {
-                    // 3. Атака
-                    _motor.StopMoving();
-
-                    if (_visuals != null)
-                    {
-                        _visuals.FaceTarget(_target.transform.position);
-                        _visuals.TriggerAttackAnimation();
-                    }
-
-                    if (isRanged && arrowPrefab != null)
-                    {
-                        // Выстрел
-                        GameObject arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
-                        arrow.GetComponent<Projectile>().Initialize(_target.transform.position, currentDamage);
+                        _motor.StopMoving();
+                        yield return new WaitForSeconds(0.2f);
+                        continue;
                     }
                     else
                     {
-                        // Удар
-                        _target.TakeDamage(currentDamage);
+                        // Двигаемся к точке соприкосновения
+                        _motor.MoveTo(targetPoint);
                     }
-
-                    yield return new WaitForSeconds(attackSpeed);
                 }
+                else
+                {
+                    // Мы пришли - АТАКА
+                    _motor.StopMoving();
 
+                    // Поворачиваемся к центру объекта
+                    _unit.SetFacingDirection(_targetHealth.transform.position);
+                    _unit.PlayAttackVisualsClientRpc(targetPoint); // Эффект удара в точку касания
+                    _unit.ReduceDurability(false, 1);
+
+                    if (stats.isRanged && stats.projectilePrefab)
+                    {
+                        GameObject arrow = Instantiate(stats.projectilePrefab, transform.position, Quaternion.identity);
+                        if (arrow.TryGetComponent(out NetworkObject netArrow)) netArrow.Spawn();
+                        arrow.GetComponent<Projectile>().Initialize(targetPoint, stats.damage);
+                    }
+                    else
+                    {
+                        yield return new WaitForSeconds(0.2f);
+                        if (_targetHealth != null)
+                        {
+                            var enemyFighter = _targetHealth.GetComponent<Fighter>();
+                            if (enemyFighter != null) enemyFighter.TryTakeHit(stats.damage, _unit);
+                            else _targetHealth.TakeDamage(stats.damage); // Бьем здание или крестьянина без оружия
+                        }
+                    }
+                    yield return new WaitForSeconds(stats.attackSpeed);
+                }
                 yield return null;
             }
             Cancel();
+            if (_ai) _ai.SetState(UnitState.Idling);
         }
     }
 }

@@ -35,13 +35,8 @@ namespace WarOfCrowns.Buildings
                 if (iconToUse != null)
                 {
                     iconRenderer.sprite = iconToUse;
-                    iconRenderer.color = new Color(1f, 1f, 1f, 0.7f);
+                    iconRenderer.color = Color.white;
                     iconRenderer.gameObject.SetActive(true);
-                }
-                else
-                {
-                    iconRenderer.sprite = null;
-                    iconRenderer.gameObject.SetActive(false);
                 }
             }
         }
@@ -66,35 +61,31 @@ namespace WarOfCrowns.Buildings
         {
             if (OwningKingdom == null) return false;
 
-            bool canAfford = true;
-            if (_totalCosts != null)
+            // Вычисляем, какую долю от общего времени мы сейчас добавляем
+            // amount (сек) / buildTime (сек) = доля (0.0 - 1.0)
+            float ratio = 0f;
+            if (buildTime > 0) ratio = amount / buildTime;
+
+            bool canBuild = true;
+
+            // Если есть стоимость - пытаемся списать ресурсы атомарно
+            if (_totalCosts != null && _totalCosts.Count > 0)
             {
-                foreach (var cost in _totalCosts)
-                {
-                    int tickCost = Mathf.CeilToInt(((float)cost.amount / buildTime) * amount);
-                    if (OwningKingdom.GetResourceAmount(cost.resourceType) < tickCost) { canAfford = false; break; }
-                }
+                // Метод вернет true только если ресурсов хватило и они списались
+                canBuild = OwningKingdom.SpendResourcesAtomic(_totalCosts, ratio);
             }
 
-            if (canAfford)
+            if (canBuild)
             {
-                if (_totalCosts != null)
-                {
-                    foreach (var cost in _totalCosts)
-                    {
-                        int tickCost = Mathf.CeilToInt(((float)cost.amount / buildTime) * amount);
-                        if (tickCost > 0) OwningKingdom.AddResource(cost.resourceType, -tickCost);
-                    }
-                }
                 buildProgressNet.Value += amount;
-            }
-            else return false;
 
-            if (buildProgressNet.Value >= buildTime)
-            {
-                FinishConstruction();
+                if (buildProgressNet.Value >= buildTime)
+                {
+                    FinishConstruction();
+                }
                 return true;
             }
+
             return false;
         }
 
@@ -106,6 +97,7 @@ namespace WarOfCrowns.Buildings
             {
                 GameObject finalBuilding = Instantiate(finishedBuildingPrefab, transform.position, transform.rotation);
                 var netObj = finalBuilding.GetComponent<NetworkObject>();
+
                 if (netObj != null) netObj.Spawn();
 
                 var bLogic = finalBuilding.GetComponent<Building>();
@@ -114,15 +106,11 @@ namespace WarOfCrowns.Buildings
                 {
                     bLogic.SetOwnerID(myB.ownerKingdomID.Value);
                 }
-
-                if (finalBuilding.TryGetComponent<TownHall>(out var townHall))
-                {
-                    townHall.OwningKingdom = OwningKingdom;
-                }
             }
             GetComponent<NetworkObject>().Despawn();
         }
 
+        public float GetProgressRatio() { if (buildTime <= 0) return 0; return Mathf.Clamp01(buildProgressNet.Value / buildTime); }
         public float GetProgress() => buildProgressNet.Value;
         public void SetProgress(float value) { if (IsServer) buildProgressNet.Value = value; }
     }

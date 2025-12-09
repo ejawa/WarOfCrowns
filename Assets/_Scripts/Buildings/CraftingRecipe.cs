@@ -4,15 +4,34 @@ using WarOfCrowns.Core;
 
 namespace WarOfCrowns.Buildings
 {
+    // Детальные категории
+    public enum RecipeCategory
+    {
+        Sword,      // Мечи
+        Bow,        // Луки
+        Spear,      // Копья
+
+        Pickaxe,    // Кирки
+        Axe,        // Топоры
+        Hammer,     // Молоты
+
+        Armor,      // Броня
+        Material    // Слитки и прочее
+    }
+
     [System.Serializable]
     public class CraftingRecipe
     {
-        public string recipeName;        // Название (например, "Iron Ingot")
-        public ResourceType outputItem;  // Что получится
-        public int outputAmount = 1;     // Сколько получится
-        public float craftTime = 5f;     // Время изготовления
+        public string recipeName;
+        public ResourceType outputItem;
+        public int outputAmount = 1;
+        public float craftTime = 5f;
+
+        [Header("Визуал")]
+        public Sprite icon;
+        public RecipeCategory category; // Выбираешь конкретный тип здесь
 
         [Header("Требуемые Ресурсы")]
-        public List<BuildingCost> inputs; // Используем BuildingCost как ингредиент (Тип + Кол-во)
+        public List<BuildingCost> inputs;
     }
 }

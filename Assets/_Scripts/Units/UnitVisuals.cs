@@ -1,142 +1,356 @@
 using UnityEngine;
 using System.Collections;
 using WarOfCrowns.Core;
+using WarOfCrowns.Units;
 
 namespace WarOfCrowns.Units
 {
     public class UnitVisuals : MonoBehaviour
     {
+        public static bool ShowStanceIcons = true;
+
         [Header("Рендереры")]
         [SerializeField] private SpriteRenderer bodyRenderer;
         [SerializeField] private SpriteRenderer clothesRenderer;
         [SerializeField] private SpriteRenderer headRenderer;
         [SerializeField] private SpriteRenderer armorRenderer;
         [SerializeField] private SpriteRenderer weaponToolRenderer;
+        [Tooltip("Спрайт 'щеточки', который красится в цвет фракции")]
+        [SerializeField] private SpriteRenderer plumeRenderer;
+
+        [Header("Стойки")]
+        [SerializeField] private SpriteRenderer stanceIconRenderer;
+        [SerializeField] private Sprite aggressiveIcon;
+        [SerializeField] private Sprite defensiveIcon;
+        [SerializeField] private Sprite holdIcon;
+        [SerializeField] private Color stanceColor = new Color(1f, 1f, 1f, 0.9f);
+
+        [Header("Эффекты")]
+        [SerializeField] private SpriteRenderer parryEffectRenderer;
 
         [Header("Анимация")]
-        [SerializeField] private float frameRate = 0.1f;
+        [Tooltip("Время одного кадра в секундах (0.1 = 100мс)")]
+        [SerializeField] private float frameDuration = 0.1f;
         [SerializeField] private float leanAngle = 25f;
+        [SerializeField] private bool spriteFacesLeft = false;
 
-        // Свойства для UI
-        public Sprite BodySprite => bodyRenderer != null ? bodyRenderer.sprite : null;
-        public Sprite ClothesSprite => clothesRenderer != null ? clothesRenderer.sprite : null;
-        public Sprite HeadSprite => headRenderer != null ? headRenderer.sprite : null;
-        public Sprite ArmorSprite => armorRenderer != null ? armorRenderer.sprite : null;
-        public Sprite WeaponSprite => weaponToolRenderer != null ? weaponToolRenderer.sprite : null;
+        private Unit _unit;
+        private UnitMotor _motor;
 
-        // --- СВОЙСТВА ДЛЯ СОХРАНЕНИЯ (Имена спрайтов) ---
+        private SpriteSet _bodySet, _clothesSet, _headSet, _armorSet, _weaponSet, _plumeSet;
+
+        private float _animTimer;
+        // Исправлено имя переменной, чтобы везде было одинаково
+        private int _currentFrameIndex;
+        private float _initialScaleX;
+        private Transform _visualRoot;
+        private Vector3 _lastPosition;
+        private Coroutine _parryCoroutine;
+        private Coroutine _drowningCoroutine;
+        private Vector3 _iconInitialScale;
+
+        // Кэшируем состояние движения, чтобы использовать в UpdateAllRenderers
+        private bool _isMovingCached;
+
+        // Геттеры для UI
         public string BodySpriteName => _bodySet?.idle != null ? _bodySet.idle.name : "";
         public string ClothesSpriteName => _clothesSet?.idle != null ? _clothesSet.idle.name : "";
         public string HeadSpriteName => _headSet?.idle != null ? _headSet.idle.name : "";
 
-        // Текущие сеты
-        private SpriteSet _bodySet;
-        private SpriteSet _clothesSet;
-        private SpriteSet _headSet;
-        private SpriteSet _armorSet;
-        private SpriteSet _weaponSet;
-
-        private UnitMotor _motor;
-        private float _timer;
-        private int _currentFrame;
-        private bool _isMoving;
-        private Vector3 _lastPosition;
-        private float _initialScaleX;
-        private Transform _visualRoot;
+        public float DrownAnimationLength
+        {
+            get
+            {
+                if (_bodySet != null && _bodySet.drown != null)
+                    return _bodySet.drown.Length * frameDuration;
+                return 1.0f;
+            }
+        }
 
         private void Awake()
         {
+            _unit = GetComponentInParent<Unit>();
             _motor = GetComponentInParent<UnitMotor>();
+
             _visualRoot = transform.Find("Visuals");
             if (_visualRoot == null) _visualRoot = transform;
+
             _initialScaleX = Mathf.Abs(_visualRoot.localScale.x);
+
+            if (parryEffectRenderer) parryEffectRenderer.gameObject.SetActive(false);
+
+            if (stanceIconRenderer)
+            {
+                stanceIconRenderer.color = stanceColor;
+                stanceIconRenderer.sortingOrder = 20;
+                _iconInitialScale = stanceIconRenderer.transform.localScale;
+                stanceIconRenderer.gameObject.SetActive(false);
+            }
+
+            if (plumeRenderer) plumeRenderer.gameObject.SetActive(false);
         }
 
-        private void Start() { _lastPosition = transform.position; }
+        private void Start()
+        {
+            _lastPosition = transform.position;
+            if (_unit != null) UpdateStanceVisual(_unit.Stance);
+        }
 
         private void LateUpdate()
         {
-            if (_motor == null) return;
+            if (_unit == null) return;
 
-            // Поворот
-            float deltaX = transform.position.x - _lastPosition.x;
-            _lastPosition = transform.position;
-            if (Mathf.Abs(deltaX) > 0.001f) Flip(deltaX > 0);
+            // 1. Туман
+            HandleFogOfWarVisibility();
+            if (!_visualRoot.gameObject.activeSelf) return;
 
-            // Анимация ходьбы
-            _isMoving = _motor.IsMoving;
-            if (_isMoving)
+            // 2. Цвета
+            UpdateColors();
+
+            // 3. Расчет движения
+            float deltaX = 0f;
+
+            if (_unit.IsOwner)
             {
-                _timer += Time.deltaTime;
-                if (_timer >= frameRate)
+                if (_motor != null)
                 {
-                    _timer = 0f;
-                    _currentFrame++;
-                    if (_currentFrame > 2) _currentFrame = 0;
-                    UpdateAllRenderers(_currentFrame);
+                    _isMovingCached = _motor.IsMoving;
+                    if (_isMovingCached) deltaX = _motor.TargetPosition.x - transform.position.x;
                 }
             }
             else
             {
-                if (_currentFrame != -1)
+                float distMoved = Vector3.Distance(transform.position, _lastPosition);
+                _isMovingCached = distMoved > 0.005f;
+                deltaX = transform.position.x - _lastPosition.x;
+            }
+            _lastPosition = transform.position;
+
+            // 4. Поворот (Flip)
+            if (_isMovingCached && Mathf.Abs(deltaX) > 0.001f)
+            {
+                float directionMult = spriteFacesLeft ? -1f : 1f;
+                bool faceRight = deltaX > 0;
+
+                Vector3 scale = _visualRoot.localScale;
+                scale.x = faceRight ? (_initialScaleX * directionMult) : (-_initialScaleX * directionMult);
+                _visualRoot.localScale = scale;
+
+                if (stanceIconRenderer != null)
                 {
-                    _currentFrame = -1;
-                    UpdateAllRenderers(-1);
+                    float parentSign = Mathf.Sign(scale.x);
+                    Vector3 newIconScale = _iconInitialScale;
+                    newIconScale.x = Mathf.Abs(_iconInitialScale.x) * parentSign;
+                    stanceIconRenderer.transform.localScale = newIconScale;
+                }
+            }
+
+            if (stanceIconRenderer != null)
+                stanceIconRenderer.transform.rotation = Quaternion.identity;
+
+            // 5. Аниматор (Таймер)
+            _animTimer += Time.deltaTime;
+            if (_animTimer >= frameDuration)
+            {
+                _animTimer -= frameDuration;
+                _currentFrameIndex++;
+            }
+
+            // 6. Отрисовка
+            if (_drowningCoroutine == null)
+            {
+                // Передаем текущий индекс кадра
+                UpdateAllRenderers(_currentFrameIndex);
+            }
+        }
+
+        // --- ДОБАВЛЕН МЕТОД ДЛЯ UNIT.CS ---
+        public void ForceUpdateState()
+        {
+            // Просто принудительно вызываем отрисовку текущего кадра
+            UpdateAllRenderers(_currentFrameIndex);
+        }
+        // ----------------------------------
+
+        private void UpdateColors()
+        {
+            if (bodyRenderer) bodyRenderer.color = Color.white;
+            if (headRenderer) headRenderer.color = Color.white;
+            if (armorRenderer) armorRenderer.color = Color.white;
+
+            if (_unit.OwningKingdom == null) return;
+
+            Color baseColor = _unit.OwningKingdom.kingdomColor.Value;
+
+            if (clothesRenderer)
+            {
+                float tint = _unit.visualTint.Value;
+                Color clothColor = new Color(baseColor.r * tint, baseColor.g * tint, baseColor.b * tint, 1f);
+                clothesRenderer.color = clothColor;
+            }
+
+            if (plumeRenderer)
+            {
+                plumeRenderer.color = baseColor;
+            }
+        }
+
+        private void UpdateAllRenderers(int globalFrameIndex)
+        {
+            bool inWater = _unit.IsInWater;
+
+            // Определяем тип анимации: 0=Idle, 1=Walk, 2=Swim
+            int animType = 0;
+
+            if (inWater)
+            {
+                animType = 2; // В воде ВСЕГДА анимация плавания (даже если стоим)
+            }
+            else if (_isMovingCached)
+            {
+                animType = 1; // На суше и идем
+            }
+            else
+            {
+                animType = 0; // На суше и стоим
+            }
+
+            SetSprite(bodyRenderer, _bodySet, globalFrameIndex, animType);
+            SetSprite(clothesRenderer, _clothesSet, globalFrameIndex, animType);
+            SetSprite(headRenderer, _headSet, globalFrameIndex, animType);
+            SetSprite(armorRenderer, _armorSet, globalFrameIndex, animType);
+
+            if (inWater)
+            {
+                if (weaponToolRenderer) weaponToolRenderer.sprite = null;
+            }
+            else
+            {
+                SetSprite(weaponToolRenderer, _weaponSet, globalFrameIndex, animType);
+            }
+
+            if (plumeRenderer)
+            {
+                bool showPlume = (_unit.Profession == ProfessionType.Soldier);
+                if (plumeRenderer.gameObject.activeSelf != showPlume)
+                    plumeRenderer.gameObject.SetActive(showPlume);
+
+                if (showPlume)
+                {
+                    SetSprite(plumeRenderer, _plumeSet, globalFrameIndex, animType);
                 }
             }
         }
 
-        // --- МЕТОДЫ ЗАГРУЗКИ И ГЕНЕРАЦИИ ---
-
-        public void InitAppearance(Gender gender, AppearanceDatabase db)
+        private void SetSprite(SpriteRenderer r, SpriteSet s, int frameIndex, int animType)
         {
-            if (db == null) return;
-            _bodySet = db.GetRandomBody();
-            _headSet = db.GetRandomHead(gender);
-            _clothesSet = db.GetRandomPeasantClothes();
-            _armorSet = null; _weaponSet = null;
-            UpdateAllRenderers(-1);
+            if (!r) return;
+            if (r != clothesRenderer && r != plumeRenderer) r.color = Color.white;
+            if (s == null) { r.sprite = null; return; }
+
+            Sprite spriteToSet = null;
+
+            if (animType == 2) // SWIM
+            {
+                if (s.swim != null && s.swim.Length > 0)
+                {
+                    // Анимация плавания играет всегда, используем глобальный счетчик кадров
+                    int i = frameIndex % s.swim.Length;
+                    spriteToSet = s.swim[i];
+                }
+                else
+                {
+                    // Нет спрайтов плавания -> тело скрыто, голова Idle
+                    if (r == bodyRenderer || r == clothesRenderer || r == armorRenderer) spriteToSet = null;
+                    else spriteToSet = s.idle;
+                }
+            }
+            else if (animType == 1) // WALK
+            {
+                if (s.walk != null && s.walk.Length > 0)
+                {
+                    int i = frameIndex % s.walk.Length;
+                    spriteToSet = s.walk[i];
+                }
+                else spriteToSet = s.idle;
+            }
+            else // IDLE
+            {
+                spriteToSet = s.idle;
+            }
+
+            r.sprite = spriteToSet;
         }
 
-        // Вызывается при загрузке игры
-        public void LoadAppearance(SpriteSet body, SpriteSet head, SpriteSet clothes)
+        // --- ИСПРАВЛЕНЫ ВЫЗОВЫ НИЖЕ ---
+
+        public void LoadAppearance(SpriteSet b, SpriteSet h, SpriteSet c, SpriteSet p)
         {
-            _bodySet = body;
-            _headSet = head;
-            _clothesSet = clothes;
-            UpdateAllRenderers(-1);
+            _bodySet = b;
+            _headSet = h;
+            _clothesSet = c;
+            _plumeSet = p;
+            UpdateAllRenderers(_currentFrameIndex); // Исправлено: передаем int
         }
 
-        public void UpdateEquipment(ResourceType tool, ResourceType weapon, ResourceType armor, AppearanceDatabase db)
+        public void UpdateEquipment(ResourceType t, ResourceType w, ResourceType a, AppearanceDatabase db)
         {
-            if (db == null) return;
-            SpriteSet wS = db.GetEquipmentSprites(weapon);
-            SpriteSet tS = db.GetEquipmentSprites(tool);
-            _weaponSet = (wS != null) ? wS : tS; // Оружие приоритетнее инструмента
-            _armorSet = db.GetEquipmentSprites(armor);
-            UpdateAllRenderers(_isMoving ? _currentFrame : -1);
+            if (!db) return;
+            _weaponSet = db.GetEquipmentSprites(w) ?? db.GetEquipmentSprites(t);
+            _armorSet = db.GetEquipmentSprites(a);
+            UpdateAllRenderers(_currentFrameIndex); // Исправлено: передаем int
         }
 
-        public void UpdateProfession(ProfessionType profession, AppearanceDatabase db)
+        public void UpdateProfession(ProfessionType p, AppearanceDatabase db)
         {
-            if (db == null) return;
-            if (profession == ProfessionType.Soldier) _clothesSet = db.GetRandomSoldierClothes();
-            else _clothesSet = db.GetRandomPeasantClothes(); // Или оставить текущую
-            UpdateAllRenderers(_isMoving ? _currentFrame : -1);
+            UpdateAllRenderers(_currentFrameIndex); // Исправлено: передаем int
         }
 
-        // --- ВСПОМОГАТЕЛЬНЫЕ ---
-        public void FaceTarget(Vector3 targetPosition)
+        // ... (Остальные методы без изменений) ...
+
+        private void HandleFogOfWarVisibility()
         {
-            float diffX = targetPosition.x - transform.position.x;
-            if (Mathf.Abs(diffX) > 0.1f) Flip(diffX > 0);
+            if (FogOfWarManager.Instance == null || Kingdom.PlayerKingdom == null ||
+                _unit.ownerKingdomID.Value == Kingdom.PlayerKingdom.kingdomID.Value)
+            {
+                if (!_visualRoot.gameObject.activeSelf) _visualRoot.gameObject.SetActive(true);
+                return;
+            }
+            bool isVisible = FogOfWarManager.Instance.IsVisible(transform.position);
+            if (_visualRoot.gameObject.activeSelf != isVisible)
+                _visualRoot.gameObject.SetActive(isVisible);
         }
 
-        private void Flip(bool faceRight)
+        public void UpdateStanceVisual(UnitStance stance)
         {
-            Vector3 scale = _visualRoot.localScale;
-            scale.x = faceRight ? -_initialScaleX : _initialScaleX; // Инверсия для левосторонних спрайтов
-            _visualRoot.localScale = scale;
+            if (!stanceIconRenderer) return;
+            if (!ShowStanceIcons || (Kingdom.PlayerKingdom && _unit.ownerKingdomID.Value != Kingdom.PlayerKingdom.kingdomID.Value))
+            {
+                stanceIconRenderer.gameObject.SetActive(false);
+                return;
+            }
+            stanceIconRenderer.gameObject.SetActive(true);
+            stanceIconRenderer.transform.localPosition = Vector3.up * 0.9f;
+            stanceIconRenderer.color = stanceColor;
+            switch (stance)
+            {
+                case UnitStance.Aggressive: stanceIconRenderer.sprite = aggressiveIcon; break;
+                case UnitStance.Defensive: stanceIconRenderer.sprite = defensiveIcon; break;
+                case UnitStance.Hold: stanceIconRenderer.sprite = holdIcon; break;
+            }
+        }
+
+        public void FaceTarget(Vector3 t)
+        {
+            float dx = t.x - transform.position.x;
+            if (Mathf.Abs(dx) > 0.01f)
+            {
+                float m = spriteFacesLeft ? -1f : 1f;
+                bool faceRight = dx > 0;
+                Vector3 s = _visualRoot.localScale;
+                s.x = faceRight ? (_initialScaleX * m) : (-_initialScaleX * m);
+                _visualRoot.localScale = s;
+            }
         }
 
         public void TriggerAttackAnimation()
@@ -147,53 +361,77 @@ namespace WarOfCrowns.Units
 
         private IEnumerator AttackLeanRoutine()
         {
-            float duration = 0.15f;
-            float returnDuration = 0.2f;
-
-            // --- ИСПРАВЛЕНИЕ ---
-            // Проверяем текущий масштаб контейнера визуалов.
-            // Если Scale.x положительный (смотрим влево) -> угол +25
-            // Если Scale.x отрицательный (смотрим вправо) -> угол -25
-
-            float currentScaleX = _visualRoot.localScale.x;
-            float angle = Mathf.Abs(leanAngle);
-            float targetZ = (currentScaleX > 0) ? angle : -angle;
-            // -------------------
-
-            float elapsed = 0f;
-            Quaternion startRot = Quaternion.identity;
-            Quaternion targetRot = Quaternion.Euler(0, 0, targetZ);
-
-            while (elapsed < duration)
-            {
-                _visualRoot.localRotation = Quaternion.Lerp(startRot, targetRot, elapsed / duration);
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-
-            elapsed = 0f;
-            while (elapsed < returnDuration)
-            {
-                _visualRoot.localRotation = Quaternion.Lerp(targetRot, startRot, elapsed / returnDuration);
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-            _visualRoot.localRotation = startRot;
+            float d = 0.15f; float rd = 0.2f;
+            float cx = _visualRoot.localScale.x; float a = Mathf.Abs(leanAngle);
+            float tz = (cx > 0) ? -a : a; if (spriteFacesLeft) tz = -tz;
+            float e = 0; Quaternion sr = Quaternion.identity; Quaternion tr = Quaternion.Euler(0, 0, tz);
+            while (e < d) { _visualRoot.localRotation = Quaternion.Lerp(sr, tr, e / d); e += Time.deltaTime; yield return null; }
+            e = 0; while (e < rd) { _visualRoot.localRotation = Quaternion.Lerp(tr, sr, e / rd); e += Time.deltaTime; yield return null; }
+            _visualRoot.localRotation = sr;
         }
 
-        private void UpdateAllRenderers(int frameIndex)
+        public void TriggerParryEffect()
         {
-            SetSprite(bodyRenderer, _bodySet, frameIndex);
-            SetSprite(clothesRenderer, _clothesSet, frameIndex);
-            SetSprite(headRenderer, _headSet, frameIndex);
-            SetSprite(armorRenderer, _armorSet, frameIndex);
-            SetSprite(weaponToolRenderer, _weaponSet, frameIndex);
+            if (parryEffectRenderer)
+            {
+                if (_parryCoroutine != null) StopCoroutine(_parryCoroutine);
+                parryEffectRenderer.gameObject.SetActive(true);
+                _parryCoroutine = StartCoroutine(HideParryRoutine());
+            }
         }
-        private void SetSprite(SpriteRenderer r, SpriteSet s, int f)
+
+        private IEnumerator HideParryRoutine()
         {
-            if (r == null) return;
-            if (s == null) { r.sprite = null; return; }
-            r.sprite = (f == -1 || s.walk == null || s.walk.Length <= f) ? s.idle : s.walk[f];
+            parryEffectRenderer.color = new Color(1f, 1f, 1f, 1f);
+            parryEffectRenderer.transform.localPosition = Vector3.up * 0.5f;
+            Vector3 startPos = parryEffectRenderer.transform.localPosition;
+            Vector3 endPos = startPos + Vector3.up * 0.5f;
+
+            float duration = 0.5f;
+            float e = 0f;
+
+            while (e < duration)
+            {
+                float t = e / duration;
+                parryEffectRenderer.transform.localPosition = Vector3.Lerp(startPos, endPos, t);
+                Color c = parryEffectRenderer.color;
+                c.a = 1f - t;
+                parryEffectRenderer.color = c;
+                e += Time.deltaTime;
+                yield return null;
+            }
+            parryEffectRenderer.gameObject.SetActive(false);
+        }
+
+        public void TriggerDrowningEffect()
+        {
+            if (_drowningCoroutine != null) StopCoroutine(_drowningCoroutine);
+            _drowningCoroutine = StartCoroutine(DrowningAnimRoutine());
+        }
+
+        private IEnumerator DrowningAnimRoutine()
+        {
+            if (weaponToolRenderer) weaponToolRenderer.sprite = null;
+            int frames = (_bodySet != null && _bodySet.drown != null) ? _bodySet.drown.Length : 5;
+
+            for (int i = 0; i < frames; i++)
+            {
+                SetDrownFrame(bodyRenderer, _bodySet, i);
+                SetDrownFrame(clothesRenderer, _clothesSet, i);
+                SetDrownFrame(headRenderer, _headSet, i);
+                SetDrownFrame(armorRenderer, _armorSet, i);
+                SetDrownFrame(plumeRenderer, _plumeSet, i);
+                yield return new WaitForSeconds(frameDuration);
+            }
+            _visualRoot.gameObject.SetActive(false);
+        }
+
+        private void SetDrownFrame(SpriteRenderer r, SpriteSet s, int frameIndex)
+        {
+            if (!r) return;
+            if (s == null || s.drown == null || s.drown.Length == 0) return;
+            int i = Mathf.Min(frameIndex, s.drown.Length - 1);
+            r.sprite = s.drown[i];
         }
     }
 }

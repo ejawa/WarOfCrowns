@@ -17,33 +17,30 @@ namespace WarOfCrowns.UI
         [SerializeField] private Button closeButton;
 
         [Header("Список Рекрутов")]
-        [SerializeField] private GameObject recruitListPanel; // Панель, где лежит ScrollView
+        [SerializeField] private GameObject recruitListPanel;
         [SerializeField] private Transform recruitListContent;
         [SerializeField] private GameObject recruitSlotPrefab;
 
-        [Header("Панель Статистики (Инфо)")]
-        [SerializeField] private GameObject statsPanel; // Панель справа или снизу
+        [Header("Панель Статистики")]
+        [SerializeField] private GameObject statsPanel;
         [SerializeField] private TextMeshProUGUI statsNameText;
         [SerializeField] private TextMeshProUGUI statsHealthText;
         [SerializeField] private TextMeshProUGUI statsHungerText;
-        // Можно добавить силу, ловкость и т.д.
 
         private Barracks _currentBarracks;
-        private ResourceType _selectedWeaponType; // Какое оружие мы сейчас выдаем
+        private ResourceType _selectedWeaponType;
 
         public void Initialize(Barracks barracks)
         {
             _currentBarracks = barracks;
 
-            // Привязка кнопок
             if (closeButton != null) closeButton.onClick.AddListener(() => gameObject.SetActive(false));
 
-            // Настраиваем типы оружия (можешь поменять на свои)
+            // Настройка кнопок (пример)
             swordsmanTabBtn.onClick.AddListener(() => OpenRecruitList(ResourceType.IronSword));
-            archerTabBtn.onClick.AddListener(() => OpenRecruitList(ResourceType.WoodenBow)); // Или просто Bow
+            archerTabBtn.onClick.AddListener(() => OpenRecruitList(ResourceType.WoodenBow));
             spearmanTabBtn.onClick.AddListener(() => OpenRecruitList(ResourceType.IronSpear));
 
-            // Скрываем список и статы в начале
             recruitListPanel.SetActive(false);
             statsPanel.SetActive(false);
         }
@@ -53,48 +50,43 @@ namespace WarOfCrowns.UI
             _selectedWeaponType = weaponType;
             recruitListPanel.SetActive(true);
 
-            // Очистка списка
             foreach (Transform child in recruitListContent) Destroy(child.gameObject);
 
-            // Заполнение списка БЕЗРАБОТНЫМИ
-            foreach (var unit in PopulationManager.Instance.AllUnits)
+            // Заполняем список безработными
+            if (PopulationManager.Instance != null)
             {
-                if (unit.profession == ProfessionType.Unemployed)
+                foreach (var unit in PopulationManager.Instance.AllUnits)
                 {
-                    GameObject slot = Instantiate(recruitSlotPrefab, recruitListContent);
-
-                    // Настраиваем плашку и передаем методы для клика и ховера
-                    slot.GetComponent<RecruitSlotUI>().Setup(
-                        unit,
-                        OnRecruitClicked,
-                        OnUnitHoverEnter,
-                        OnUnitHoverExit
-                    );
+                    // --- ИСПРАВЛЕНО: Profession с большой буквы ---
+                    if (unit.Profession == ProfessionType.Unemployed)
+                    {
+                        GameObject slot = Instantiate(recruitSlotPrefab, recruitListContent);
+                        slot.GetComponent<RecruitSlotUI>().Setup(
+                            unit,
+                            OnRecruitClicked,
+                            OnUnitHoverEnter,
+                            OnUnitHoverExit
+                        );
+                    }
                 }
             }
         }
 
-        // --- СОБЫТИЯ ---
-
         private void OnRecruitClicked(Unit unit)
         {
-            // Отправляем приказ в казарму
             _currentBarracks.TrainSpecificUnit(unit, _selectedWeaponType);
-
-            // Обновляем список (убираем нанятого)
-            OpenRecruitList(_selectedWeaponType);
+            OpenRecruitList(_selectedWeaponType); // Обновить список
         }
 
         private void OnUnitHoverEnter(Unit unit)
         {
             statsPanel.SetActive(true);
-            statsNameText.text = unit.unitName;
 
-            // Получаем здоровье
+            // --- ИСПРАВЛЕНО: UnitName с большой буквы ---
+            statsNameText.text = unit.UnitName;
+
             var health = unit.GetComponent<Health>();
             statsHealthText.text = $"HP: {health.CurrentHealth}";
-
-            // Получаем сытость
             statsHungerText.text = $"Satiety: {(int)unit.satiety}%";
         }
 

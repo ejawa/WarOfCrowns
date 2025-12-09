@@ -14,15 +14,11 @@ namespace WarOfCrowns.UI
         [SerializeField] private TextMeshProUGUI titleText;
         [SerializeField] private TextMeshProUGUI workersCountText;
         [SerializeField] private Button closeButton;
-
-        // --- НОВАЯ КНОПКА ---
         [SerializeField] private Button sendToWorkButton;
-        // --------------------
 
         [Header("Списки")]
         [SerializeField] private GameObject workerSlotPrefab;
         [SerializeField] private Transform currentWorkersParent;
-
         [SerializeField] private GameObject candidatesPanel;
         [SerializeField] private Transform candidatesParent;
         [SerializeField] private Button openCandidatesButton;
@@ -43,16 +39,13 @@ namespace WarOfCrowns.UI
             if (closeCandidatesButton != null)
                 closeCandidatesButton.onClick.AddListener(CloseCandidateList);
 
-            // --- ПОДКЛЮЧАЕМ НОВУЮ КНОПКУ ---
             if (sendToWorkButton != null)
             {
                 sendToWorkButton.onClick.RemoveAllListeners();
                 sendToWorkButton.onClick.AddListener(SendEveryoneToWork);
             }
-            // -------------------------------
 
             if (candidatesPanel != null) candidatesPanel.SetActive(false);
-
             RefreshUI();
         }
 
@@ -67,9 +60,16 @@ namespace WarOfCrowns.UI
         public void RefreshUI()
         {
             if (_currentBuilding == null) return;
-            titleText.text = _currentBuilding.name.Replace("(Clone)", "");
+
+            // Ищем название здания через компонент Building
+            var bData = _currentBuilding.GetComponent<Building>();
+            if (bData != null) titleText.text = bData.buildingName;
+            else titleText.text = _currentBuilding.name.Replace("(Clone)", "");
+
             openCandidatesButton.interactable = _currentBuilding.CanAddWorker();
+
             foreach (Transform child in currentWorkersParent) Destroy(child.gameObject);
+
             foreach (Unit worker in _currentBuilding.GetWorkers())
             {
                 GameObject slot = Instantiate(workerSlotPrefab, currentWorkersParent);
@@ -78,19 +78,26 @@ namespace WarOfCrowns.UI
         }
 
         private void OpenCandidateList()
-        { /* код как был */
+        {
             if (candidatesPanel == null) return;
             candidatesPanel.SetActive(true);
+
             foreach (Transform child in candidatesParent) Destroy(child.gameObject);
-            foreach (Unit unit in PopulationManager.Instance.AllUnits)
+
+            if (PopulationManager.Instance != null)
             {
-                if (unit.profession == ProfessionType.Unemployed)
+                foreach (Unit unit in PopulationManager.Instance.AllUnits)
                 {
-                    GameObject slot = Instantiate(workerSlotPrefab, candidatesParent);
-                    slot.GetComponent<WorkerSlotUI>().Setup(unit, "+", HireWorker);
+                    // --- ИСПРАВЛЕНО: Profession с большой буквы ---
+                    if (unit.Profession == ProfessionType.Unemployed)
+                    {
+                        GameObject slot = Instantiate(workerSlotPrefab, candidatesParent);
+                        slot.GetComponent<WorkerSlotUI>().Setup(unit, "+", HireWorker);
+                    }
                 }
             }
         }
+
         private void CloseCandidateList() { if (candidatesPanel != null) candidatesPanel.SetActive(false); }
 
         private void HireWorker(Unit unit)
@@ -98,38 +105,36 @@ namespace WarOfCrowns.UI
             if (_currentBuilding.CanAddWorker())
             {
                 _currentBuilding.AddWorker(unit);
-                if (unit.TryGetComponent<UnitWorker>(out var workerAI)) workerAI.SetTarget(_currentBuilding);
                 RefreshUI();
                 if (_currentBuilding.CanAddWorker()) OpenCandidateList(); else CloseCandidateList();
             }
         }
+
         private void FireWorker(Unit unit)
         {
             _currentBuilding.RemoveWorker(unit);
             RefreshUI();
         }
 
-        // --- НОВЫЙ МЕТОД ---
         private void SendEveryoneToWork()
         {
             if (_currentBuilding == null) return;
-
             foreach (var worker in _currentBuilding.GetWorkers())
             {
                 if (worker != null)
                 {
                     if (worker.TryGetComponent<UnitAI>(out var ai) && worker.TryGetComponent<UnitWorker>(out var workerScript))
                     {
-                        // --- ИСПРАВЛЕНО: Не отправляем, если уже работает здесь ---
                         if (workerScript.CurrentJob == _currentBuilding && ai.CurrentState == UnitState.Working)
                         {
-                            continue; // Пропускаем, он уже в пути или на месте
+                            continue;
                         }
-                        // -------------------------------------------------------
 
-                        ai.SetState(UnitState.Working); // Принудительно ставим состояние
-                        workerScript.SetTarget(_currentBuilding); // Отправляем работать
-                        Debug.Log($"Sent {worker.unitName} back to work!");
+                        ai.SetState(UnitState.Working);
+                        workerScript.SetTarget(_currentBuilding);
+
+                        // --- ИСПРАВЛЕНО: UnitName с большой буквы ---
+                        Debug.Log($"Sent {worker.UnitName} back to work!");
                     }
                 }
             }

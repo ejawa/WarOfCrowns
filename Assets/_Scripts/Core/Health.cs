@@ -1,45 +1,76 @@
 using UnityEngine;
+using Unity.Netcode;
+using System;
 
 namespace WarOfCrowns.Core
 {
-    public class Health : MonoBehaviour
+    public class Health : NetworkBehaviour
     {
+        [Header("Настройки")]
+        // Теперь ты можешь менять это число в Инспекторе у каждого префаба отдельно
         [SerializeField] private int maxHealth = 100;
-        private int _currentHealth;
 
-        // Свойство, чтобы другие скрипты могли узнать текущее здоровье (для сохранения)
-        public int CurrentHealth => _currentHealth;
+        public NetworkVariable<int> currentHealth = new NetworkVariable<int>(100);
 
-        private void Start()
+        public int MaxHealth => maxHealth; // Свойство для UI
+        public int CurrentHealth => currentHealth.Value;
+
+        public event Action<int, int> OnHealthChanged;
+        public event Action OnDie;
+
+        private bool _isDead = false;
+
+        public override void OnNetworkSpawn()
         {
-            _currentHealth = maxHealth;
+            if (IsServer)
+            {
+                // СЕРВЕР: Берет число, которое ты написал в Инспекторе
+                currentHealth.Value = maxHealth;
+                _isDead = false;
+            }
+
+            currentHealth.OnValueChanged += (oldVal, newVal) =>
+            {
+                OnHealthChanged?.Invoke(newVal, maxHealth);
+                if (newVal <= 0 && !_isDead)
+                {
+                    // Локальная реакция на смерть (если нужна)
+                }
+            };
         }
 
-        public void TakeDamage(int damageAmount)
+        public void TakeDamage(int damage)
         {
-            _currentHealth -= damageAmount;
-            // Debug.Log($"{gameObject.name} took {damageAmount} damage. Current HP: {_currentHealth}/{maxHealth}");
+            if (!IsServer || _isDead) return;
 
-            if (_currentHealth <= 0)
+            int newValue = currentHealth.Value - damage;
+            currentHealth.Value = Mathf.Max(0, newValue);
+
+            if (currentHealth.Value <= 0)
             {
                 Die();
             }
         }
 
-        // Метод для восстановления здоровья при загрузке
-        public void SetHealth(float amount)
+        public void SetHealth(int amount)
         {
-            _currentHealth = (int)amount;
-            if (_currentHealth <= 0) Die();
+            if (IsServer) currentHealth.Value = amount;
         }
 
         private void Die()
         {
-            // Debug.Log($"{gameObject.name} has died.");
+            if (_isDead) return;
+            _isDead = true;
+            OnDie?.Invoke();
 
-            // Важно: Если это юнит, он сам сообщит о смерти через OnDestroy.
-            // Если это здание или враг - тоже просто уничтожаем.
-            Destroy(gameObject);
+            if (TryGetComponent<NetworkObject>(out var netObj) && netObj.IsSpawned)
+            {
+                netObj.Despawn();
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }
