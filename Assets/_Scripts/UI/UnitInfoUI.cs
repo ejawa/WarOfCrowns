@@ -5,8 +5,6 @@ using WarOfCrowns.Core;
 using WarOfCrowns.Buildings;
 using Unity.Netcode;
 using System.Collections.Generic;
-
-// Решение конфликта имен
 using Unit = WarOfCrowns.Units.Unit;
 using UnitStance = WarOfCrowns.Units.UnitStance;
 
@@ -23,7 +21,7 @@ namespace WarOfCrowns.UI
         [SerializeField] private Image portraitPlume;
 
         [SerializeField] private TextMeshProUGUI nameText;
-        [SerializeField] private TextMeshProUGUI kingdomText; // Инфо о королевстве
+        [SerializeField] private TextMeshProUGUI kingdomText;
         [SerializeField] private Button closeButton;
 
         [Header("Стойки (Кнопки)")]
@@ -33,8 +31,8 @@ namespace WarOfCrowns.UI
         [SerializeField] private Color selectedColor = Color.green;
         [SerializeField] private Color normalColor = Color.white;
 
-        [Header("Характеристики (Скрываются при мульти-выборе)")]
-        [SerializeField] private GameObject singleUnitStatsParent; // Родитель для полосок и инвентаря
+        [Header("Характеристики")]
+        [SerializeField] private GameObject singleUnitStatsParent;
         [SerializeField] private Slider hpSlider;
         [SerializeField] private TextMeshProUGUI hpText;
         [SerializeField] private Slider hungerSlider;
@@ -52,7 +50,7 @@ namespace WarOfCrowns.UI
         [SerializeField] private TextMeshProUGUI homeStatusText;
 
         [Header("Группа")]
-        [SerializeField] private GameObject groupIconObj; // Иконка "Толпы", если выбрано много
+        [SerializeField] private GameObject groupIconObj;
 
         private Unit _targetSingleUnit;
         private List<Unit> _selectedUnits = new List<Unit>();
@@ -61,29 +59,24 @@ namespace WarOfCrowns.UI
         {
             if (closeButton) closeButton.onClick.AddListener(Close);
 
-            // Привязка кнопок стоек
             if (aggressiveBtn) aggressiveBtn.onClick.AddListener(() => SetStanceForSelection(UnitStance.Aggressive));
             if (defensiveBtn) defensiveBtn.onClick.AddListener(() => SetStanceForSelection(UnitStance.Defensive));
             if (holdBtn) holdBtn.onClick.AddListener(() => SetStanceForSelection(UnitStance.Hold));
         }
 
-        // --- ГЛАВНЫЙ МЕТОД (ВЫЗЫВАЕТСЯ ИЗ MAIN UI) ---
         public void SetTarget(List<Unit> units)
         {
             _selectedUnits = units;
-
             if (units == null || units.Count == 0)
             {
                 Close();
                 return;
             }
 
-            // Открываем окно
             gameObject.SetActive(true);
 
             if (units.Count == 1)
             {
-                // ОДИН ЮНИТ
                 if (units[0] != null)
                 {
                     _targetSingleUnit = units[0];
@@ -92,12 +85,10 @@ namespace WarOfCrowns.UI
             }
             else
             {
-                // ГРУППА ЮНИТОВ
                 _targetSingleUnit = null;
                 ShowGroupInfo(units);
             }
         }
-        // ---------------------------------------------
 
         public void Close()
         {
@@ -110,12 +101,16 @@ namespace WarOfCrowns.UI
         private void Update()
         {
             if (!gameObject.activeSelf) return;
-
-            // Если был выбран один юнит, но он умер
-            if (_targetSingleUnit == null && (_selectedUnits == null || _selectedUnits.Count <= 1))
+            if (_selectedUnits == null || _selectedUnits.Count == 0 || (_targetSingleUnit == null && _selectedUnits.Count == 1))
             {
                 Close();
                 return;
+            }
+
+            Unit unitToShow = _targetSingleUnit != null ? _targetSingleUnit : _selectedUnits[0];
+            if (unitToShow != null)
+            {
+                UpdateKingdomDisplayDirectly(unitToShow);
             }
 
             if (_targetSingleUnit != null)
@@ -123,75 +118,72 @@ namespace WarOfCrowns.UI
                 RefreshDynamicInfo();
             }
 
-            // Обновляем визуал кнопок стоек (берем состояние первого юнита)
-            if (_selectedUnits != null && _selectedUnits.Count > 0 && _selectedUnits[0] != null)
+            if (_selectedUnits.Count > 0 && _selectedUnits[0] != null)
             {
                 UpdateStanceButtonsVisual(_selectedUnits[0].Stance);
             }
         }
 
-        // --- ОТОБРАЖЕНИЕ ОДНОГО ЮНИТА ---
+        // --- ИСПРАВЛЕНИЕ ПРОЗРАЧНОСТИ ---
+        private void UpdateKingdomDisplayDirectly(Unit unit)
+        {
+            if (kingdomText == null) return;
+
+            int ownerId = unit.ownerKingdomID.Value;
+            Kingdom k = Kingdom.GetKingdomByID(ownerId);
+
+            if (k != null)
+            {
+                kingdomText.text = k.kingdomName.Value.ToString();
+
+                // Форсируем непрозрачность (Alpha = 1)
+                Color c = k.kingdomColor.Value;
+                c.a = 1f;
+                kingdomText.color = c;
+            }
+            else
+            {
+                if (ownerId == -1)
+                {
+                    kingdomText.text = "Нейтральный";
+                    kingdomText.color = Color.gray;
+                }
+                else
+                {
+                    kingdomText.text = $"ID: {ownerId} (Загрузка...)";
+                    kingdomText.color = Color.yellow;
+                }
+            }
+        }
+        // --------------------------------
+
         private void ShowSingleUnitInfo(Unit unit)
         {
             if (singleUnitStatsParent) singleUnitStatsParent.SetActive(true);
             if (groupIconObj) groupIconObj.SetActive(false);
 
-            // Включаем портрет (части тела)
             TogglePortraitParts(true);
-
-            // Имя
             nameText.text = unit.UnitName;
             if (genderText) genderText.text = unit.UnitGender.ToString();
 
-            // Инфо о Королевстве
-            UpdateKingdomInfo(unit);
-
-            // Портрет
             UpdatePortrait(unit);
-
-            // Дом
             UpdateHomeInfo(unit);
-
-            // Динамические статы (ХП, Голод, Инвентарь) обновятся в Update -> RefreshDynamicInfo
-            RefreshDynamicInfo();
         }
 
-        // --- ОТОБРАЖЕНИЕ ГРУППЫ ---
         private void ShowGroupInfo(List<Unit> units)
         {
-            if (singleUnitStatsParent) singleUnitStatsParent.SetActive(false); // Скрываем инвентарь и ХП
+            if (singleUnitStatsParent) singleUnitStatsParent.SetActive(false);
             if (groupIconObj) groupIconObj.SetActive(true);
 
-            // Скрываем детальный портрет
             TogglePortraitParts(false);
-
             nameText.text = $"Отряд: {units.Count}";
 
-            // Для группы показываем королевство первого юнита
-            if (units[0] != null) UpdateKingdomInfo(units[0]);
-
-            // Кнопка дома недоступна для толпы
             if (homeButton) homeButton.interactable = false;
             if (homeStatusText) homeStatusText.text = "---";
         }
 
-        private void UpdateKingdomInfo(Unit unit)
-        {
-            if (unit.OwningKingdom != null)
-            {
-                kingdomText.text = unit.OwningKingdom.kingdomName.Value.ToString();
-                kingdomText.color = unit.OwningKingdom.kingdomColor.Value;
-            }
-            else
-            {
-                kingdomText.text = "Нейтральный";
-                kingdomText.color = Color.gray;
-            }
-        }
-
         private void RefreshDynamicInfo()
         {
-            // ХП
             var health = _targetSingleUnit.GetComponent<Health>();
             if (health)
             {
@@ -203,11 +195,9 @@ namespace WarOfCrowns.UI
                 if (hpText) hpText.text = $"{health.CurrentHealth} / {health.MaxHealth}";
             }
 
-            // Голод
             if (hungerSlider) hungerSlider.value = _targetSingleUnit.satiety;
             if (hungerText) hungerText.text = $"{(int)_targetSingleUnit.satiety}%";
 
-            // Инвентарь
             ResourceType tool = _targetSingleUnit.Tool;
             ResourceType weapon = _targetSingleUnit.Weapon;
             ResourceType itemToShow = (weapon != ResourceType.Wood) ? weapon : tool;
@@ -219,7 +209,6 @@ namespace WarOfCrowns.UI
         private void UpdateItemSlot(Image icon, TextMeshProUGUI text, ResourceType item)
         {
             if (icon == null) return;
-
             if (item == ResourceType.Wood)
             {
                 icon.enabled = false;
@@ -228,12 +217,21 @@ namespace WarOfCrowns.UI
             }
 
             icon.enabled = true;
-            if (WorldState.Instance && WorldState.Instance.AppearanceDB)
-            {
-                var visual = WorldState.Instance.AppearanceDB.GetEquipmentSprites(item);
-                if (visual != null) icon.sprite = visual.idle;
-            }
             if (text) text.text = item.ToString();
+
+            if (MainUIController.Instance != null)
+            {
+                Sprite beautifulIcon = MainUIController.Instance.GetIconForResourceType(item);
+                if (beautifulIcon != null)
+                {
+                    icon.sprite = beautifulIcon;
+                }
+                else
+                {
+                    var visual = WorldState.Instance.AppearanceDB.GetEquipmentSprites(item);
+                    if (visual != null) icon.sprite = visual.idle;
+                }
+            }
         }
 
         private void UpdatePortrait(Unit unit)
@@ -249,15 +247,17 @@ namespace WarOfCrowns.UI
             SetImage(portraitHead, head, Color.white);
 
             Color clothColor = Color.white;
-            if (unit.OwningKingdom != null)
+            // Здесь тоже берем цвет напрямую из реестра
+            Kingdom k = Kingdom.GetKingdomByID(unit.ownerKingdomID.Value);
+            if (k != null)
             {
-                Color kColor = unit.OwningKingdom.kingdomColor.Value;
+                Color kColor = k.kingdomColor.Value;
                 float tint = unit.visualTint.Value;
+                // Форсируем Alpha = 1
                 clothColor = new Color(kColor.r * tint, kColor.g * tint, kColor.b * tint, 1f);
             }
             SetImage(portraitClothes, cloth, clothColor);
 
-            // Экипировка на портрете
             Sprite armorSprite = null;
             if (unit.Armor != ResourceType.Wood) armorSprite = db.GetEquipmentSprites(unit.Armor)?.idle;
             SetImage(portraitArmor, armorSprite, Color.white);
@@ -267,13 +267,13 @@ namespace WarOfCrowns.UI
             if (handItem != ResourceType.Wood) weaponSprite = db.GetEquipmentSprites(handItem)?.idle;
             SetImage(portraitWeapon, weaponSprite, Color.white);
 
-            // Щетка (Плюмаж)
             if (portraitPlume != null)
             {
                 if (unit.Profession == ProfessionType.Soldier)
                 {
                     Sprite plume = db.GetPlumeByIndex(unit.plumeIndex.Value)?.idle;
-                    Color kColor = unit.OwningKingdom ? unit.OwningKingdom.kingdomColor.Value : Color.white;
+                    Color kColor = (k != null) ? k.kingdomColor.Value : Color.white;
+                    kColor.a = 1f; // Форсируем
                     SetImage(portraitPlume, plume, kColor);
                 }
                 else
@@ -314,7 +314,6 @@ namespace WarOfCrowns.UI
             }
         }
 
-        // --- УПРАВЛЕНИЕ СТОЙКАМИ ---
         private void SetStanceForSelection(UnitStance stance)
         {
             if (_selectedUnits == null) return;
@@ -332,7 +331,6 @@ namespace WarOfCrowns.UI
             if (holdBtn) holdBtn.image.color = (currentStance == UnitStance.Hold) ? selectedColor : normalColor;
         }
 
-        // --- ВСПОМОГАТЕЛЬНЫЕ ---
         private void SetImage(Image img, Sprite sprite, Color color)
         {
             if (img == null) return;

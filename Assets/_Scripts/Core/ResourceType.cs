@@ -2,6 +2,7 @@ namespace WarOfCrowns.Core
 {
     public enum ResourceType
     {
+        
         // --- БАЗОВЫЕ ВАЛЮТЫ И ПОТРЕБНОСТИ ---
         Wood,       // Дерево (ресурс)
         Stone,      // Камень (ресурс)
@@ -66,6 +67,7 @@ namespace WarOfCrowns.Core
         IronBow,
         SteelBow,
         GoldBow,
-        MithrilBow
+        MithrilBow,
+        None = 0,
     }
 }

@@ -11,7 +11,6 @@ namespace WarOfCrowns.Buildings
         [Tooltip("Префаб UI для этого здания (Ферма, Казарма, Мэрия).")]
         [SerializeField] private GameObject selectionUIPrefab;
 
-        // --- ИЗМЕНЕНИЯ ЗДЕСЬ ---
         private GameObject _uiInstance; // Ссылка на наш UI
         private MainUIController _mainUI;
 
@@ -22,14 +21,14 @@ namespace WarOfCrowns.Buildings
 
         public void Select()
         {
-            // Логика Склада (без изменений)
+            // Логика Склада
             if (opensGlobalWarehouse)
             {
-                if (_mainUI != null) _mainUI.OpenWarehousePanel(); // ЯВНО ОТКРЫВАЕМ
+                if (_mainUI != null) _mainUI.OpenWarehousePanel();
                 return;
             }
 
-            // --- НОВАЯ ЛОГИКА ДЛЯ ВСЕХ ОСТАЛЬНЫХ ЗДАНИЙ ---
+            // --- ОБЫЧНЫЕ ЗДАНИЯ ---
             if (selectionUIPrefab == null) return;
 
             // 1. Создаем UI, если его еще нет
@@ -43,15 +42,19 @@ namespace WarOfCrowns.Buildings
             // 2. Включаем UI
             _uiInstance.SetActive(true);
 
-            // 3. "ЗНАКОМИМ" UI со ЗДАНИЕМ (самый важный шаг)
+            // 3. "ЗНАКОМИМ" UI со ЗДАНИЕМ
             LinkUIToBuilding();
+
+            // 4. СКРЫВАЕМ НИЖНИЙ БАР (НОВОЕ)
+            if (MainUIController.Instance != null)
+                MainUIController.Instance.SetBottomBarVisible(false);
         }
 
         public void Deselect()
         {
             if (opensGlobalWarehouse)
             {
-                if (_mainUI != null) _mainUI.CloseWarehousePanel(); // ЯВНО ЗАКРЫВАЕМ
+                if (_mainUI != null) _mainUI.CloseWarehousePanel();
                 return;
             }
 
@@ -60,9 +63,12 @@ namespace WarOfCrowns.Buildings
             {
                 _uiInstance.SetActive(false);
             }
+
+            // ВОЗВРАЩАЕМ НИЖНИЙ БАР (НОВОЕ)
+            if (MainUIController.Instance != null)
+                MainUIController.Instance.SetBottomBarVisible(true);
         }
 
-        // Новый метод для "знакомства"
         private void LinkUIToBuilding()
         {
             // А. Если это Мэрия
@@ -85,7 +91,7 @@ namespace WarOfCrowns.Buildings
             {
                 smithyUI.Initialize(smithy);
             }
-            // Д. --- НОВОЕ: Если это Башня ---
+            // Д. Если это Башня
             else if (TryGetComponent<DefenseTower>(out var tower) && _uiInstance.TryGetComponent<DefenseTowerUIProxy>(out var towerProxy))
             {
                 towerProxy.Initialize(tower);

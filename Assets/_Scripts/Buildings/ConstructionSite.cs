@@ -41,12 +41,13 @@ namespace WarOfCrowns.Buildings
             }
         }
 
+        // Возвращает TRUE, только если стройка ЗАВЕРШЕНА
         public bool AddBuildProgress(float progressAmount)
         {
             if (!IsServer)
             {
                 AddProgressServerRpc(progressAmount);
-                return false;
+                return false; // Клиент не знает, закончено ли, пусть продолжает
             }
             return ApplyBuildProgress(progressAmount);
         }
@@ -61,7 +62,6 @@ namespace WarOfCrowns.Buildings
         {
             if (OwningKingdom == null) return false;
 
-            // Вычисляем, какую долю от общего времени мы сейчас добавляем
             // amount (сек) / buildTime (сек) = доля (0.0 - 1.0)
             float ratio = 0f;
             if (buildTime > 0) ratio = amount / buildTime;
@@ -71,7 +71,6 @@ namespace WarOfCrowns.Buildings
             // Если есть стоимость - пытаемся списать ресурсы атомарно
             if (_totalCosts != null && _totalCosts.Count > 0)
             {
-                // Метод вернет true только если ресурсов хватило и они списались
                 canBuild = OwningKingdom.SpendResourcesAtomic(_totalCosts, ratio);
             }
 
@@ -79,14 +78,17 @@ namespace WarOfCrowns.Buildings
             {
                 buildProgressNet.Value += amount;
 
+                // ИСПРАВЛЕНО: Возвращаем true ТОЛЬКО если достроили
                 if (buildProgressNet.Value >= buildTime)
                 {
                     FinishConstruction();
+                    return true;
                 }
-                return true;
+
+                return false; // Прогресс добавлен, но еще не готово
             }
 
-            return false;
+            return false; // Не хватило ресурсов
         }
 
         private void FinishConstruction()
@@ -97,11 +99,11 @@ namespace WarOfCrowns.Buildings
             {
                 GameObject finalBuilding = Instantiate(finishedBuildingPrefab, transform.position, transform.rotation);
                 var netObj = finalBuilding.GetComponent<NetworkObject>();
-
                 if (netObj != null) netObj.Spawn();
 
                 var bLogic = finalBuilding.GetComponent<Building>();
                 var myB = GetComponent<Building>();
+
                 if (bLogic != null && myB != null)
                 {
                     bLogic.SetOwnerID(myB.ownerKingdomID.Value);
@@ -109,7 +111,21 @@ namespace WarOfCrowns.Buildings
             }
             GetComponent<NetworkObject>().Despawn();
         }
+        public ResourceType GetMissingResource()
+        {
+            if (OwningKingdom == null || _totalCosts == null) return ResourceType.Wood;
 
+            // Проверяем, чего не хватает для следующего "тика" стройки
+            // Простая проверка: чего не хватает для полной постройки
+            foreach (var cost in _totalCosts)
+            {
+                if (OwningKingdom.GetResourceAmount(cost.resourceType) < 1) // Если нет даже 1 единицы
+                {
+                    return cost.resourceType;
+                }
+            }
+            return ResourceType.None; // Всего хватает
+        }
         public float GetProgressRatio() { if (buildTime <= 0) return 0; return Mathf.Clamp01(buildProgressNet.Value / buildTime); }
         public float GetProgress() => buildProgressNet.Value;
         public void SetProgress(float value) { if (IsServer) buildProgressNet.Value = value; }

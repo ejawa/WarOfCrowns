@@ -1,10 +1,10 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
+using Unity.Netcode;
 using WarOfCrowns.Core;
 using WarOfCrowns.World;
-using WarOfCrowns.Buildings;
-using Unity.Netcode;
 using Unit = WarOfCrowns.Units.Unit;
+
 namespace WarOfCrowns.Units
 {
     [RequireComponent(typeof(UnitMotor), typeof(Unit))]
@@ -12,10 +12,8 @@ namespace WarOfCrowns.Units
     {
         private Unit _unit;
         private UnitMotor _motor;
-        private UnitVisuals _visuals;
-        private ResourceNode _currentTarget;
-        private Coroutine _gatherCoroutine;
 
+        [Header("Настройки Добычи")]
         [SerializeField] private float gatherDistance = 1.2f;
         [SerializeField] private float gatherRate = 1f;
 
@@ -23,70 +21,39 @@ namespace WarOfCrowns.Units
         {
             _unit = GetComponent<Unit>();
             _motor = GetComponent<UnitMotor>();
-            _visuals = GetComponent<UnitVisuals>();
         }
 
-        public void SetTarget(ResourceNode resourceNode)
+        public void StartWorkingOn(ResourceNode resourceNode)
         {
-            if (!IsServer)
-            {
-                SetTargetServerRpc(resourceNode.transform.position);
-                return;
-            }
-            StartGatheringLogic(resourceNode);
+            if (!IsOwner) return;
+            RequestGatherServerRpc(resourceNode.GetComponent<NetworkObject>().NetworkObjectId);
         }
 
         [ServerRpc]
-        private void SetTargetServerRpc(Vector3 resourcePos)
+        private void RequestGatherServerRpc(ulong resourceNetId)
         {
-            Collider2D[] hits = Physics2D.OverlapCircleAll(resourcePos, 2.0f);
-            ResourceNode targetNode = null;
-            float minDst = float.MaxValue;
-
-            foreach (var hit in hits)
+            if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(resourceNetId, out var netObj))
             {
-                ResourceNode node = hit.GetComponent<ResourceNode>();
-                if (node == null) node = hit.GetComponentInParent<ResourceNode>();
-
-                if (node != null)
+                var targetNode = netObj.GetComponent<ResourceNode>();
+                if (targetNode != null)
                 {
-                    float d = Vector3.Distance(resourcePos, node.transform.position);
-                    if (d < minDst) { minDst = d; targetNode = node; }
+                    StopAllCoroutines();
+                    StartCoroutine(ServerGatherRoutine(targetNode));
                 }
             }
-
-            if (targetNode != null) StartGatheringLogic(targetNode);
         }
 
-        private void StartGatheringLogic(ResourceNode node)
+        private IEnumerator ServerGatherRoutine(ResourceNode target)
         {
-            StopGathering();
-            _currentTarget = node;
-            _gatherCoroutine = StartCoroutine(GatherRoutine());
-        }
+            if (target == null) yield break;
 
-        public void StopGathering()
-        {
-            if (_gatherCoroutine != null) StopCoroutine(_gatherCoroutine);
-            _gatherCoroutine = null;
-            _currentTarget = null;
-        }
+            _unit.GetComponent<UnitAI>().SetState(UnitState.Foraging);
 
-        private IEnumerator GatherRoutine()
-        {
-            if (_currentTarget == null) yield break;
+            Collider2D targetCollider = target.GetComponent<Collider2D>();
 
-            Collider2D targetCollider = _currentTarget.GetComponent<Collider2D>();
-
-            // 1. Движение
-            while (true)
+            while (target != null)
             {
-                if (_currentTarget == null) yield break;
-
-                Vector3 targetPoint = targetCollider
-                    ? targetCollider.ClosestPoint(transform.position)
-                    : _currentTarget.transform.position;
-
+                Vector3 targetPoint = targetCollider ? targetCollider.ClosestPoint(transform.position) : target.transform.position;
                 if (Vector3.Distance(transform.position, targetPoint) <= gatherDistance)
                 {
                     _motor.StopMoving();
@@ -96,47 +63,36 @@ namespace WarOfCrowns.Units
                 yield return null;
             }
 
-            // 2. Добыча
-            while (_currentTarget != null)
+            while (target != null)
             {
-                // --- ПРОВЕРКА ДИСТАНЦИИ ---
-                Vector3 targetPoint = targetCollider
-                    ? targetCollider.ClosestPoint(transform.position)
-                    : _currentTarget.transform.position;
+                _unit.PlayAttackVisualsClientRpc(target.transform.position);
 
-                if (Vector3.Distance(transform.position, targetPoint) > gatherDistance + 0.5f)
-                {
-                    _currentTarget = null;
-                    yield break;
-                }
-                // ---------------------------
-
-                _unit.PlayAttackVisualsClientRpc(_currentTarget.transform.position);
-
-                float speedMult = _unit.GetToolSpeedMultiplier(_currentTarget.resourceType.ToString());
+                float speedMult = _unit.GetToolSpeedMultiplier(target.resourceType.ToString());
                 yield return new WaitForSeconds(gatherRate / speedMult);
 
-                if (_currentTarget == null) yield break;
+                if (target == null) break;
 
-                if (NetworkManager.Singleton.IsServer)
+                _unit.ReduceDurability(true, 1);
+                int amount = target.TakeHit();
+                if (amount > 0 && _unit.OwningKingdom != null)
                 {
-                    _unit.ReduceDurability(true, 1);
-                    int amount = _currentTarget.TakeHit();
+                    // 1. Добавляем ресурс в инвентарь на сервере
+                    _unit.OwningKingdom.AddResource(target.resourceType, amount);
 
-                    if (amount > 0)
-                    {
-                        if (_unit.OwningKingdom == null || _unit.OwningKingdom.kingdomID.Value != _unit.ownerKingdomID.Value)
-                        {
-                            _unit.OwningKingdom = Kingdom.GetKingdomByID(_unit.ownerKingdomID.Value);
-                        }
-
-                        if (_unit.OwningKingdom != null)
-                        {
-                            _unit.OwningKingdom.AddResource(_currentTarget.resourceType, amount);
-                        }
-                    }
+                    // 2. --- НОВЫЙ ДЕБАГ-ЛОГ ---
+                    // Сразу после добавления, запрашиваем актуальное количество из того же инвентаря
+                    int newTotal = _unit.OwningKingdom.GetResourceAmount(target.resourceType);
+                    //Debug.LogWarning($"[SERVER GATHER] Kingdom ID {_unit.OwningKingdom.kingdomID.Value} получил {amount} {target.resourceType}. Новый итог на сервере: {newTotal}");
+                    // --------------------------
                 }
             }
+
+            _unit.GetComponent<UnitAI>().SetState(UnitState.Idling);
+        }
+
+        public void StopGathering()
+        {
+            if (IsServer) StopAllCoroutines();
         }
     }
 }

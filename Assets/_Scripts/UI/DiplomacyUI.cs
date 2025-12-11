@@ -14,9 +14,8 @@ namespace WarOfCrowns.UI
 
         [Header("Список")]
         [SerializeField] private Transform listContainer;
-        [SerializeField] private GameObject kingdomSlotPrefab;
+        [SerializeField] private GameObject kingdomSlotPrefab; // Сюда префаб DiplomacySlot
         [SerializeField] private Button closeButton;
-        [SerializeField] private int warCost = 500;
 
         private void Start()
         {
@@ -26,9 +25,10 @@ namespace WarOfCrowns.UI
 
         private void OnEnable()
         {
-            RefreshList();
             if (Kingdom.PlayerKingdom != null)
                 nameInputField.text = Kingdom.PlayerKingdom.kingdomName.Value.ToString();
+
+            RefreshList();
         }
 
         private void OnRenameClicked()
@@ -39,47 +39,21 @@ namespace WarOfCrowns.UI
 
         public void RefreshList()
         {
+            if (listContainer == null || Kingdom.PlayerKingdom == null) return;
+
             foreach (Transform child in listContainer) Destroy(child.gameObject);
 
-            // ЗАЩИТА ОТ NULL
-            if (Kingdom.PlayerKingdom == null) return;
-
             int myID = Kingdom.PlayerKingdom.kingdomID.Value;
-            var allKingdoms = FindObjectsOfType<Kingdom>();
 
-            foreach (var k in allKingdoms)
+            foreach (var kvp in Kingdom.ActiveKingdoms)
             {
-                int kID = k.kingdomID.Value;
-                if (kID == myID || kID == -1) continue;
+                Kingdom k = kvp.Value;
+                if (k.kingdomID.Value == myID) continue; // Себя не показываем
 
                 GameObject slot = Instantiate(kingdomSlotPrefab, listContainer);
-                slot.transform.Find("NameText").GetComponent<TextMeshProUGUI>().text = k.kingdomName.Value.ToString();
-
-                var statusText = slot.transform.Find("StatusText").GetComponent<TextMeshProUGUI>();
-                var warBtn = slot.transform.Find("WarButton").GetComponent<Button>();
-                var btnText = warBtn.GetComponentInChildren<TextMeshProUGUI>();
-
-                bool isEnemy = Kingdom.PlayerKingdom.IsAtWarWith(kID);
-
-                if (isEnemy)
-                {
-                    statusText.text = "<color=red>ВОЙНА</color>";
-                    warBtn.interactable = false;
-                    btnText.text = "Воюем";
-                }
-                else
-                {
-                    statusText.text = "<color=green>Мир</color>";
-                    warBtn.interactable = true;
-                    btnText.text = $"Война ({warCost})";
-                    warBtn.onClick.AddListener(() => {
-                        DiplomacyManager.Instance.RequestDeclareWar(kID);
-                        Invoke(nameof(RefreshList), 0.2f);
-                    });
-                }
+                var ui = slot.GetComponent<DiplomacySlotUI>();
+                if (ui) ui.Setup(k);
             }
-
-            LayoutRebuilder.ForceRebuildLayoutImmediate(listContainer.GetComponent<RectTransform>());
         }
     }
 }

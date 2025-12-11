@@ -344,7 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3574568799
+  GlobalObjectIdHash: 57192237
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -373,11 +373,11 @@ MonoBehaviour:
     amount: 50
   populationBonus: 0
   entrancePoint: {fileID: 960579569318770115}
+  roofRenderer: {fileID: 1543256096817453467}
   ownerKingdomID:
     m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
-  roofRenderer: {fileID: 1543256096817453467}
 --- !u!114 &6790449400769525600
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -5,7 +5,6 @@ using WarOfCrowns.Units;
 using WarOfCrowns.World;
 using WarOfCrowns.Buildings;
 using System.Collections.Generic;
-
 // Fix ambiguity for Unit class
 using Unit = WarOfCrowns.Units.Unit;
 
@@ -15,6 +14,7 @@ namespace WarOfCrowns.Core
     {
         [Header("Layers")]
         [SerializeField] private LayerMask unitLayerMask;
+        // GroundLayerMask нам больше не нужен для движения, но оставим, если нужен для чего-то еще
         [SerializeField] private LayerMask groundLayerMask;
         [SerializeField] private LayerMask resourceLayerMask;
         [SerializeField] private LayerMask constructionLayerMask;
@@ -25,7 +25,6 @@ namespace WarOfCrowns.Core
 
         private Camera _mainCamera;
         private RectTransform _canvasRect;
-
         private List<Unit> _selectedUnits = new List<Unit>();
         private List<Unit> _unitsBeforeDrag = new List<Unit>();
         private SelectableBuilding _selectedBuilding;
@@ -35,6 +34,7 @@ namespace WarOfCrowns.Core
         private float _selectionCooldown = 0f;
 
         public static event System.Action<List<Unit>> OnSelectionChanged;
+
         public List<Unit> GetSelectedUnits() => _selectedUnits;
 
         private void Awake()
@@ -89,8 +89,10 @@ namespace WarOfCrowns.Core
             {
                 _isDragging = false;
                 if (selectionBox != null) selectionBox.gameObject.SetActive(false);
+
                 if (Vector2.Distance(_startMousePos, Mouse.current.position.ReadValue()) < 10f)
                     HandleSingleClick();
+
                 OnSelectionChanged?.Invoke(_selectedUnits);
             }
         }
@@ -114,6 +116,7 @@ namespace WarOfCrowns.Core
 
             foreach (var old in _selectedUnits) if (old != null && !newSelection.Contains(old)) old.Deselect();
             foreach (var newU in newSelection) if (newU != null) newU.Select();
+
             _selectedUnits = newSelection;
         }
 
@@ -156,80 +159,98 @@ namespace WarOfCrowns.Core
             }
         }
 
+        // --- ИСПРАВЛЕННЫЙ МЕТОД ---
         private void HandleRightClick()
         {
             if (_selectedUnits.Count == 0 || !Mouse.current.rightButton.wasPressedThisFrame) return;
-            Vector3 p = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue()); p.z = 0;
 
-            // 1. Attack
-            RaycastHit2D hitEnemy = Physics2D.Raycast(p, Vector2.zero, 0f, enemiesLayerMask);
-            if (hitEnemy.collider != null)
+            Vector3 worldPoint = _mainCamera.ScreenToWorldPoint(Mouse.current.position.ReadValue());
+            worldPoint.z = 0;
+
+            // 1. Сначала ищем ВАЖНЫЕ цели (Враги, Стройка, Ресурсы)
+            // Исключаем groundLayerMask, чтобы земля не перекрывала ресурсы
+            RaycastHit2D hit = Physics2D.Raycast(worldPoint, Vector2.zero, 0f,
+                enemiesLayerMask | constructionLayerMask | resourceLayerMask);
+
+            if (hit.collider != null)
             {
-                if (hitEnemy.collider.TryGetComponent<Health>(out var enemy))
+                // Атака врага
+                if (((1 << hit.collider.gameObject.layer) & enemiesLayerMask) != 0)
                 {
-                    foreach (var u in _selectedUnits)
-                        if (u && u.TryGetComponent<Fighter>(out var f)) f.SetTarget(enemy);
-                    return;
-                }
-            }
-
-            // 2. Buildings (Garrison, Build, Job)
-            RaycastHit2D bHit = Physics2D.Raycast(p, Vector2.zero, 0f, constructionLayerMask);
-            if (bHit.collider != null)
-            {
-                var building = bHit.collider.GetComponent<Building>();
-                bool isEnemy = (building != null && Kingdom.PlayerKingdom != null && building.ownerKingdomID.Value != Kingdom.PlayerKingdom.kingdomID.Value);
-
-                if (isEnemy)
-                {
-                    if (bHit.collider.TryGetComponent<Health>(out var buildingHealth))
+                    if (hit.collider.TryGetComponent<Health>(out var enemyHealth))
                     {
-                        foreach (var u in _selectedUnits)
-                            if (u && u.TryGetComponent<Fighter>(out var f)) f.SetTarget(buildingHealth);
+                        foreach (var u in _selectedUnits) if (u && u.TryGetComponent<Fighter>(out var f)) f.SetTarget(enemyHealth);
                         return;
                     }
                 }
 
-                if (bHit.collider.TryGetComponent<DefenseTower>(out var t)) { foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitAI>().CommandGarrison(t); return; }
-                if (bHit.collider.TryGetComponent<ConstructionSite>(out var s)) { foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitBuilder>().SetTarget(s); return; }
-                if (bHit.collider.TryGetComponent<JobBuilding>(out var j)) { foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitWorker>().SetTarget(j); return; }
-            }
-
-            // 3. Resources
-            RaycastHit2D hitRes = Physics2D.Raycast(p, Vector2.zero, 0f, resourceLayerMask);
-            if (hitRes.collider != null)
-            {
-                var res = hitRes.collider.GetComponentInParent<ResourceNode>();
-                if (res != null)
+                // Взаимодействие со зданиями
+                if (((1 << hit.collider.gameObject.layer) & constructionLayerMask) != 0)
                 {
-                    foreach (var u in _selectedUnits)
-                        if (u && u.TryGetComponent<UnitGatherer>(out var g)) g.SetTarget(res);
-                    return;
+                    var building = hit.collider.GetComponent<Building>();
+
+                    // Атака вражеского здания
+                    bool isEnemy = (building != null && Kingdom.PlayerKingdom != null
+                        && building.ownerKingdomID.Value != Kingdom.PlayerKingdom.kingdomID.Value);
+
+                    if (isEnemy && hit.collider.TryGetComponent<Health>(out var buildingHealth))
+                    {
+                        foreach (var u in _selectedUnits) if (u && u.TryGetComponent<Fighter>(out var f)) f.SetTarget(buildingHealth);
+                        return;
+                    }
+
+                    // Гарнизон в башню
+                    if (hit.collider.TryGetComponent<DefenseTower>(out var t))
+                    {
+                        foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitAI>().CommandGarrison(t);
+                        return;
+                    }
+
+                    // Строительство
+                    if (hit.collider.TryGetComponent<ConstructionSite>(out var s))
+                    {
+                        foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitAI>().CommandBuild(s);
+                        return;
+                    }
+
+                    // Работа
+                    if (hit.collider.TryGetComponent<JobBuilding>(out var j))
+                    {
+                        foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitWorker>().SetTarget(j);
+                        return;
+                    }
+                }
+
+                // Сбор ресурсов
+                if (((1 << hit.collider.gameObject.layer) & resourceLayerMask) != 0)
+                {
+                    var res = hit.collider.GetComponentInParent<ResourceNode>();
+                    if (res != null) { foreach (var u in _selectedUnits) if (u) u.GetComponent<UnitAI>().CommandGather(res); return; }
                 }
             }
 
-            // 4. Movement
-            if (WorldGenerator.Instance != null)
-            {
-                string biome = WorldGenerator.Instance.GetBiomeAt(p);
-                if (biome.Contains("Water") || biome.Contains("Ocean") ||
-                    biome.Contains("Mountain") || biome.Contains("Rock"))
-                {
-                    return;
-                }
-            }
-
+            // 2. Если никуда не попали (или попали в землю/воду) - просто ИДЕМ ТУДА
+            // Рассчитываем случайный разброс, чтобы юниты не слипались в одной точке
             for (int i = 0; i < _selectedUnits.Count; i++)
             {
                 if (_selectedUnits[i] && _selectedUnits[i].TryGetComponent<UnitAI>(out var ai))
-                    ai.CommandMoveTo(p + (Vector3)(UnityEngine.Random.insideUnitCircle * 0.2f * Mathf.Min(_selectedUnits.Count, 5)));
+                {
+                    Vector3 offset = Vector3.zero;
+                    if (_selectedUnits.Count > 1)
+                    {
+                        offset = (Vector3)(UnityEngine.Random.insideUnitCircle * 0.2f * Mathf.Min(_selectedUnits.Count, 5));
+                    }
+                    ai.CommandMoveTo(worldPoint + offset);
+                }
             }
         }
+        // ---------------------------
 
         private void DeselectAll()
         {
             foreach (var u in _selectedUnits) if (u) u.Deselect();
             _selectedUnits.Clear();
+
             if (_selectedBuilding != null)
             {
                 _selectedBuilding.Deselect();
@@ -244,9 +265,11 @@ namespace WarOfCrowns.Core
         {
             if (!selectionBox) return;
             selectionBox.gameObject.SetActive(true);
+
             Vector2 s, c;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, _startMousePos, _mainCamera, out s);
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvasRect, Mouse.current.position.ReadValue(), _mainCamera, out c);
+
             selectionBox.sizeDelta = new Vector2(Mathf.Abs(c.x - s.x), Mathf.Abs(c.y - s.y));
             selectionBox.anchoredPosition = s + (c - s) / 2;
         }

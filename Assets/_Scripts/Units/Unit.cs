@@ -6,6 +6,7 @@ using WarOfCrowns.Data;
 using WarOfCrowns.Buildings;
 using WarOfCrowns.World;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace WarOfCrowns.Units
 {
@@ -16,6 +17,12 @@ namespace WarOfCrowns.Units
     {
         [Header("Настройки")]
         [SerializeField] private GameObject selectionIndicator;
+
+        // --- НОВОЕ: Настройка "Следа" (Пятки) ---
+        [Header("Позиционирование")]
+        [Tooltip("Смещение точки проверки тайла относительно центра. Настрой так, чтобы точка была в ногах.")]
+        [SerializeField] private Vector2 feetOffset = new Vector2(0, -0.4f);
+        // ----------------------------------------
 
         [Header("Личность (Сетевая)")]
         public NetworkVariable<FixedString64Bytes> unitNameNet = new NetworkVariable<FixedString64Bytes>("");
@@ -36,9 +43,8 @@ namespace WarOfCrowns.Units
         public bool IsEating { get; set; } = false;
         private float starvationTimer = 1f;
 
-        // Состояния среды
-        public bool IsInWater { get; private set; }
-        private bool _isDrowning = false;
+        [Tooltip("Множитель скорости работы без инструмента (0.2 = 20% скорости)")]
+        [SerializeField] private float noToolSpeedPenalty = 0.2f;
 
         [Header("Экипировка (Сетевая)")]
         public NetworkVariable<int> currentToolType = new NetworkVariable<int>((int)ResourceType.Wood);
@@ -51,14 +57,16 @@ namespace WarOfCrowns.Units
 
         [Header("Владелец")]
         public NetworkVariable<int> ownerKingdomID = new NetworkVariable<int>(-1);
+
         [HideInInspector] public Kingdom OwningKingdom;
+
         public string uniqueID;
 
         [Header("Жилье")]
-        // ID NetworkObject Дома, где прописан юнит
         public NetworkVariable<ulong> residenceNetID = new NetworkVariable<ulong>(0);
-        // ID NetworkObject Здания, где юнит сейчас НАХОДИТСЯ (спрятан)
         public NetworkVariable<ulong> currentBuildingNetID = new NetworkVariable<ulong>(0);
+
+        [HideInInspector] public bool isControlLocked = false;
 
         // Свойства
         public string UnitName => unitNameNet.Value.ToString();
@@ -74,12 +82,17 @@ namespace WarOfCrowns.Units
         public string HeadName => "Head_" + headIndex.Value;
         public string ClothesName => "Clothes_" + clothesIndex.Value;
 
+        // Состояния среды
+        public bool IsInWater { get; private set; }
+        private bool _isDrowning = false;
+
         private UnitAI _ai;
         private Health _health;
         private UnitVisuals _visuals;
         private UnitMotor _motor;
-        private float _manualOverrideTimer = 0f;
+
         private bool _visualsLoaded = false;
+        private float _manualOverrideTimer = 0f;
 
         // Заглушки сохранения
         [HideInInspector] public string savedWorkplaceID;
@@ -94,43 +107,62 @@ namespace WarOfCrowns.Units
             _health = GetComponent<Health>();
             _visuals = GetComponent<UnitVisuals>();
             _motor = GetComponent<UnitMotor>();
+
             if (string.IsNullOrEmpty(uniqueID)) uniqueID = System.Guid.NewGuid().ToString();
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
+            StartCoroutine(EnsureKingdomReference());
 
-            // 1. Инициализация владельца
-            UpdateKingdomReference();
-            ownerKingdomID.OnValueChanged += (o, n) =>
-            {
-                UpdateKingdomReference();
-                CheckPopulationRegistration();
+            ownerKingdomID.OnValueChanged += (prev, current) => {
+                OwningKingdom = null;
+                StartCoroutine(EnsureKingdomReference());
             };
 
-            // 2. Инициализация визуала
             bodyIndex.OnValueChanged += (o, n) => TryUpdateVisuals();
             headIndex.OnValueChanged += (o, n) => TryUpdateVisuals();
             clothesIndex.OnValueChanged += (o, n) => TryUpdateVisuals();
             plumeIndex.OnValueChanged += (o, n) => TryUpdateVisuals();
             visualTint.OnValueChanged += (o, n) => TryUpdateVisuals();
 
-            // 3. Экипировка и статус
             currentToolType.OnValueChanged += (o, n) => TryUpdateVisuals();
             currentWeaponType.OnValueChanged += (o, n) => TryUpdateVisuals();
             currentArmorType.OnValueChanged += (o, n) => TryUpdateVisuals();
             professionNet.OnValueChanged += (o, n) => TryUpdateVisuals();
+
             stanceNet.OnValueChanged += (o, n) => _visuals.UpdateStanceVisual(n);
 
-            // 4. Проверка нахождения в здании
             if (currentBuildingNetID.Value != 0) SetVisibility(false);
             currentBuildingNetID.OnValueChanged += OnBuildingStateChanged;
 
             if (IsServer && bodyIndex.Value == -1) InitializeNewUnitOnServer();
 
             StartCoroutine(WaitForDatabaseRoutine());
+        }
+
+        private IEnumerator EnsureKingdomReference()
+        {
+            if (ownerKingdomID.Value == -1)
+                yield return new WaitUntil(() => ownerKingdomID.Value != -1);
+
+            if (ownerKingdomID.Value < 0)
+            {
+                OwningKingdom = null;
+                CheckPopulationRegistration();
+                TryUpdateVisuals();
+                yield break;
+            }
+
+            while (OwningKingdom == null)
+            {
+                OwningKingdom = Kingdom.GetKingdomByID(ownerKingdomID.Value);
+                if (OwningKingdom == null) yield return new WaitForSeconds(0.2f);
+            }
+
             CheckPopulationRegistration();
+            TryUpdateVisuals();
         }
 
         public override void OnNetworkDespawn()
@@ -144,11 +176,9 @@ namespace WarOfCrowns.Units
         {
             if (_isDrowning) return;
 
-            // Повторная попытка загрузки визуала
             if (!_visualsLoaded && WorldState.Instance != null && WorldState.Instance.AppearanceDB != null)
                 TryUpdateVisuals();
 
-            // Логика Сервера
             if (IsServer)
             {
                 if (!IsEating) satiety -= HUNGER_RATE * Time.deltaTime;
@@ -166,23 +196,18 @@ namespace WarOfCrowns.Units
                 HandleDrowning();
             }
 
-            // Логика Владельца
-            if (IsOwner)
+            if (IsOwner && !isControlLocked)
             {
                 if (satiety < 30f && _ai.CurrentState != UnitState.SeekingFood && _ai.CurrentState != UnitState.Fighting)
                     _ai.SeekFood();
             }
 
-            // Проверка воды (Визуал)
             CheckWaterBiome();
-
             if (_manualOverrideTimer > 0) _manualOverrideTimer -= Time.deltaTime;
         }
 
-        // --- УПРАВЛЕНИЕ ВИДИМОСТЬЮ ---
         private void OnBuildingStateChanged(ulong oldId, ulong newId)
         {
-            // 0 = вышел, >0 = зашел
             SetVisibility(newId == 0);
         }
 
@@ -200,12 +225,17 @@ namespace WarOfCrowns.Units
             if (!visible) Deselect();
         }
 
-        // --- ЛОГИКА ВОДЫ ---
+        // --- ИСПРАВЛЕННАЯ ПРОВЕРКА БИОМА ---
         private void CheckWaterBiome()
         {
             if (WorldGenerator.Instance != null)
             {
-                string biome = WorldGenerator.Instance.GetBiomeAt(transform.position);
+                // Проверяем точку под ногами
+                Vector3 checkPos = transform.position + (Vector3)feetOffset;
+
+                string biome = WorldGenerator.Instance.GetBiomeAt(checkPos);
+
+                // Shallow Water (просто Water) или глубже
                 bool water = biome.Contains("Water") || biome.Contains("Ocean") || biome.Contains("Sea");
 
                 if (water != IsInWater)
@@ -216,13 +246,16 @@ namespace WarOfCrowns.Units
             }
         }
 
+        // --- ИСПРАВЛЕННАЯ ПРОВЕРКА УТОПЛЕНИЯ ---
         private void HandleDrowning()
         {
-            if (!IsInWater) return;
-            if (_isDrowning) return;
+            if (!IsInWater || _isDrowning) return;
 
             bool hasHeavyArmor = Armor != ResourceType.Wood;
-            string biome = WorldGenerator.Instance.GetBiomeAt(transform.position);
+
+            Vector3 checkPos = transform.position + (Vector3)feetOffset;
+            string biome = WorldGenerator.Instance.GetBiomeAt(checkPos);
+
             bool deepWater = biome.Contains("Deep") || biome.Contains("Sea");
 
             if (hasHeavyArmor && deepWater)
@@ -246,6 +279,7 @@ namespace WarOfCrowns.Units
                 _visuals.TriggerDrowningEffect();
                 animDuration = _visuals.DrownAnimationLength;
             }
+
             yield return new WaitForSeconds(animDuration);
 
             if (IsServer)
@@ -255,26 +289,19 @@ namespace WarOfCrowns.Units
             }
         }
 
-        // --- СЕТЕВЫЕ ССЫЛКИ ---
-        public void ForceUpdateKingdomReferenceServer() { UpdateKingdomReference(); }
-
-        private void UpdateKingdomReference()
-        {
-            if (ownerKingdomID.Value == -1) return;
-            OwningKingdom = Kingdom.GetKingdomByID(ownerKingdomID.Value);
-        }
+        public void ForceUpdateKingdomReferenceServer() { StartCoroutine(EnsureKingdomReference()); }
 
         private void CheckPopulationRegistration()
         {
             if (PopulationManager.Instance == null || Kingdom.PlayerKingdom == null) return;
             if (gameObject.CompareTag("Enemy")) return;
+
             if (ownerKingdomID.Value == Kingdom.PlayerKingdom.kingdomID.Value)
                 PopulationManager.Instance.AddUnit(this);
             else
                 PopulationManager.Instance.RemoveUnit(this);
         }
 
-        // --- ИНИЦИАЛИЗАЦИЯ И ВИЗУАЛ ---
         private IEnumerator WaitForDatabaseRoutine()
         {
             while (WorldState.Instance == null || WorldState.Instance.AppearanceDB == null) yield return null;
@@ -294,12 +321,15 @@ namespace WarOfCrowns.Units
             {
                 var db = WorldState.Instance.AppearanceDB;
                 if (db.bodies != null && db.bodies.Count > 0) bodyIndex.Value = Random.Range(0, db.bodies.Count);
+
                 if (g == Gender.Male && db.maleHeads != null && db.maleHeads.Count > 0)
                     headIndex.Value = Random.Range(0, db.maleHeads.Count);
                 else if (g == Gender.Female && db.femaleHeads != null && db.femaleHeads.Count > 0)
                     headIndex.Value = Random.Range(0, db.femaleHeads.Count);
+
                 if (db.peasantClothes != null && db.peasantClothes.Count > 0)
                     clothesIndex.Value = Random.Range(0, db.peasantClothes.Count);
+
                 if (db.soldierPlumes != null && db.soldierPlumes.Count > 0)
                     plumeIndex.Value = Random.Range(0, db.soldierPlumes.Count);
             }
@@ -308,6 +338,7 @@ namespace WarOfCrowns.Units
         private void TryUpdateVisuals()
         {
             if (WorldState.Instance == null || WorldState.Instance.AppearanceDB == null) return;
+
             var db = WorldState.Instance.AppearanceDB;
 
             SpriteSet bodySet = null;
@@ -341,41 +372,52 @@ namespace WarOfCrowns.Units
             if (bodyIndex.Value != -1) _visualsLoaded = true;
         }
 
-        // --- RPC И ИНСТРУМЕНТЫ ---
         public void SetStance(UnitStance newStance) { if (IsServer) stanceNet.Value = newStance; else SetStanceServerRpc(newStance); }
         [ServerRpc(RequireOwnership = false)] private void SetStanceServerRpc(UnitStance newStance) { stanceNet.Value = newStance; }
+
         public void Eat(int amount) { if (IsServer) { satiety += amount; if (satiety > 100f) satiety = 100f; } else EatServerRpc(amount); }
         [ServerRpc(RequireOwnership = false)] private void EatServerRpc(int amount) { Eat(amount); }
+
         public void SetManualCommandOverride() { _manualOverrideTimer = 20f; IsEating = false; }
         public void SetProfession(ProfessionType p) { if (IsServer) professionNet.Value = (int)p; }
 
         public float GetToolSpeedMultiplier(string targetResourceName = "")
         {
-            if (WorldState.Instance == null || WorldState.Instance.ToolDB == null) return 1.0f;
-            if (!string.IsNullOrEmpty(targetResourceName))
-            {
-                string toolName = Tool.ToString();
-                bool isMatch = false;
-                if (targetResourceName.Contains("Wood") && toolName.Contains("Axe")) isMatch = true;
-                else if ((targetResourceName.Contains("Stone") || targetResourceName.Contains("Ore") || targetResourceName.Contains("Gold") || targetResourceName.Contains("Coal")) && toolName.Contains("Pickaxe")) isMatch = true;
-                else if (targetResourceName == "Construction" && toolName.Contains("Hammer")) isMatch = true;
-                if (!isMatch) return 1.0f;
-            }
-            return WorldState.Instance.ToolDB.GetMultiplier(Tool);
+            if (string.IsNullOrEmpty(targetResourceName) || targetResourceName.Contains("Berr") || targetResourceName.Contains("Food") || targetResourceName.Contains("Wheat"))
+                return 1.0f;
+
+            if (Tool == ResourceType.Wood || !IsToolSuitable(Tool, targetResourceName))
+                return noToolSpeedPenalty;
+
+            if (WorldState.Instance != null && WorldState.Instance.ToolDB != null)
+                return WorldState.Instance.ToolDB.GetMultiplier(Tool);
+
+            return 1.0f;
+        }
+
+        public bool IsToolSuitable(ResourceType tool, string targetResourceName)
+        {
+            if (string.IsNullOrEmpty(targetResourceName)) return true;
+            if (targetResourceName.Contains("Berr") || targetResourceName.Contains("Food")) return true;
+
+            string toolName = tool.ToString();
+            if (targetResourceName.Contains("Wood") && toolName.Contains("Axe")) return true;
+            if ((targetResourceName.Contains("Stone") || targetResourceName.Contains("Ore") || targetResourceName.Contains("Gold") || targetResourceName.Contains("Coal")) && toolName.Contains("Pickaxe")) return true;
+            if (targetResourceName == "Construction" && toolName.Contains("Hammer")) return true;
+
+            return false;
         }
 
         public bool HasBetterToolInStock(ResourceType requiredCategory)
         {
             if (OwningKingdom == null) return false;
             string reqName = requiredCategory.ToString();
-            bool wrongType = true;
-            if (Tool.ToString().Contains("Axe") && reqName.Contains("Axe")) wrongType = false;
-            if (Tool.ToString().Contains("Pickaxe") && reqName.Contains("Pickaxe")) wrongType = false;
-            if (Tool.ToString().Contains("Hammer") && reqName.Contains("Hammer")) wrongType = false;
-            if (Tool == ResourceType.Wood || wrongType)
+            ResourceType[] priority = GetToolsByPriority(reqName);
+
+            foreach (var tool in priority)
             {
-                ResourceType[] priority = GetToolsByPriority(reqName);
-                foreach (var tool in priority) { if (tool == ResourceType.Wood) continue; if (OwningKingdom.GetResourceAmount(tool) > 0) return true; }
+                if (tool == ResourceType.Wood) continue;
+                if (OwningKingdom.GetResourceAmount(tool) > 0) return true;
             }
             return false;
         }
@@ -383,8 +425,10 @@ namespace WarOfCrowns.Units
         public void EquipBestTool(ResourceType requiredCategory)
         {
             if (!IsServer || OwningKingdom == null) return;
+
             string reqName = requiredCategory.ToString();
             ResourceType[] priority = GetToolsByPriority(reqName);
+
             foreach (var tool in priority)
             {
                 if (tool == ResourceType.Wood) continue;
@@ -435,11 +479,21 @@ namespace WarOfCrowns.Units
 
         public void Select() { if (selectionIndicator) selectionIndicator.SetActive(true); }
         public void Deselect() { if (selectionIndicator) selectionIndicator.SetActive(false); }
+
         public void SetFacingDirection(Vector3 t) { _visuals.FaceTarget(t); }
         [ClientRpc] public void PlayAttackVisualsClientRpc(Vector3 t) { _visuals.FaceTarget(t); _visuals.TriggerAttackAnimation(); }
 
         public UnitSaveData GetSaveData() { return new UnitSaveData(); }
         public void LoadFromData(UnitSaveData d) { }
         public void RestoreActions() { }
+
+        // --- ВИЗУАЛИЗАЦИЯ В РЕДАКТОРЕ ---
+        private void OnDrawGizmosSelected()
+        {
+            // Рисуем точку, где находятся "пятки"
+            Gizmos.color = Color.yellow;
+            Vector3 feetPos = transform.position + (Vector3)feetOffset;
+            Gizmos.DrawSphere(feetPos, 0.1f);
+        }
     }
 }

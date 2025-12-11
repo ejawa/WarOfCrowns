@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: -1527364264208979183}
   - component: {fileID: 5368330334834521530}
   - component: {fileID: 626912633016942913}
+  - component: {fileID: -4834320388149518682}
   m_Layer: 12
   m_Name: Warehouse_Building
   m_TagString: Untagged
@@ -234,7 +235,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.028526247, y: 0.15439707}
+  m_Offset: {x: 0.028526247, y: 0.17101106}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
@@ -245,7 +246,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.883782, y: 0.37072575}
+  m_Size: {x: 0.883782, y: 0.40395373}
   m_EdgeRadius: 0
 --- !u!114 &-8277294653877732418
 MonoBehaviour:
@@ -259,7 +260,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 773762766
+  GlobalObjectIdHash: 655353078
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -288,11 +289,11 @@ MonoBehaviour:
     amount: 50
   populationBonus: 0
   entrancePoint: {fileID: 543371663886877853}
+  roofRenderer: {fileID: 0}
   ownerKingdomID:
     m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
-  roofRenderer: {fileID: 0}
 --- !u!114 &5368330334834521530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,3 +321,15 @@ MonoBehaviour:
   maxHealth: 500
   currentHealth:
     m_InternalValue: 100
+--- !u!114 &-4834320388149518682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8903364822000936487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d91672eeacad5840ad3edfc4ebe9417, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

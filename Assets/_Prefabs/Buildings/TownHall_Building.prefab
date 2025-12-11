@@ -353,7 +353,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0023393035, y: -0.30604184}
+  m_Offset: {x: -0.0023393035, y: -0.099787906}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0}
@@ -364,7 +364,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.028071, y: 0.35436106}
+  m_Size: {x: 1.028071, y: 0.76686895}
   m_EdgeRadius: 0
 --- !u!114 &6030099316004813930
 MonoBehaviour:
@@ -407,11 +407,11 @@ MonoBehaviour:
     amount: 50
   populationBonus: 10
   entrancePoint: {fileID: 1044621858328458827}
+  roofRenderer: {fileID: 3609202384658398418}
   ownerKingdomID:
     m_InternalValue: 0
   OwningKingdom: {fileID: 0}
   uniqueID: 
-  roofRenderer: {fileID: 3609202384658398418}
 --- !u!114 &3461644213086021941
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,6 +1,8 @@
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
 using System.Collections.Generic;
+using WarOfCrowns.Core;
 using Random = System.Random;
 
 namespace WarOfCrowns.World
@@ -10,24 +12,23 @@ namespace WarOfCrowns.World
     {
         public string name;
         public GameObject prefab;
-        public int totalAmount = 300;
-        public int groupSizeMin = 1;
-        public int groupSizeMax = 3;
-        public float groupRadius = 3.0f;
-        public List<string> allowedBiomes; // Например: "Grass", "Forest"
+        [Tooltip("Это количество будет заспавнено в СЕКТОРЕ КАЖДОГО игрока.")]
+        public int amountPerPlayerZone = 100;
+        public List<string> allowedBiomes;
         public float itemSpacing = 1.0f;
-
-        [Tooltip("Радиус проверки земли под объектом. 0.5 = 1 тайл.")]
-        public float footprintRadius = 0.5f; // <-- ВАЖНЫЙ ПАРАМЕТР
     }
 
     public class ResourceSpawner : NetworkBehaviour
     {
         public static ResourceSpawner Instance { get; private set; }
+        public bool IsSpawningComplete { get; private set; } = true; // <--- НОВЫЙ ФЛАГ
 
         [Header("Настройки Спавна")]
         public List<ResourceSpawnRule> spawnRules;
         public LayerMask obstacleLayer;
+
+        [Header("Зоны Спавна")]
+        [Tooltip("Не спавнить ресурсы ближе этого радиуса к стартовой ратуше игрока.")]
         public float spawnSafeZoneRadius = 15f;
 
         private void Awake() { Instance = this; }
@@ -35,133 +36,87 @@ namespace WarOfCrowns.World
         public void SpawnAllResources(string seedString)
         {
             if (!IsServer) return;
-            if (WorldGenerator.Instance == null) return;
+            IsSpawningComplete = false; // <--- Опускаем флаг перед стартом
+            StartCoroutine(SpawnRoutine(seedString));
+        }
+
+        private IEnumerator SpawnRoutine(string seedString)
+        {
+            if (WorldGenerator.Instance == null)
+            {
+                IsSpawningComplete = true; // <--- Поднимаем флаг в случае ошибки
+                yield break;
+            }
 
             int seed = seedString.GetHashCode();
             Random prng = new Random(seed);
 
-            Debug.Log($"[ResourceSpawner] Сетевой спавн ресурсов (Seed: {seed})...");
+            Debug.Log($"[ResourceSpawner] Запуск спавна ресурсов по секторам (Seed: {seed})...");
 
+            // Чистка
             foreach (var r in FindObjectsOfType<ResourceNode>())
             {
                 if (r.TryGetComponent<NetworkObject>(out var no)) no.Despawn();
                 else Destroy(r.gameObject);
             }
+            yield return null;
 
+            int playersCount = WorldGenerator.Instance.CurrentKingdomsCount;
             int width = WorldGenerator.Instance.width;
             int height = WorldGenerator.Instance.height;
 
-            int playersCount = 2;
-            if (WarOfCrowns.Core.ConnectionManager.Instance != null)
-                playersCount = WarOfCrowns.Core.ConnectionManager.Instance.ConnectedPlayers.Count;
-
-            List<Vector3> playerSpawnPoints = new List<Vector3>();
+            List<Vector3> playerBases = new List<Vector3>();
             for (int i = 0; i < playersCount; i++)
             {
-                playerSpawnPoints.Add(WorldGenerator.Instance.GetSpawnPosition(i));
+                playerBases.Add(WorldGenerator.Instance.GetSpawnPosition(i));
             }
 
             foreach (var rule in spawnRules)
             {
                 if (rule.prefab == null) continue;
 
-                int spawnedCount = 0;
-                int attempts = 0;
-                int maxAttempts = rule.totalAmount * 50;
-
-                while (spawnedCount < rule.totalAmount && attempts < maxAttempts)
+                for (int playerID = 0; playerID < playersCount; playerID++)
                 {
-                    attempts++;
+                    int spawnedForThisPlayer = 0;
+                    int attempts = 0;
+                    int maxAttempts = rule.amountPerPlayerZone * 200;
 
-                    float centerX = (float)prng.NextDouble() * width - (width / 2f);
-                    float centerY = (float)prng.NextDouble() * height - (height / 2f);
-                    Vector3 groupCenter = new Vector3(centerX, centerY, 0);
-
-                    // Проверка биома центра группы
-                    if (!IsAreaValid(groupCenter, 0.1f, rule.allowedBiomes)) continue;
-
-                    int sizeThisTime = prng.Next(rule.groupSizeMin, rule.groupSizeMax + 1);
-
-                    for (int i = 0; i < sizeThisTime; i++)
+                    while (spawnedForThisPlayer < rule.amountPerPlayerZone && attempts < maxAttempts)
                     {
-                        if (spawnedCount >= rule.totalAmount) break;
+                        attempts++;
 
-                        for (int k = 0; k < 10; k++)
-                        {
-                            float angle = (float)prng.NextDouble() * Mathf.PI * 2;
-                            float radius = Mathf.Sqrt((float)prng.NextDouble()) * rule.groupRadius;
-                            Vector3 pos = groupCenter + new Vector3(Mathf.Cos(angle) * radius, Mathf.Sin(angle) * radius, 0);
+                        float angleDeg = (playerID * (360f / playersCount)) - (360f / (playersCount * 2)) + ((float)prng.NextDouble() * (360f / playersCount));
+                        float dist = (float)prng.NextDouble() * (width / 2f);
+                        float angleRad = angleDeg * Mathf.Deg2Rad;
+                        Vector3 randomPos = new Vector3(Mathf.Cos(angleRad) * dist, Mathf.Sin(angleRad) * dist, 0);
 
-                            // --- ПРОВЕРКИ ---
+                        if (Vector3.Distance(randomPos, playerBases[playerID]) < spawnSafeZoneRadius) continue;
+                        if (!IsAreaValid(randomPos, 0.5f, rule.allowedBiomes)) continue;
+                        if (Physics2D.OverlapCircle(randomPos, rule.itemSpacing, obstacleLayer)) continue;
 
-                            // 1. ЖЕСТКАЯ ПРОВЕРКА ТАЙЛОВ ПО ПЛОЩАДИ
-                            // Мы передаем footprintRadius, чтобы проверить не только точку, но и соседей
-                            if (!IsAreaValid(pos, rule.footprintRadius, rule.allowedBiomes)) continue;
+                        GameObject res = Instantiate(rule.prefab, randomPos, Quaternion.identity);
+                        var netObj = res.GetComponent<NetworkObject>();
+                        if (netObj != null) netObj.Spawn();
 
-                            // 2. Препятствия (вода, другие ресурсы)
-                            if (Physics2D.OverlapCircle(pos, rule.itemSpacing, obstacleLayer)) continue;
+                        spawnedForThisPlayer++;
 
-                            // 3. Безопасная зона
-                            bool tooClose = false;
-                            foreach (var spawnPoint in playerSpawnPoints)
-                            {
-                                if (Vector3.Distance(pos, spawnPoint) < spawnSafeZoneRadius)
-                                {
-                                    tooClose = true;
-                                    break;
-                                }
-                            }
-                            if (tooClose) continue;
-
-                            // --- СПАВН ---
-                            GameObject res = Instantiate(rule.prefab, pos, Quaternion.identity);
-                            var netObj = res.GetComponent<NetworkObject>();
-                            if (netObj != null)
-                            {
-                                netObj.Spawn();
-                            }
-                            else
-                            {
-                                Destroy(res);
-                            }
-
-                            spawnedCount++;
-                            break;
-                        }
+                        if (spawnedForThisPlayer % 50 == 0)
+                            yield return null;
                     }
+                    if (attempts >= maxAttempts) Debug.LogWarning($"[ResourceSpawner] Не удалось заспавнить все {rule.name} для игрока {playerID}.");
                 }
-                Debug.Log($"[ResourceSpawner] Заспавнено {spawnedCount} объектов типа {rule.name}");
+                Debug.Log($"[ResourceSpawner] Завершён спавн ресурса: {rule.name}");
             }
+
+            IsSpawningComplete = true; // <--- Поднимаем флаг по завершении
+            Debug.Log("[ResourceSpawner] Спавн всех ресурсов завершен.");
         }
 
-        // --- НОВЫЙ МЕТОД ПРОВЕРКИ ---
         private bool IsAreaValid(Vector3 centerPos, float radius, List<string> allowedBiomes)
         {
-            if (WorldGenerator.Instance == null || WorldGenerator.Instance.baseTilemap == null) return false;
-
-            var tilemap = WorldGenerator.Instance.baseTilemap;
-
-            // Вычисляем охват в клетках
-            // Если radius = 0.5, мы проверим центр и ближайших соседей, если стоим на краю
-            Vector3Int minCell = tilemap.WorldToCell(centerPos - new Vector3(radius, radius, 0));
-            Vector3Int maxCell = tilemap.WorldToCell(centerPos + new Vector3(radius, radius, 0));
-
-            for (int x = minCell.x; x <= maxCell.x; x++)
-            {
-                for (int y = minCell.y; y <= maxCell.y; y++)
-                {
-                    // Получаем реальное имя биома из WorldGenerator
-                    // Используем метод GetBiomeAtCell, который мы написали ранее
-                    string biome = WorldGenerator.Instance.GetBiomeAtCell(new Vector3Int(x, y, 0));
-
-                    // Если биом этой клетки НЕ входит в список разрешенных - запрещаем спавн
-                    if (!allowedBiomes.Contains(biome))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            if (WorldGenerator.Instance == null) return false;
+            string biome = WorldGenerator.Instance.GetBiomeAt(centerPos);
+            return allowedBiomes.Contains(biome);
         }
     }
 }

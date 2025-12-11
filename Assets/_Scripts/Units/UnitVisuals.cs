@@ -24,7 +24,8 @@ namespace WarOfCrowns.Units
         [SerializeField] private Sprite defensiveIcon;
         [SerializeField] private Sprite holdIcon;
         [SerializeField] private Color stanceColor = new Color(1f, 1f, 1f, 0.9f);
-
+        [Header("X-Ray")]
+        [SerializeField] private SpriteRenderer silhouetteRenderer; // <-- Привяжи сюда объект Silhouette
         [Header("Эффекты")]
         [SerializeField] private SpriteRenderer parryEffectRenderer;
 
@@ -36,20 +37,16 @@ namespace WarOfCrowns.Units
 
         private Unit _unit;
         private UnitMotor _motor;
-
         private SpriteSet _bodySet, _clothesSet, _headSet, _armorSet, _weaponSet, _plumeSet;
-
         private float _animTimer;
-        // Исправлено имя переменной, чтобы везде было одинаково
         private int _currentFrameIndex;
         private float _initialScaleX;
         private Transform _visualRoot;
+
         private Vector3 _lastPosition;
         private Coroutine _parryCoroutine;
         private Coroutine _drowningCoroutine;
         private Vector3 _iconInitialScale;
-
-        // Кэшируем состояние движения, чтобы использовать в UpdateAllRenderers
         private bool _isMovingCached;
 
         // Геттеры для UI
@@ -71,7 +68,6 @@ namespace WarOfCrowns.Units
         {
             _unit = GetComponentInParent<Unit>();
             _motor = GetComponentInParent<UnitMotor>();
-
             _visualRoot = transform.Find("Visuals");
             if (_visualRoot == null) _visualRoot = transform;
 
@@ -104,12 +100,12 @@ namespace WarOfCrowns.Units
             HandleFogOfWarVisibility();
             if (!_visualRoot.gameObject.activeSelf) return;
 
-            // 2. Цвета
+            // 2. Цвета (Вызываем каждый кадр, чтобы реагировать на объявление войны)
+            // Можно оптимизировать через события, но пока и так сойдет
             UpdateColors();
 
             // 3. Расчет движения
             float deltaX = 0f;
-
             if (_unit.IsOwner)
             {
                 if (_motor != null)
@@ -159,15 +155,13 @@ namespace WarOfCrowns.Units
             // 6. Отрисовка
             if (_drowningCoroutine == null)
             {
-                // Передаем текущий индекс кадра
                 UpdateAllRenderers(_currentFrameIndex);
             }
         }
 
-        // --- ДОБАВЛЕН МЕТОД ДЛЯ UNIT.CS ---
+        // --- МЕТОД ДЛЯ UNIT.CS ---
         public void ForceUpdateState()
         {
-            // Просто принудительно вызываем отрисовку текущего кадра
             UpdateAllRenderers(_currentFrameIndex);
         }
         // ----------------------------------
@@ -178,119 +172,52 @@ namespace WarOfCrowns.Units
             if (headRenderer) headRenderer.color = Color.white;
             if (armorRenderer) armorRenderer.color = Color.white;
 
-            if (_unit.OwningKingdom == null) return;
+            // Фоллбэк, если королевства еще нет
+            if (_unit.OwningKingdom == null)
+            {
+                if (clothesRenderer) clothesRenderer.color = Color.grey;
+                if (plumeRenderer) plumeRenderer.color = Color.grey;
+                return;
+            }
 
-            Color baseColor = _unit.OwningKingdom.kingdomColor.Value;
+            Color targetColor = _unit.OwningKingdom.kingdomColor.Value;
+
+            if (Kingdom.PlayerKingdom != null)
+            {
+                int myID = Kingdom.PlayerKingdom.kingdomID.Value;
+                int unitOwnerID = _unit.ownerKingdomID.Value;
+
+                if (unitOwnerID != myID && Kingdom.PlayerKingdom.IsAtWarWith(unitOwnerID))
+                {
+                    targetColor = Color.red;
+                }
+            }
 
             if (clothesRenderer)
             {
                 float tint = _unit.visualTint.Value;
-                Color clothColor = new Color(baseColor.r * tint, baseColor.g * tint, baseColor.b * tint, 1f);
+                Color clothColor = Color.Lerp(Color.black, targetColor, tint);
+                clothColor.a = 1f; // <--- ИЗМЕНЕНИЕ
                 clothesRenderer.color = clothColor;
             }
 
             if (plumeRenderer)
             {
-                plumeRenderer.color = baseColor;
+                Color plumeColor = targetColor;
+                plumeColor.a = 1f; // <--- ИЗМЕНЕНИЕ
+                plumeRenderer.color = plumeColor;
             }
         }
 
-        private void UpdateAllRenderers(int globalFrameIndex)
-        {
-            bool inWater = _unit.IsInWater;
+        // ... (Остальные методы LoadAppearance, UpdateEquipment, UpdateAllRenderers и эффекты - без изменений) ...
+        // Копируй их из предыдущего файла, так как мы меняли только UpdateColors
 
-            // Определяем тип анимации: 0=Idle, 1=Walk, 2=Swim
-            int animType = 0;
-
-            if (inWater)
-            {
-                animType = 2; // В воде ВСЕГДА анимация плавания (даже если стоим)
-            }
-            else if (_isMovingCached)
-            {
-                animType = 1; // На суше и идем
-            }
-            else
-            {
-                animType = 0; // На суше и стоим
-            }
-
-            SetSprite(bodyRenderer, _bodySet, globalFrameIndex, animType);
-            SetSprite(clothesRenderer, _clothesSet, globalFrameIndex, animType);
-            SetSprite(headRenderer, _headSet, globalFrameIndex, animType);
-            SetSprite(armorRenderer, _armorSet, globalFrameIndex, animType);
-
-            if (inWater)
-            {
-                if (weaponToolRenderer) weaponToolRenderer.sprite = null;
-            }
-            else
-            {
-                SetSprite(weaponToolRenderer, _weaponSet, globalFrameIndex, animType);
-            }
-
-            if (plumeRenderer)
-            {
-                bool showPlume = (_unit.Profession == ProfessionType.Soldier);
-                if (plumeRenderer.gameObject.activeSelf != showPlume)
-                    plumeRenderer.gameObject.SetActive(showPlume);
-
-                if (showPlume)
-                {
-                    SetSprite(plumeRenderer, _plumeSet, globalFrameIndex, animType);
-                }
-            }
-        }
-
-        private void SetSprite(SpriteRenderer r, SpriteSet s, int frameIndex, int animType)
-        {
-            if (!r) return;
-            if (r != clothesRenderer && r != plumeRenderer) r.color = Color.white;
-            if (s == null) { r.sprite = null; return; }
-
-            Sprite spriteToSet = null;
-
-            if (animType == 2) // SWIM
-            {
-                if (s.swim != null && s.swim.Length > 0)
-                {
-                    // Анимация плавания играет всегда, используем глобальный счетчик кадров
-                    int i = frameIndex % s.swim.Length;
-                    spriteToSet = s.swim[i];
-                }
-                else
-                {
-                    // Нет спрайтов плавания -> тело скрыто, голова Idle
-                    if (r == bodyRenderer || r == clothesRenderer || r == armorRenderer) spriteToSet = null;
-                    else spriteToSet = s.idle;
-                }
-            }
-            else if (animType == 1) // WALK
-            {
-                if (s.walk != null && s.walk.Length > 0)
-                {
-                    int i = frameIndex % s.walk.Length;
-                    spriteToSet = s.walk[i];
-                }
-                else spriteToSet = s.idle;
-            }
-            else // IDLE
-            {
-                spriteToSet = s.idle;
-            }
-
-            r.sprite = spriteToSet;
-        }
-
-        // --- ИСПРАВЛЕНЫ ВЫЗОВЫ НИЖЕ ---
+        // ДЛЯ УДОБСТВА Я ПРИВОЖУ ИХ НИЖЕ, ЧТОБЫ ТЫ МОГ СКОПИРОВАТЬ ФАЙЛ ЦЕЛИКОМ:
 
         public void LoadAppearance(SpriteSet b, SpriteSet h, SpriteSet c, SpriteSet p)
         {
-            _bodySet = b;
-            _headSet = h;
-            _clothesSet = c;
-            _plumeSet = p;
-            UpdateAllRenderers(_currentFrameIndex); // Исправлено: передаем int
+            _bodySet = b; _headSet = h; _clothesSet = c; _plumeSet = p;
+            UpdateAllRenderers(_currentFrameIndex);
         }
 
         public void UpdateEquipment(ResourceType t, ResourceType w, ResourceType a, AppearanceDatabase db)
@@ -298,15 +225,13 @@ namespace WarOfCrowns.Units
             if (!db) return;
             _weaponSet = db.GetEquipmentSprites(w) ?? db.GetEquipmentSprites(t);
             _armorSet = db.GetEquipmentSprites(a);
-            UpdateAllRenderers(_currentFrameIndex); // Исправлено: передаем int
+            UpdateAllRenderers(_currentFrameIndex);
         }
 
         public void UpdateProfession(ProfessionType p, AppearanceDatabase db)
         {
-            UpdateAllRenderers(_currentFrameIndex); // Исправлено: передаем int
+            UpdateAllRenderers(_currentFrameIndex);
         }
-
-        // ... (Остальные методы без изменений) ...
 
         private void HandleFogOfWarVisibility()
         {
@@ -316,6 +241,7 @@ namespace WarOfCrowns.Units
                 if (!_visualRoot.gameObject.activeSelf) _visualRoot.gameObject.SetActive(true);
                 return;
             }
+
             bool isVisible = FogOfWarManager.Instance.IsVisible(transform.position);
             if (_visualRoot.gameObject.activeSelf != isVisible)
                 _visualRoot.gameObject.SetActive(isVisible);
@@ -324,14 +250,17 @@ namespace WarOfCrowns.Units
         public void UpdateStanceVisual(UnitStance stance)
         {
             if (!stanceIconRenderer) return;
+
             if (!ShowStanceIcons || (Kingdom.PlayerKingdom && _unit.ownerKingdomID.Value != Kingdom.PlayerKingdom.kingdomID.Value))
             {
                 stanceIconRenderer.gameObject.SetActive(false);
                 return;
             }
+
             stanceIconRenderer.gameObject.SetActive(true);
             stanceIconRenderer.transform.localPosition = Vector3.up * 0.9f;
             stanceIconRenderer.color = stanceColor;
+
             switch (stance)
             {
                 case UnitStance.Aggressive: stanceIconRenderer.sprite = aggressiveIcon; break;
@@ -353,11 +282,7 @@ namespace WarOfCrowns.Units
             }
         }
 
-        public void TriggerAttackAnimation()
-        {
-            StopAllCoroutines();
-            StartCoroutine(AttackLeanRoutine());
-        }
+        public void TriggerAttackAnimation() { StopAllCoroutines(); StartCoroutine(AttackLeanRoutine()); }
 
         private IEnumerator AttackLeanRoutine()
         {
@@ -386,20 +311,8 @@ namespace WarOfCrowns.Units
             parryEffectRenderer.transform.localPosition = Vector3.up * 0.5f;
             Vector3 startPos = parryEffectRenderer.transform.localPosition;
             Vector3 endPos = startPos + Vector3.up * 0.5f;
-
-            float duration = 0.5f;
-            float e = 0f;
-
-            while (e < duration)
-            {
-                float t = e / duration;
-                parryEffectRenderer.transform.localPosition = Vector3.Lerp(startPos, endPos, t);
-                Color c = parryEffectRenderer.color;
-                c.a = 1f - t;
-                parryEffectRenderer.color = c;
-                e += Time.deltaTime;
-                yield return null;
-            }
+            float duration = 0.5f; float e = 0f;
+            while (e < duration) { float t = e / duration; parryEffectRenderer.transform.localPosition = Vector3.Lerp(startPos, endPos, t); Color c = parryEffectRenderer.color; c.a = 1f - t; parryEffectRenderer.color = c; e += Time.deltaTime; yield return null; }
             parryEffectRenderer.gameObject.SetActive(false);
         }
 
@@ -413,7 +326,6 @@ namespace WarOfCrowns.Units
         {
             if (weaponToolRenderer) weaponToolRenderer.sprite = null;
             int frames = (_bodySet != null && _bodySet.drown != null) ? _bodySet.drown.Length : 5;
-
             for (int i = 0; i < frames; i++)
             {
                 SetDrownFrame(bodyRenderer, _bodySet, i);
@@ -432,6 +344,56 @@ namespace WarOfCrowns.Units
             if (s == null || s.drown == null || s.drown.Length == 0) return;
             int i = Mathf.Min(frameIndex, s.drown.Length - 1);
             r.sprite = s.drown[i];
+        }
+
+        private void UpdateAllRenderers(int globalFrameIndex)
+        {
+            bool inWater = _unit.IsInWater;
+            int animType = 0;
+            if (inWater) animType = 2;
+            else if (_isMovingCached) animType = 1;
+            else animType = 0;
+            if (silhouetteRenderer)
+            {
+                silhouetteRenderer.sprite = bodyRenderer.sprite;
+                // Или weaponRenderer.sprite, если хочешь подсвечивать оружие тоже.
+                // Обычно подсвечивают только тело (bodyRenderer).
+                silhouetteRenderer.flipX = bodyRenderer.flipX; // Синхрон поворота
+            }
+            SetSprite(bodyRenderer, _bodySet, globalFrameIndex, animType);
+            SetSprite(clothesRenderer, _clothesSet, globalFrameIndex, animType);
+            SetSprite(headRenderer, _headSet, globalFrameIndex, animType);
+            SetSprite(armorRenderer, _armorSet, globalFrameIndex, animType);
+
+            if (inWater) { if (weaponToolRenderer) weaponToolRenderer.sprite = null; }
+            else { SetSprite(weaponToolRenderer, _weaponSet, globalFrameIndex, animType); }
+
+            if (plumeRenderer)
+            {
+                bool showPlume = (_unit.Profession == ProfessionType.Soldier);
+                if (plumeRenderer.gameObject.activeSelf != showPlume) plumeRenderer.gameObject.SetActive(showPlume);
+                if (showPlume) SetSprite(plumeRenderer, _plumeSet, globalFrameIndex, animType);
+            }
+        }
+
+        private void SetSprite(SpriteRenderer r, SpriteSet s, int frameIndex, int animType)
+        {
+            if (!r) return;
+            if (r != clothesRenderer && r != plumeRenderer) r.color = Color.white;
+            if (s == null) { r.sprite = null; return; }
+            Sprite spriteToSet = null;
+            if (animType == 2) // SWIM
+            {
+                if (s.swim != null && s.swim.Length > 0) { int i = frameIndex % s.swim.Length; spriteToSet = s.swim[i]; }
+                else { if (r == bodyRenderer || r == clothesRenderer || r == armorRenderer) spriteToSet = null; else spriteToSet = s.idle; }
+            }
+            else if (animType == 1) // WALK
+            {
+                if (s.walk != null && s.walk.Length > 0) { int i = frameIndex % s.walk.Length; spriteToSet = s.walk[i]; }
+                else spriteToSet = s.idle;
+            }
+            else spriteToSet = s.idle; // IDLE
+            r.sprite = spriteToSet;
         }
     }
 }

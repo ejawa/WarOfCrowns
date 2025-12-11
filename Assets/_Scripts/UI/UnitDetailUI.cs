@@ -36,7 +36,7 @@ namespace WarOfCrowns.UI
 
         [Header("Дом")]
         [SerializeField] private Button homeButton;
-        [SerializeField] private TextMeshProUGUI homeStatusText; // "Живет в Доме" или "Бездомный"
+        [SerializeField] private TextMeshProUGUI homeStatusText;
 
         private Unit _currentUnit;
 
@@ -48,8 +48,6 @@ namespace WarOfCrowns.UI
         public void Open(Unit unit)
         {
             _currentUnit = unit;
-
-            // ВАЖНО: Закрываем другие окна
             if (MainUIController.Instance)
                 MainUIController.Instance.CloseEverythingForUnitView();
 
@@ -66,45 +64,57 @@ namespace WarOfCrowns.UI
         private void Update()
         {
             if (!gameObject.activeSelf) return;
+            if (_currentUnit == null) { Close(); return; }
 
-            // Если юнит умер или исчез
-            if (_currentUnit == null)
+            UpdateKingdomDisplay();
+            RefreshDynamicInfo();
+        }
+
+        private void UpdateKingdomDisplay()
+        {
+            string kName = "Нейтральный";
+            Color kColor = Color.gray;
+
+            // 1. Пробуем взять прямо из ссылки
+            if (_currentUnit.OwningKingdom != null)
             {
-                Close();
-                return;
+                kName = _currentUnit.OwningKingdom.kingdomName.Value.ToString();
+                kColor = _currentUnit.OwningKingdom.kingdomColor.Value;
+            }
+            // 2. Если ссылки нет, но ID валидный - ищем в реестре
+            else if (_currentUnit.ownerKingdomID.Value != -1)
+            {
+                var k = Kingdom.GetKingdomByID(_currentUnit.ownerKingdomID.Value);
+                if (k != null)
+                {
+                    _currentUnit.OwningKingdom = k; // Кэшируем для юнита
+                    kName = k.kingdomName.Value.ToString();
+                    kColor = k.kingdomColor.Value;
+                }
+                else
+                {
+                    kName = "Загрузка...";
+                }
             }
 
-            // Динамическое обновление (ХП, Голод, Экипировка - вдруг поменялась)
-            RefreshDynamicInfo();
+            kingdomText.text = kName;
+
+            // --- ИСПРАВЛЕНИЕ: Форсируем непрозрачность ---
+            kColor.a = 1f;
+            kingdomText.color = kColor;
+            // ---------------------------------------------
         }
 
         private void RefreshStaticInfo()
         {
-            // Имя
             nameText.text = _currentUnit.UnitName;
-
-            // Королевство
-            if (_currentUnit.OwningKingdom != null)
-            {
-                kingdomText.text = _currentUnit.OwningKingdom.kingdomName.Value.ToString();
-                kingdomText.color = _currentUnit.OwningKingdom.kingdomColor.Value;
-            }
-            else
-            {
-                kingdomText.text = "Нейтральный";
-                kingdomText.color = Color.gray;
-            }
-
-            // Портрет
+            UpdateKingdomDisplay(); // Вызываем сразу при открытии
             UpdatePortrait();
-
-            // Дом (кнопка)
             UpdateHomeInfo();
         }
 
         private void RefreshDynamicInfo()
         {
-            // ХП
             var health = _currentUnit.GetComponent<Health>();
             if (health)
             {
@@ -113,37 +123,42 @@ namespace WarOfCrowns.UI
                 hpText.text = $"{health.CurrentHealth} / {health.MaxHealth}";
             }
 
-            // Голод
             hungerSlider.value = _currentUnit.satiety;
             hungerText.text = $"{(int)_currentUnit.satiety}%";
 
-            // Инвентарь (Оружие/Инструмент)
             ResourceType tool = _currentUnit.Tool;
             ResourceType weapon = _currentUnit.Weapon;
             ResourceType itemToShow = (weapon != ResourceType.Wood) ? weapon : tool;
 
             UpdateItemSlot(itemIcon, itemNameText, itemToShow);
-
-            // Броня
             UpdateItemSlot(armorIcon, armorNameText, _currentUnit.Armor);
         }
 
         private void UpdateItemSlot(Image icon, TextMeshProUGUI text, ResourceType item)
         {
-            if (item == ResourceType.Wood) // Wood считаем как "Пусто" для слота
+            if (item == ResourceType.Wood)
             {
                 icon.enabled = false;
-                text.text = "Пусто";
+                if (text) text.text = "Пусто";
                 return;
             }
 
             icon.enabled = true;
-            if (WorldState.Instance && WorldState.Instance.AppearanceDB)
+            if (text) text.text = item.ToString();
+
+            if (MainUIController.Instance != null)
             {
-                var visual = WorldState.Instance.AppearanceDB.GetEquipmentSprites(item);
-                if (visual != null) icon.sprite = visual.idle;
+                Sprite beautifulIcon = MainUIController.Instance.GetIconForResourceType(item);
+                if (beautifulIcon != null)
+                {
+                    icon.sprite = beautifulIcon;
+                }
+                else
+                {
+                    var visual = WorldState.Instance.AppearanceDB.GetEquipmentSprites(item);
+                    if (visual != null) icon.sprite = visual.idle;
+                }
             }
-            text.text = item.ToString();
         }
 
         private void UpdatePortrait()
@@ -151,7 +166,6 @@ namespace WarOfCrowns.UI
             if (WorldState.Instance == null || WorldState.Instance.AppearanceDB == null) return;
             var db = WorldState.Instance.AppearanceDB;
 
-            // База
             Sprite body = db.GetBodyByIndex(_currentUnit.bodyIndex.Value)?.idle;
             Sprite head = db.GetHeadByIndex(_currentUnit.headIndex.Value, _currentUnit.UnitGender)?.idle;
             Sprite cloth = db.GetClothesByIndex(_currentUnit.clothesIndex.Value, _currentUnit.Profession)?.idle;
@@ -159,17 +173,16 @@ namespace WarOfCrowns.UI
             SetImage(portraitBody, body, Color.white);
             SetImage(portraitHead, head, Color.white);
 
-            // Одежда (цветная)
             Color clothColor = Color.white;
             if (_currentUnit.OwningKingdom != null)
             {
                 Color kColor = _currentUnit.OwningKingdom.kingdomColor.Value;
                 float tint = _currentUnit.visualTint.Value;
+                // Форсируем альфу
                 clothColor = new Color(kColor.r * tint, kColor.g * tint, kColor.b * tint, 1f);
             }
             SetImage(portraitClothes, cloth, clothColor);
 
-            // Экипировка
             Sprite armorSprite = null;
             if (_currentUnit.Armor != ResourceType.Wood) armorSprite = db.GetEquipmentSprites(_currentUnit.Armor)?.idle;
             SetImage(portraitArmor, armorSprite, Color.white);
@@ -179,13 +192,13 @@ namespace WarOfCrowns.UI
             if (handItem != ResourceType.Wood) weaponSprite = db.GetEquipmentSprites(handItem)?.idle;
             SetImage(portraitWeapon, weaponSprite, Color.white);
 
-            // Щетка
             if (portraitPlume)
             {
                 if (_currentUnit.Profession == ProfessionType.Soldier)
                 {
                     Sprite plume = db.GetPlumeByIndex(_currentUnit.plumeIndex.Value)?.idle;
                     Color kColor = _currentUnit.OwningKingdom ? _currentUnit.OwningKingdom.kingdomColor.Value : Color.white;
+                    kColor.a = 1f; // Форсируем
                     SetImage(portraitPlume, plume, kColor);
                 }
                 else
@@ -214,8 +227,6 @@ namespace WarOfCrowns.UI
         private void UpdateHomeInfo()
         {
             ulong houseID = _currentUnit.residenceNetID.Value;
-
-            // Очищаем старые листенеры
             homeButton.onClick.RemoveAllListeners();
 
             if (houseID == 0)
@@ -228,17 +239,14 @@ namespace WarOfCrowns.UI
                 homeStatusText.text = "Перейти к дому";
                 homeButton.interactable = true;
                 homeButton.onClick.AddListener(() => {
-                    // Ищем объект дома
                     if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(houseID, out var netObj))
                     {
-                        // Двигаем камеру к дому
                         if (Camera.main)
                         {
                             Vector3 pos = netObj.transform.position;
                             pos.z = -10;
                             Camera.main.transform.position = pos;
                         }
-                        // Можно закрыть окно или выделить дом
                     }
                 });
             }

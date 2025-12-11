@@ -86,7 +86,18 @@ namespace WarOfCrowns.Core
             if (NetworkManager.Singleton.IsServer)
             {
                 yield return new WaitForSeconds(0.5f);
-                if (ResourceSpawner.Instance != null) ResourceSpawner.Instance.SpawnAllResources(seed.ToString());
+                if (ResourceSpawner.Instance != null)
+                {
+                    ResourceSpawner.Instance.SpawnAllResources(seed.ToString());
+
+                    // --- НОВОЕ: ОЖИДАНИЕ ЗАВЕРШЕНИЯ СПАВНА ---
+                    while (!ResourceSpawner.Instance.IsSpawningComplete)
+                    {
+                        yield return null; // Ждем, пока спавнер не закончит
+                    }
+                    // ------------------------------------------
+                }
+
                 WorldState.Instance.MoveToSetup();
             }
         }
@@ -155,10 +166,37 @@ namespace WarOfCrowns.Core
 
         private void SpawnUnits(ulong clientId, int kingdomID, Vector3 townHallPos)
         {
+            float searchRadius = 35f; // Чуть увеличим радиус
+            Collider2D[] hits = Physics2D.OverlapCircleAll(townHallPos, searchRadius);
+
+            List<ResourceNode> priorityNodes = new List<ResourceNode>();
+
+            foreach (var hit in hits)
+            {
+                var node = hit.GetComponent<ResourceNode>();
+                if (node != null)
+                {
+                    string rName = node.resourceType.ToString();
+                    // Ищем дерево и еду
+                    if (rName.Contains("Wood") || rName.Contains("Berr") || rName.Contains("Food"))
+                    {
+                        priorityNodes.Add(node);
+                    }
+                }
+            }
+
+            // Сортируем от ближних к дальним
+            priorityNodes.Sort((a, b) => Vector3.Distance(townHallPos, a.transform.position)
+                .CompareTo(Vector3.Distance(townHallPos, b.transform.position)));
+
+            // --- НОВОЕ: Словарь для виртуального учета отправленных рабочих ---
+            // Key: Ресурс, Value: Сколько мы только что отправили
+            Dictionary<ResourceNode, int> pendingAssignments = new Dictionary<ResourceNode, int>();
+            // ----------------------------------------------------------------
+
             for (int i = 0; i < startingPeasants; i++)
             {
                 float angle = i * (360f / startingPeasants);
-                // Используем unitSpawnRadius
                 Vector3 offset = new Vector3(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad)) * unitSpawnRadius;
                 Vector3 spawnPos = townHallPos + offset;
 
@@ -173,8 +211,48 @@ namespace WarOfCrowns.Core
                     {
                         unit.ownerKingdomID.Value = kingdomID;
                         unit.ForceUpdateKingdomReferenceServer();
+
+                        if (NetworkManager.Singleton.IsServer)
+                        {
+                            ResourceNode targetNode = null;
+
+                            // Перебираем ресурсы и ищем свободный С УЧЕТОМ тех, кого мы только что отправили
+                            foreach (var node in priorityNodes)
+                            {
+                                if (node == null) continue;
+
+                                int alreadyThere = node.CurrentWorkers; // Реально занято
+                                int weJustSent = pendingAssignments.ContainsKey(node) ? pendingAssignments[node] : 0; // Мысленно занято
+
+                                if (alreadyThere + weJustSent < node.maxWorkers)
+                                {
+                                    targetNode = node;
+
+                                    // Записываем в виртуальный учет
+                                    if (!pendingAssignments.ContainsKey(node)) pendingAssignments[node] = 0;
+                                    pendingAssignments[node]++;
+
+                                    break; // Нашли!
+                                }
+                            }
+
+                            if (targetNode != null)
+                            {
+                                StartCoroutine(AutoAssignDelay(unit, targetNode));
+                            }
+                        }
                     }
                 }
+            }
+        }
+
+        // Небольшая задержка, чтобы юнит прогрузился перед получением приказа
+        private IEnumerator AutoAssignDelay(Unit unit, ResourceNode node)
+        {
+            yield return null; // Ждем 1 кадр
+            if (unit != null && node != null && unit.TryGetComponent<UnitAI>(out var ai))
+            {
+                ai.CommandGather(node);
             }
         }
     }

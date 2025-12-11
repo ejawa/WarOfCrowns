@@ -26,7 +26,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 960190840074118550}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.04, z: 0}
+  m_LocalPosition: {x: 0, y: 0.364, z: 0}
   m_LocalScale: {x: 10, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -110,9 +110,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1936210736019650098}
   - component: {fileID: 7431294761595837081}
+  - component: {fileID: -8913756008849945076}
   - component: {fileID: 1166902884640983984}
   - component: {fileID: 2494705784690801639}
-  - component: {fileID: -8913756008849945076}
   m_Layer: 10
   m_Name: BerryBush_Full
   m_TagString: Untagged
@@ -177,7 +177,7 @@ SpriteRenderer:
   m_SortingLayerID: 2113555077
   m_SortingLayer: 6
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  m_Sprite: {fileID: 7482667652216324306, guid: 5890b507be7f15b4a942f7764936eeaf, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 0
   m_FlipY: 0
@@ -188,56 +188,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
---- !u!114 &1166902884640983984
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8705101463118635514}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resourceType: 4
-  resourcePrefabName: BerryBush_Full
-  totalResourceAmount: 50
-  hitsToBreak: 10
-  depletionBehaviour: 1
-  depletedPrefab: {fileID: 6354405093508171279, guid: 52819c04362a2c14194c90b503402d15, type: 3}
-  depletedPrefabName: BerryBush_Full
-  respawnTime: 60
-  currentHitsLeft: 0
-  resourcesGivenOut: 0
-  accumulatedDrop: 0
-  uniqueID: 
---- !u!61 &2494705784690801639
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8705101463118635514}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0.12711215, y: -0.9678726}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 2.5490146, y: 1.6008577}
-  m_EdgeRadius: 0
 --- !u!114 &-8913756008849945076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,3 +209,54 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &1166902884640983984
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8705101463118635514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceType: 4
+  resourcePrefabName: BerryBush_Full
+  totalResourceAmount: 50
+  hitsToBreak: 10
+  maxWorkers: 2
+  depletionBehaviour: 1
+  depletedPrefab: {fileID: 8705101463118635514, guid: a8bb9e156c7fc1940a1011ab3f1d4bf9, type: 3}
+  depletedPrefabName: BerryBush_Full
+  respawnTime: 5
+  currentHitsLeft: 0
+  resourcesGivenOut: 0
+  accumulatedDrop: 0
+  uniqueID: 
+--- !u!61 &2494705784690801639
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8705101463118635514}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.04840815, y: 0.6616995}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 1.7990639, y: 1.4418751}
+  m_EdgeRadius: 0

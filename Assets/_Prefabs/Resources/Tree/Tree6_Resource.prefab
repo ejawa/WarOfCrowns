@@ -111,8 +111,8 @@ GameObject:
   - component: {fileID: 609023863836816756}
   - component: {fileID: 5506776759276586316}
   - component: {fileID: 4576791272233909408}
-  - component: {fileID: 2039488875803841131}
   - component: {fileID: -3033446283964930169}
+  - component: {fileID: 2039488875803841131}
   m_Layer: 10
   m_Name: Tree6_Resource
   m_TagString: Untagged
@@ -133,6 +133,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1037042553785847196}
+  - {fileID: 1582794110677744485}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -177,7 +178,7 @@ SpriteRenderer:
   m_SortingLayerID: 2113555077
   m_SortingLayer: 6
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 5f40d5f9cbc32b44f9433e3b9bb2929d, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 0.4792453, g: 0.17101836, b: 0, a: 0}
   m_FlipX: 0
   m_FlipY: 0
@@ -185,7 +186,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!61 &4576791272233909408
@@ -214,30 +215,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.8568037, y: 2.3609273}
   m_EdgeRadius: 0
---- !u!114 &2039488875803841131
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2915348920751572646}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resourceType: 0
-  resourcePrefabName: Tree6_Resource
-  totalResourceAmount: 50
-  hitsToBreak: 10
-  depletionBehaviour: 0
-  depletedPrefab: {fileID: 0}
-  depletedPrefabName: 
-  respawnTime: 60
-  currentHitsLeft: 0
-  resourcesGivenOut: 0
-  accumulatedDrop: 0
-  uniqueID: 
 --- !u!114 &-3033446283964930169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,3 +236,111 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &2039488875803841131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2915348920751572646}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627d36f81c247254ebf3449be4944352, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceType: 0
+  resourcePrefabName: Tree6_Resource
+  totalResourceAmount: 50
+  hitsToBreak: 10
+  maxWorkers: 2
+  depletionBehaviour: 0
+  depletedPrefab: {fileID: 0}
+  depletedPrefabName: 
+  respawnTime: 60
+  currentHitsLeft: 0
+  resourcesGivenOut: 0
+  accumulatedDrop: 0
+  uniqueID: 
+--- !u!1 &5734970760399229023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1582794110677744485}
+  - component: {fileID: 2262759359049789582}
+  - component: {fileID: 8828777529547137873}
+  m_Layer: 14
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1582794110677744485
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5734970760399229023}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 609023863836816756}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!60 &2262759359049789582
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5734970760399229023}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 2.1735182, y: 3.0323262}
+      - {x: 1.6782721, y: 6.0862384}
+      - {x: -0.08818829, y: 7.4765177}
+      - {x: -1.6964623, y: 6.538114}
+      - {x: -2.0814805, y: 3.9743786}
+      - {x: -1.4037035, y: 1.982919}
+      - {x: -0.2713356, y: 1.4736918}
+      - {x: 0.23840141, y: 1.450468}
+      - {x: 1.6415191, y: 2.4137483}
+--- !u!114 &8828777529547137873
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5734970760399229023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35a668eb186836a4dae42f68fe6c925a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadedAlpha: 0.4
+  fadeSpeed: 5
+  renderersToFade:
+  - {fileID: 8410463034716320503}

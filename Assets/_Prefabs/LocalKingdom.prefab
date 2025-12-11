@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 577844708
+  GlobalObjectIdHash: 1116181841
   InScenePlacedSourceGlobalObjectIdHash: 0
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
@@ -137,4 +137,16 @@ MonoBehaviour:
         byte0059: 0
         byte0060: 0
         byte0061: 0
+  kingdomColor:
+    m_InternalValue: {r: 1, g: 1, b: 1, a: 1}
+  legitimacy:
+    m_InternalValue: 100
+  decayInterval: 5
+  decayAmountBase: 1
+  decayAmountCrisis: 2
+  kingdomColorPalette:
+  - {r: 0, g: 0.12436104, b: 1, a: 0}
+  - {r: 1, g: 0, b: 0, a: 0}
+  - {r: 1, g: 0.8600806, b: 0, a: 0}
+  - {r: 0.11982632, g: 1, b: 0, a: 0}
   foodPriorityList: 040000000700000009000000

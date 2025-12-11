@@ -252,6 +252,11 @@ namespace WarOfCrowns.Core
             obj.GetComponent<NetworkObject>().Spawn();
             int ownerId = (int)rpc.Receive.SenderClientId;
             obj.GetComponent<Building>().SetOwnerID(ownerId);
+            var site = obj.GetComponent<ConstructionSite>();
+            if (site != null && WorkDispatcher.Instance != null)
+            {
+                WorkDispatcher.Instance.AssignWorkersToSite(site, ownerId);
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]

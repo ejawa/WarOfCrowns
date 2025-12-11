@@ -29,17 +29,30 @@ namespace WarOfCrowns.World
 
         private void Respawn()
         {
+            // ВАЖНО: Префаб должен лежать в папке с названием "Resources" (Assets/Resources/...)
             GameObject prefabToRespawn = Resources.Load<GameObject>(_fullPrefabName);
 
             if (prefabToRespawn != null)
             {
-                Instantiate(prefabToRespawn, transform.position, transform.rotation);
+                // 1. Создаем объект
+                GameObject newObj = Instantiate(prefabToRespawn, transform.position, transform.rotation);
+
+                // 2. ОБЯЗАТЕЛЬНО спавним его в сеть!
+                var netObj = newObj.GetComponent<Unity.Netcode.NetworkObject>();
+                if (netObj != null)
+                {
+                    netObj.Spawn();
+                }
+
+                // Восстанавливаем ID для сохранения (если нужно), но для новых объектов лучше генерить новый
+                // Если у ResourceNode есть уникальный ID для сейвов, он сгенерируется в Awake() нового объекта.
             }
             else
             {
-                Debug.LogError($"RespawnController: Не могу найти префаб '{_fullPrefabName}' в Resources!");
+                Debug.LogError($"RespawnController: Не могу найти префаб '{_fullPrefabName}' в папке Resources!");
             }
 
+            // Удаляем "пустой" объект (контроллер респавна)
             Destroy(gameObject);
         }
 
